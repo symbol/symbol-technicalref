@@ -1,0 +1,41 @@
+% colors
+\definecolor{royalblue}{cmyk}{1,0.50,0,0}
+\definecolor{nemorange}{HTML}{DFA82F}
+\definecolor{nemgreen}{HTML}{41CE7B}
+\definecolor{nemgray}{HTML}{8E8E8E}
+
+% page formatting and footer
+\pagestyle{fancy}
+\fancyhf{}
+\cfoot{Page \thepage \hspace{1pt} of \pageref{LastPage}}
+
+% title formatting
+\titleformat{\section}
+{\color{nemorange}\normalfont\Large\bfseries}
+{\color{nemgray}\thesection}{1em}{}
+
+% paragraph formatting
+\setlength{\parskip}{2.5mm}
+\setlength{\parindent}{4mm}
+
+% hyperlink formatting
+\hypersetup{
+	colorlinks,
+	linkcolor={cyan!60!black},
+	citecolor={blue!50!black},
+	urlcolor={blue!80!black}
+}
+
+% blue node
+\tikzset{fontscale/.style = {font=\small}}
+\tikzstyle{cblue}=[circle, draw, thin, fill=cyan!10, scale=0.2, align=center, fontscale=4]
+
+% transparent node
+\tikzstyle{ctra}=[rectangle, thin]
+\tikzstyle{crou}=[rectangle, draw, rounded corners, thin]
+\tikzstyle{crecb}=[rectangle, draw, thin, text height=12pt,text depth=5pt,solid,rounded corners=0]
+\tikzstyle{legend_phytop}=[rectangle, draw, rounded corners, thin,
+	minimum width=2.5cm, minimum height=0.8cm,
+	royalblue
+]
+\tikzstyle{legend_normal}=[rectangle]

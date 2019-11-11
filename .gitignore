@@ -1,0 +1,19 @@
+.idea
+target/
+*~
+*.bak
+*.gz
+*.eml
+*.pyc
+*.db
+*.aux
+*.log
+*.dvi
+*.ind
+*.dem
+.DS_Store
+*.tgz
+/bin/
+
+# latex ignores
+_build
