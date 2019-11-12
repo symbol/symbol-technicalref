@@ -1,6 +1,7 @@
 sudo: required
 
-before_install:
-- ./scripts/tlsetup.sh
+before_install: ./scripts/tlsetup.sh
 
-script: make latex COMPILER=xelatex
+script:
+ - cd whitepaper
+ - make latex COMPILER=xelatex

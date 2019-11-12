@@ -1,9 +1,9 @@
 # default variables which can be edited via the terminal
-BUILDDIR = _build
+BUILDDIR = ../_build
 COMPILER = pdflatex
 BIBER = biber
 
-PROJECTDIR = whitepaper
+PROJECTDIR = .
 PROJECT = main
 BIBLIOGRAPHY = bibliography
 
@@ -11,9 +11,8 @@ latex:
 	@echo "Building $(PROJECT) in $(BUILDDIR) directory using $(COMPILER)..."
 	@echo "Creating $(BUILDDIR) directory..."
 	@mkdir $(BUILDDIR)
-	@mkdir $(BUILDDIR)/whitepaper
-	@mkdir $(BUILDDIR)/whitepaper/chapters
-	@mkdir $(BUILDDIR)/whitepaper/header
+	@mkdir $(BUILDDIR)/chapters
+	@mkdir $(BUILDDIR)/header
 
 	# latex bibtex latex latex
 	@$(COMPILER) -interaction=nonstopmode -halt-on-error -output-directory=$(BUILDDIR) $(PROJECTDIR)/$(PROJECT).tex

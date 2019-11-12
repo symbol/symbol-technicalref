@@ -1,9 +1,9 @@
 \documentclass[a4paper, 12pt, titlepage]{article}
 
-\input{whitepaper/header/deps}
-\input{whitepaper/header/style}
-\input{whitepaper/header/title}
-\input{whitepaper/header/commands}
+\input{header/deps}
+\input{header/style}
+\input{header/title}
+\input{header/commands}
 
 \makeindex
 
@@ -29,22 +29,22 @@
 
 	{
 		\pagestyle{empty}
-		\include{whitepaper/preface}
+		\include{preface}
 	}
 
 	\pagestyle{fancy}
 	\pagenumbering{arabic}
 	\setcounter{page}{1}
 
-	\include{whitepaper/chapters/introduction}
-	\include{whitepaper/chapters/accounts}
-	\include{whitepaper/chapters/cryptography}
-	\include{whitepaper/chapters/transactions}
-	\include{whitepaper/chapters/blockchain}
-	\include{whitepaper/chapters/reputation}
-	\include{whitepaper/chapters/consensus}
-	\include{whitepaper/chapters/timesync}
-	\include{whitepaper/chapters/network}
+	\include{chapters/introduction}
+	\include{chapters/accounts}
+	\include{chapters/cryptography}
+	\include{chapters/transactions}
+	\include{chapters/blockchain}
+	\include{chapters/reputation}
+	\include{chapters/consensus}
+	\include{chapters/timesync}
+	\include{chapters/network}
 
 	\printbibliography
 \end{document}
