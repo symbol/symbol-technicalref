@@ -16,7 +16,3 @@ sudo apt-get install -y --no-install-recommends texlive-fonts-recommended \
 # 2. biber for .bib compilation
 sudo apt-get install -y xzdec
 sudo apt-get install -y biber
-
-# configure tlmgr for installing additional packates
-sudo tlmgr init-usertree
-sudo tlmgr option repository ftp://tug.org/historic/systems/texlive/2015/tlnet-final
