@@ -2,7 +2,47 @@
 \label{sec:introduction}
 
 \nemquote{
-He'd say hello and introduce himself, but most of the cats turned a deaf ear, pretending they couldn't hear him, or stare right through him.
-}{Haruki Murakami}
+From the ashes, a fire shall be woken, A light from the shadows shall spring...
+}{J.R.R. Tolkien}
 
-\nemchapterfirstletter{N}{EM}, in its most basic form, is a crypto currency that is built on block chain technology.
+\nemchapterfirstletter{T}{rustless}, high-performance, layered-architecture, blockchain-based DLT protocol - these are the first principles that influenced the development of \codename.
+While other DLT protocols were considered, including DAG and dBFT, blockchain was quickly chosen as the protocol most true to the ideal of trustlessness.
+Any node can download a complete copy of the chain and can independently verify it at all times.
+Nodes with sufficient harvesting power can always create blocks and never need to rely on a leader.
+These choices necessarily sacrifice some throughput relative to other protocols, but they seem most consistent with the philosophical underpinnings of Bitcoin.
+
+As part of a focus on trustlessness, the following features were added relative to NEM:
+- Block headers can be synced without transaction data, while allowing verification of chain integrity
+- Transaction merkle trees allow cryptographic proofs of transaction containment (or not) within blocks
+- Receipts increase the transparency of indirectly triggered state changes
+- State proofs allow trustless verification of specific state within the blockchain
+
+In \codename, there is a single server executable that can be customized by loading different plugins (for transaction support) and extensions (for functionality).
+There are three primary configurations (per network), but further customized hybrid configurations are possible by enabling or disabling specific extensions.
+
+The three primary configurations are:
+\begin{enumerate}
+\item peer: These nodes are the backbone of the network and create new blocks.
+\item api: These nodes store data in a mongo database for easier querying and can be used in combination with a NodeJS REST server.
+\item dual: These nodes perform the functions of both peer and api nodes.
+\end{enumerate}
+
+A strong network will typically have a large number of peer nodes and enough api nodes to support incoming client requests.
+Allowing the composition of nodes to vary dynamically based on real needs, should lead to a more globally resource-optimized network.
+
+Basing the core block and transaction pipelines on the disruptor pattern - and using parallel processing wherever possible - allows high rates of transactions per second relative to a typical blockchain protocol.
+
+NIS1 was a worthy entry into the blockchain landscape and \codenamespace is an even worthier evolution of it.
+This is not the end but a new beginning.
+There is more work to be done.
+
+\subsection{Variants}
+
+\codenamespace supports compile time substitution of its primary hash algorithm that produces a 32-byte value from input data.
+For conciseness, the rest of this document will refer to this hash assuming its default setting (SHA3).
+Currently, the following hash algorithms are supported:
+
+\begin{enumerate}
+\item SHA3 (default): This is the default mode and recommended for new chains.
+\item Keccak: This mode is provided for compatibility with legacy chains, like NIS1, in order to preserve private-key:public-key:address mapping.
+\end{enumerate}

@@ -17,3 +17,5 @@ target/
 
 # latex ignores
 _build
+*.sublime-project
+*.sublime-workspace
