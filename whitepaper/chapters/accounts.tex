@@ -1,4 +1,59 @@
 \section{Accounts and Addresses}
 \label{sec:accounts}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Catapult uses elliptic curve cryptography to ensure confidentiality, authenticity and non-repudiability of all transactions.
+Each account is a private+public Ed25519 keypair (\nemref{sec:cryptography}) and is associated with a mutable state that is updated when transactions are accepted by the network.
+Accounts are identified by addresses, which are derived in part from one way mutations of public keys.
+
+\subsection{Addresses}
+
+An \nind{address} is a base32\footnote{ \url{http://en.wikipedia.org/wiki/Base32} } encoded triplet consisting of:
+\begin{itemize}
+	\item{network byte}
+	\item{160-bit hash of the account's public key}
+	\item{4 byte checksum}
+\end{itemize}
+
+The checksum allows for quick recognition of mistyped addresses.
+It is possible to send mosaics to any valid address even if the address has not previously participated in any transaction.
+If nobody owns the private key of the account to which the mosaics are sent, the mosaics are most likely lost forever.
+
+\subsection{Address Derivation}
+In order to convert a public key to an address, the following steps are performed:
+\begin{enumerate}
+	\item{Perform 256-bit Sha3 on the public key}
+	\item{Perform 160-bit Ripemd of hash resulting from step 1.}
+	\item{Prepend network version byte to Ripemd hash}
+	\item{Perform 256-bit Sha3 on the result, take the first four bytes as a checksum}
+	\item{Concatenate output of step 3 and the checksum from step 4}
+	\item{Encode result using base32}
+\end{enumerate}
+
+\begin{figure}
+	\begin{center}
+		\input{chapters/accounts_img1}
+		\caption{Address generation}
+	\end{center}
+\end{figure}
+
+\pagebreak
+
+\subsection{Address Aliases}
+\index{alias address}
+An address can have one or more aliases created using an address alias transaction\footnote{
+See \url{https://nemtech.github.io/concepts/namespace.html\#address-alias-transaction}}.
+All transactions using an address support using either a public key derived address or an address alias.
+In case of such transactions, the format of address field is:
+\begin{itemize}
+	\item{network byte ORed with value 1}
+	\item{8 byte namespace id that is an alias}
+	\item{16 zero bytes}
+\end{itemize}
+
+\subsection{Intentional Address Collision}
+It is possible that two different public keys will yield the same address.
+If such an address contains any valuable assets \textbf{AND} has not been associated with public key earlier (for example by sending a transaction from the account), it would be possible for an attacker to withdraw funds from such an account.
+
+In order for the attack to succeed, the attacker would need to find a private+public keypair such that the sha3\_256 of the public key would \textbf{at the same time} be equal to the ripemd-160 preimage of the 160-bit hash mentioned above.
+Since sha3\_256 offers 128 bits of security, it's mathematically improbable for a single sha3\_256 collision to be found.
+Due to similarities between NEM addresses and Bitcoin addresses, the probability of causing a NEM address collision is roughly the same as that of causing a Bitcoin address collision.

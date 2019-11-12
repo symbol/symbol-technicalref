@@ -1,0 +1,87 @@
+\begin{tikzpicture}[node distance=-\pgflinewidth]
+
+	% First row, public key
+	\node[draw,anchor=north west] (pubkeyLabel) at (0,0) {Public Key: };
+
+	\node[crou,anchor=north west,minimum width=3cm] (pkx) at (3, 0) {X};
+	\node[crou,minimum width=3cm, right=1cm of pkx] (pky) {Y};
+
+	\node[fit=(pkx)(pky),crou] (xy) {};
+
+	% join lines
+	\node[crecb,below left=2cm and -10cm of pkx,text width=12cm] (bpk32) {32 bytes};
+
+	% second row
+	\draw[decorate,decoration={brace,raise=2pt}] (bpk32.north west) --
+		node[above=4pt] (bpkLabel) {compressed-public-key}
+		(bpk32.north east);
+
+	\draw[dotted] (xy.west) -- (bpk32.north west);
+	\draw[dotted] (xy.east) -- (bpk32.north east);
+
+	% invisible
+	\node[fit=(bpk32)(bpkLabel)] (bpk) {};
+
+
+	% third row - ripeMD
+
+	% it's easier to do it this way, as problems with paths show up when using nested tikzpicture
+	\node[below left=1.5cm and -2cm of bpk,anchor=center] (ripeInner) { $ripemd160(sha3\_256($ };
+	\node[right=of ripeInner, draw, dotted,rounded corners=0] (bpkInnerLabel) {compressed-public-key};
+	\node[right=of bpkInnerLabel] (ripeInner2) { $)) $ };
+
+	\node[fit=(ripeInner)(bpkInnerLabel)(ripeInner2), draw, dotted, rounded corners] (ripe) {};
+
+	\draw[dotted] (bpk32.south west) -- (bpkInnerLabel.north west);
+	\draw[dotted] (bpk32.south east) -- (bpkInnerLabel.north east);
+
+
+	% Fourth row - network byte + ripemd output
+	\node[crecb,below left=1cm and -1cm of ripe] (brmd1) {1};
+	\node[crecb,right=of brmd1,text width=7.5cm] (brmd20) {20 bytes};
+
+	\draw[dotted] (ripe.south west) -- (brmd20.north west);
+	\draw[dotted] (ripe.south east) -- (brmd20.north east);
+
+	% Fifth row - SHA3(version + ripe)
+	\node[below right=2.5cm and -6cm of brmd20,anchor=center] (checkInner) { $sha3\_256($ };
+	\node[crecb,right=of checkInner] (bInnerRmd1) {1};
+	\node[crecb,right=of bInnerRmd1,text width=7.5cm] (bInnerRmd20) {20 bytes};
+	\node[right=of bInnerRmd20] (checkInner2) { $)) $ };
+
+	\draw[dotted] (bInnerRmd1.north west) -- (brmd1.south west);
+	\draw[dotted] (bInnerRmd20.north east) -- (brmd20.south east);
+
+	\node[fit=(checkInner)(bInnerRmd1)(bInnerRmd20)(checkInner2), draw, dotted, rounded corners] (check) {};
+
+	\draw[decorate,decoration={brace,mirror,raise=2pt},very thick] (check.south west) -- node[below=4pt] (check32) {32 bytes} (check.south east);
+
+
+	% Sixth row - sha3 output
+	\node[below=1.5cm of bInnerRmd20,text width=5.5cm] (check28) {\ldots 28 bytes};
+	\node[crecb,left=of check28,text width=1.5cm] (check4) {4 bytes};
+	\node[fit=(check4)(check28)] (checkGroup) {};
+	\draw[decorate,decoration={brace,raise=2pt}] (checkGroup.north west) -- (checkGroup.north east);
+
+	% Seventh row - binary address
+	\node[crecb,below=2cm of check28,text width=1.5cm] (bAddr4) {4 bytes};
+	\node[crecb,left=of bAddr4,text width=7.5cm] (bAddr20) {20 bytes};
+	\node[crecb,left=of bAddr20] (bAddr1) {1};
+	\node[fit=(bAddr1)(bAddr20)(bAddr4)] (binaryAddress) {};
+
+	\draw[decorate,decoration={brace,raise=2pt},very thick] (bAddr1.north west) -- node[above=4pt] {binary address - 25 bytes} (bAddr4.north east);
+	\draw[decorate,decoration={brace,mirror,raise=2pt},very thick] (bAddr1.south west) -- node[below=4pt] (binAddr) {} (bAddr4.south east);
+
+
+	% final association
+	\draw[dotted] (bAddr4.north west) -- (check4.south west);
+	\draw[dotted] (bAddr4.north east) -- (check4.south east);
+
+	\draw[dashed,thin] (bAddr1.north west) -- (brmd1.south west);
+	\draw[dashed,thin] (bAddr20.north east) -- (brmd20.south east);
+
+	\node[draw,below=2cm of binaryAddress,rounded corners,solid,inner sep=0.2cm] (nanemo) {
+		MBEJBT-ECHBU7-3YM74A-YGDX6D-MANNITM-XDU3J-IMO2};
+	\draw[solid,thin,->] (binaryAddress.south) -- node[right=1pt] {Base-32 encoding} (nanemo.north);
+
+\end{tikzpicture}
