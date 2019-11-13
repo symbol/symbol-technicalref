@@ -10,9 +10,8 @@ BIBLIOGRAPHY = bibliography
 latex:
 	@echo "Building $(PROJECT) in $(BUILDDIR) directory using $(COMPILER)..."
 	@echo "Creating $(BUILDDIR) directory..."
-	@mkdir $(BUILDDIR)
-	@mkdir $(BUILDDIR)/chapters
-	@mkdir $(BUILDDIR)/header
+	@mkdir -p $(BUILDDIR)/chapters
+	@mkdir -p $(BUILDDIR)/header
 
 	# latex bibtex latex latex
 	@$(COMPILER) -interaction=nonstopmode -halt-on-error -output-directory=$(BUILDDIR) $(PROJECTDIR)/$(PROJECT).tex

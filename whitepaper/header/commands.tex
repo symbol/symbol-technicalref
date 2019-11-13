@@ -1,16 +1,20 @@
-% % nem index
-% \newcommand{\nind}[1]{
-% 	\emph{#1}\index{#1}
-% }
+% constants
+\newcommand*{\codename}{Catapult}
+\newcommand*{\codenamespace}{Catapult }
+
+% nem index
+\newcommand{\nind}[1]{
+	\emph{#1}\index{#1}
+}
 
 % % transaction index - less typing
 % \newcommand{\tind}[1]{
 % 	\emph{#1 transaction}\index{transaction!\lowercase{#1}}
 % }
 
-% \newcommand{\nemref}[1]{
-% 	\autoref{#1}:~\nameref{#1}
-% }
+\newcommand{\nemref}[1]{
+	\autoref{#1}:~\nameref{#1}
+}
 
 \newcommand{\nemchapterfirstletter}[1]{
 	\lettrine[lraise=0,lines=4,nindent=0.5em,slope=0.0em]{\initfamily\color{nemgreen}\fontsize{72pt}{74pt}\selectfont #1}
