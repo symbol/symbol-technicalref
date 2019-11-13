@@ -1,4 +1,134 @@
 \section{Time Synchronization}
 \label{sec:timesync}
 
-Consectetur adipiscing elit ut aliquam purus. Tristique senectus et netus et malesuada fames ac turpis egestas. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Elementum nibh tellus molestie nunc non blandit massa enim. Vulputate dignissim suspendisse in est.
+
+\nemquote{
+You spend too much time on ephemeras. The majority of modern books are merely wavering reflections of the present. They disappear very quickly. You should read more old books. The classics. Goethe.
+}{Franz Kafka}
+
+\nemchapterfirstletter{L}{ike} most other blockchains, \codenamespace relies on timestamps for transactions and blocks.
+Ideally, all nodes in the network should be synchronized with respect to time.
+Even though most modern operating systems have time synchronization integrated,
+nodes can still have local clocks that deviate from real time by more than a minute.
+This causes those nodes to reject valid transactions or blocks, which makes it impossible for them to synchronize with the network.
+
+It is therefore needed to have a synchronization mechanism to ensure all nodes agree on time.
+There are basically two ways to do this:
+\begin{enumerate}
+\item Use an existing protocol, such as NTP
+\item Use a custom protocol
+\end{enumerate}
+
+The advantage of using an existing protocol like NTP is that it is easy to implement and the network time will always be near real time.
+This has the disadvantage that the network relies on servers outside the network.
+
+Using a custom protocol that only relies on the P2P network itself solves this problem, but there is a trade off.
+It is impossible to guarantee that the network time is always near real time.
+For an overview of different custom protocols see \cite{Scipioni2009}.
+\codenamespace uses a custom protocol based on Chapter 3 of this thesis in order to be completely independent from any outside entity.
+The protocol is implemented in the timesync extension.
+
+\subsection{Gathering samples}
+\index{time offset}
+
+Each node in the network manages an integer \emph{offset} that is set to 0 at start.
+The local system time in milliseconds adjusted by the offset (which can be negative) is the \nind{network time} (again in milliseconds) of the node.
+
+After the start up of a node is completed, the node (hereafter called \emph{local node}) selects partner nodes for performing a time synchronization round.
+
+For all selected partners, the local node sends out a request asking the partner for its current network time.
+The local node remembers the network timestamps when each request was sent and when each response was received.
+Each partner node responds with a sample that contains the timestamp of the arrival of the request and the timestamp of the response.
+The partner node uses its own network time to create the timestamps.
+\autoref{fig:timesync} illustrates the communication between the nodes.
+
+\input{images/timesync_img1}
+
+Using the timestamps, the local node can calculate the round trip time
+$$\textit{rtt}=(t_4-t_1)-(t_3-t_2)$$
+and then estimate the offset o between the network time used by the two nodes as
+$$o = t_2-t_1-\frac{rtt}{2}$$
+
+This is repeated for every time synchronization partner until the local node has a list of offset estimations.
+
+\subsection{Applying filters to remove bad data}
+
+There could be bad samples due to various reasons:
+\begin{itemize}
+\item A malicious node supplies incorrect timestamps.
+\item An honest node has a clock far from real time without knowing it and without having synchronized yet.
+\item The round trip time is be highly asymmetric due to internet problems or one of the nodes being very busy.
+This is known as channel asymmetry and cannot be avoided.
+\end{itemize}
+
+Filters are applied that try to remove the bad samples. The filtering is done in three steps:
+\begin{enumerate}
+\item If the response from a partner is not received within an expected time frame (i.e. if $t_4-t_1 > 1000ms$) the sample is discarded.
+\item If the calculated offset is not within certain bounds, the sample is discarded.
+The allowable bounds decrease as a node's uptime increases.
+When a node first joins the network, it tolerates a high offset in order to adjust to the already existing consensus of network time within the network.
+As time passes, the node gets less tolerant with respect to reported offsets.
+This ensures that malicious nodes reporting huge offsets are ignored after some time.
+\item The remaining samples are ordered by their offset and then alpha trimmed on both ends.
+In other words, on both sides a certain portion of the samples is discarded.
+\end{enumerate}
+
+\subsection{Calculation of the effective offset}
+
+The reported offset is weighted with the importance of the boot account of the node reporting the offset.
+Only nodes that expose a minimum importance are considered as partners in order to avoid solely picking nodes with nearly zero importance.
+This is done to prevent Sybil attacks.
+
+An attacker that tries to influence the calculated offset by running many nodes with low importances reporting offsets close to the tolerated bound will therefore not have a bigger influence than a single node having the same cumulative importance reporting the same offset.
+The influence of the attacker will be equal to the influence of the single node on a macro level.
+
+Also, the numbers of samples that are available and the cumulative importance of all partner nodes should be incorporated.
+Each offset is therefore multiplied with a scaling factor.
+
+Let $I_j$ be the importance of the node reporting the $j$-th offset $o_j$,
+$\textit{n}$ be the number of nodes that were eligible for the last PoI calculation and $\textit{s}$ be the number of samples.
+
+Then the scaling factor used is
+$$ \textit{scale} = \min\left(\frac{1}{\sum_j I_j}, \frac{1}{\frac{\textit{s}}{\textit{n}}}\right)$$
+
+This gives the formula for the effective offset $o$
+$$ o = scale \sum_j I_j \: o_j$$
+
+Note that the influence of an account with large importance is artificially limited because the term $\frac{\textit{n}}{\textit{s}} $ caps the scale.
+Such an account can raise its influence on a macro level by splitting its balance into accounts that are not capped.
+But, doing so will likely decrease its influence on individual partners because the probability that all of its split accounts are chosen as time-sync partners for any single node is low.
+
+\subsection{Coupling and threshold}
+
+New nodes that just joined the network need to quickly adjust their offset to the already established network time. In contrast, old nodes should behave a lot more rigid in order to not get influenced by malicious nodes or newcomers too much.
+
+In order to enable this, nodes only adjust a portion of the reported effective offset.
+Nodes multiply the effective offset with a coupling factor to build the final offset.
+
+Each node keeps track of the number of time synchronization rounds it has performed.
+This is called the node age.
+
+The formula for this coupling factor $c$ is:
+$$c = \max\left(e^{-0.3a},\: 0.1\right) \; \text{where} \; a = \max(nodeAge - 5,\: 0)$$
+
+This ensures that the coupling factor will be 1 for 5 rounds and then decay exponentially to 0.1.
+
+\begin{figure}
+	\begin{center}
+		\begin{tikzpicture}[trim axis left]
+			\begin{axis}[
+					scale only axis,
+					xlabel = round,
+					ylabel = coupling,
+					height = 5cm,
+					width=\textwidth / 2
+				]
+				\addplot[color=blue,domain=0.1:20,]{max(exp(-0.3*max(x-5, 0)), 0.1))};
+			\end{axis}
+		\end{tikzpicture}
+	\end{center}
+	\caption{Coupling factor}
+\end{figure}
+
+Finally, a node only adds any calculated final offset to its internal offset if the absolute value is above a given threshold (currently set to 75ms).
+This is effective in preventing slow drifts of the network time due to the communication between nodes having channel asymmetry.

@@ -1,0 +1,45 @@
+\begin{figure}
+\centering
+\begin{tikzpicture}[auto, thick, trans/.style={very thick,->}, time/.style={thin,->}]
+
+%dummy nodes
+\node[ctra] (l0) at (-1.5, -3) {};
+\node[ctra] (l1) at (7, -3) {};
+\node[ctra] (p0) at (-1.5, 0) {};
+\node[ctra] (p1) at (7, 0) {};
+
+\node[cblue,minimum size=1.5cm] (t1) at (0,-3) {};
+\node[cblue,minimum size=1.5cm] (t2) at (2,0) {};
+\node[cblue,minimum size=1.5cm] (t3) at (4,0) {};
+\node[cblue,minimum size=1.5cm] (t4) at (5,-3) {};
+ 
+ % Physical layer links
+  \path[thin] (p0) edge (t2);
+  \path[thin] (t2) edge (t3);
+  \path[time] (t3) edge (p1);
+
+  \path[thin] (l0) edge (t1);
+  \path[thin] (t1) edge (t4);
+  \path[time] (t4) edge (l1);
+
+  \path[trans] (t1) edge (t2);
+  \path[trans] (t3) edge (t4);
+ 
+ % Legends
+  \node[legend_normal] at (0, -3.4) {$t_1$};
+  \node[legend_normal] at (2, 0.4) {$t_2$};
+  \node[legend_normal] at (4, 0.4) {$t_3$};
+  \node[legend_normal] at (5, -3.4) {$t_4$};
+
+  \node[legend_normal] at (0, -1.5){request};
+  \node[legend_normal] at (-3, -3){\textsc{local node}};
+  \node[legend_normal] at (-3, 0){\textsc{partner node}};
+
+  \node[legend_normal] at (5.6, -1.5){response};
+  \node[legend_normal] at (9, -3){\textsc{network time}};
+  \node[legend_normal] at (9, 0){\textsc{network time}};
+\end{tikzpicture}
+
+\caption{Communication between local and partner node.}
+\label{fig:timesync}
+\end{figure}
