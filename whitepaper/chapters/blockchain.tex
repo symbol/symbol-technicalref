@@ -1,4 +1,183 @@
-\section{BlockChain and Blocks}
+\section{Blockchain}
 \label{sec:blockchain}
 
-Ipsum suspendisse ultrices gravida dictum fusce. In tellus integer feugiat scelerisque varius morbi enim nunc faucibus. Aliquet lectus proin nibh nisl condimentum id venenatis. Aliquam malesuada bibendum arcu vitae elementum. Mauris pharetra et ultrices neque. Urna condimentum mattis pellentesque id nibh tortor id aliquet. Turpis massa tincidunt dui ut ornare lectus. Habitant morbi tristique senectus et netus et malesuada. Tortor at auctor urna nunc id cursus metus aliquam. A cras semper auctor neque vitae tempus.
+\nemquote{
+}{}
+
+\codenamespace is centered around a public ledger called the blockchain that links blocks together.
+The complete transaction history is held in the blockchain.
+All blocks, and transactions within blocks, are deterministically and cryptographically ordered.
+The maximum number of transactions per block can be configured per-network.
+
+\subsection{Block Difficulty}
+\index{block!difficulty}
+\label{sec:blockDifficulty}
+
+The nemesis block has a predefined \nind{initial difficulty} of $10^{14}$.
+All difficulties are clamped between a minimum of $10^{13}$ and a maximum of $10^{15}$.
+
+The difficulty for a new block is derived from the difficulties and timestamps of the most recently confirmed blocks.
+The number of blocks taken into consideration is configurable per-network.
+
+If less than \textit{max difficulty blocks} are available, only those available are taken into account.
+Otherwise, the difficulty is calculated from the last $n$ blocks in the following way:
+\begin{align*}
+\tag{average difficulty} d &= \frac{1}{n}\sum_{i=1}^n (\text{difficulty of $block_i$}) \\
+\tag{average creation time} t &= \frac{1}{n}\sum_{i=1}^n (\text{time to create $block_i$}) \\
+\tag{new difficulty} \mathit{difficulty} &= d \; \frac{\text{target block time}}{t}
+\end{align*}
+
+This algorithm produces blocks with an average time close to the desired \textit{target block time} network setting.
+
+If the new difficulty is more than 5\% larger or smaller than the difficulty of the last block, then the change is capped to 5\%.
+The maximum change rate of 5\% per block makes it hard for an attacker with considerably less than 50\% importance to create a better chain in secret.
+Block times will be considerably higher than \textit{target block time} at the beginning of the attacker's secret chain.
+
+\begin{figure}
+	\begin{tikzpicture}
+		\begin{axis}[
+				grid = major,
+				grid style={dashed, gray!30},
+				xmin=5500, xmax=35500,
+				ymin=12, ymax=18,
+				width=15cm, height=8cm,
+				xlabel=block height,
+				ylabel=seconds,
+				legend style={at={(0.05, 0.98)}, anchor=north west, draw=none},
+				scaled x ticks = false,
+				xtick distance=3000
+			]
+			% this must be before the plot itself
+			\addlegendimage{no markers,nemgreen}
+			\addplot[color=nemgreen] table [mark=none, x=height, y=avg blocktime, col sep=comma] {data/avgblocktimes.csv};
+			\legend{block times average over 49 blocks}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Dev network average block times, with target block time = 15s}
+\end{figure}
+
+\subsection{Block Score}
+\index{block!score}
+
+The score for a block is derived from its difficulty and the time (in seconds) that has elapsed since the last block:
+\begin{equation}
+\tag{block score} \mathit{score} = \mathit{difficulty} - \textit{time elasped since last block}
+\end{equation}
+
+\subsection{Block Generation} \label{sec:blockGeneration}
+\index{block!generation}
+
+The process of creating new blocks is called \nind{harvesting}.
+Any account that has a network defined \textit{minimum harvesting balance} is eligible to harvest.
+An account owner can delegate its importance to some other account\footnote{See \url{https://nemtech.github.io/concepts/harvesting.html\#account-link-transaction} for details.} in order to avoid exposing a private key with funds.
+
+The harvesting account gets the fees from the transactions it includes in a block.
+This gives the harvester an incentive to create a valid block and add as many transactions to it as possible.
+
+The actual reward a harvester receives is customizable based on network settings.
+If inflation is enabled, each harvested block may contain an additional inflation block reward.
+This makes harvesting more profitable.
+If harvesting fee sharing is enabled, the harvester will forfeit a share of fees to the node hosting its harvesting key.
+This makes running network nodes more profitable but harvesting less profitable.
+
+\index{block!fee multiplier}
+
+Each block must specify a \textit{fee multiplier} that determines the effective fee that must be paid by all transactions included in that block.
+Typically, the node owner sets the \textit{minimum fee multiplier} that applies to all blocks harvested by the node.
+Only transactions that satisfy the following will be allowed to enter that node's unconfirmed transactions cache and be eligible for inclusion into blocks harvested by that node:
+$$transaction max fee <= minimum fee multiplier * transaction size (bytes)$$
+Rejected transactions may still be included in blocks harvested by other nodes with lower requirements.
+The specific algorithm used to select transactions for inclusion in harvested blocks is configured by the \textit{transaction selection strategy} node setting.
+
+\index{block!generation hash}
+
+The generation hash of a block is derived from the previous block generation hash and the public key of the current block harvester:
+\begin{equation}
+\tag{generation hash} \mathit{gh(n)} = H(\textit{gh(n-1), public key of account})
+\end{equation}
+
+\index{block!hit}
+\index{block!target}
+To check if an account is allowed to create a new block at a specific network time, the following values are compared:
+\begin{itemize}
+\item{ $hit$: defines per-block value that needs to be \textit{hit}.}
+\item{ $target$: defines per-harvester power that increases the as time since last harvested block increases.}
+\end{itemize}
+An account is allowed to create a new block whenever $\mathit{hit} < \mathit{target}$.
+Since $\mathit{target}$ is proportional to the elapsed time, a new block will be created after a certain amount of time even if all accounts are unlucky and generate a very high hit.
+
+In the case of delegated harvesting, the importance of the original account is used instead of the importance of the delegated account.
+
+The target is calculated using 256-bit integer arithmetic as follows:
+\begin{align*}
+multiplier = \: & 2^{64} \\
+t = \: & \textit{time in seconds since last block} \\
+b = \: & 8999999998 \: \cdot \: (\textit{account importance}) \\
+i = \: & \textit{total chain importance} \\
+d = \: & \textit{new block difficulty} \\
+target = \: & \frac{multiplier \cdot t \cdot b}{i \cdot d}
+\end{align*}
+
+\emph{Block time smoothing}\index{block!time smoothing} can be enabled, which results in more stable block times.
+If enabled, $multiplier$ above is calculated in the following way:
+\begin{align*}
+factor = \: & \textit{block time smoothing factor} / 1000.0 \\
+tt = \: & \textit{block generation target time} \\
+power = \: & factor \cdot \frac{\textit{time in seconds since last block} - tt}{tt} \\
+smoothing = \: & \min\left(e^{power}, 100.0\right) \\
+multiplier = \: & \mathrm{integer}\left(2^{54} \cdot smoothing\right) \cdot 2^{10}
+\end{align*}
+
+Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{gh}{2^{256}}\right)\right|$, where $gh$ is a new generation hash.
+
+First, let's rewrite value above using $\log$ with base $2$:
+$$
+\textit{hit} = \frac{2^{54}}{\log_2\left(\euler\right)} \cdot \left|\log_2\left(\frac{gh}{2^{256}}\right)\right|
+$$
+
+Note, that $\frac{gh}{2^{256}}$ is always $< 1$, therefore $\log$ will always yield negative value. \\
+Now, $\log_2\left(\frac{gh}{2^{256}}\right)$, can be rewritten as $\log_2\left(gh\right) - \log_2\left(2^{256}\right)$. \\
+
+Dropping absolute value and rewriting yields:
+\begin{align*}
+	scale = \: & \frac{1}{\log_2\left(\euler\right)} \\
+	\textit{hit} = \: & scale \cdot 2^{54} (\log_2\left(2^{256}\right) - \log_2\left(gh\right))
+\end{align*}
+
+This can be further simplified to:
+$$
+\textit{hit} =  scale \cdot ( 2^{54} \cdot 256 -  2^{54} \cdot \log_2\left(gh\right))
+$$
+
+The actual implementation approximates the right part using only the first 32 non-zero bits of the new generation hash.
+There's also additional handling for edge cases.
+
+Also note that $\mathit{hit}$ has an exponential distribution. Therefore, the probability to create a new block does not change if the importance is split among many accounts.
+
+\subsection{Blockchain Synchronization}
+\label{sec:blockSync}
+
+A score can be assigned to any chain of blocks by summing the scores of the component blocks:
+\begin{equation}
+\tag{blockchain score} \mathit{score} = \sum_{block \in blocks} \textit{block score}
+\end{equation}
+
+Blockchain synchronization is crucial to maintaining distributed consensus.
+Periodically, a local node will ask a remote node about its chain.
+The remote node is selected from a set of partners based on various factors, including reputation (\nemref{sec:reputation}).
+
+If the remote node promises a chain with a higher score, the local node attempts to find the last common block by inspecting the hashes provided by remote node.
+If successful, the remote node will supply as many blocks as settings allow.
+
+If the supplied chain is valid, the local node will replace its own chain with the remote chain.
+If the supplied chain is invalid, the local node will reject the chain and consider the synchronization attempt with the remote node to have failed.
+
+\autoref{blockchainSynchronizationFlowChart} illustrates the process in more detail.
+
+\begin{figure}
+	\begin{center}
+		\input{chapters/blockchain_sync_flowchart}
+		\caption{Blockchain synchronization flow chart}
+	\end{center}
+	\label{blockchainSynchronizationFlowChart}
+\end{figure}

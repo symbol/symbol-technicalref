@@ -1,0 +1,77 @@
+\index{block!synchronization}
+
+\begin{tikzpicture}[
+	node distance=0.5cm and 0.5cm,
+	font=\scriptsize
+	]
+\tikzset{
+	base/.style = { rectangle, text centered, draw=black, minimum height=1cm },
+	rounded/.style = { base, rounded corners },
+	startfinish/.style = { rounded, fill=green!30, minimum width=2cm, text width=3cm },
+	finishNeutral/.style = { rounded, fill=gray!30, minimum width=1.5cm, text width=2cm },
+	finishNegative/.style = { rounded, fill=red!30, minimum width=1.5cm, text width=2cm },
+	finishFailure/.style = { rounded, draw=black, fill=red!30, minimum width=1.5cm, text width=2cm },
+	process/.style = { base, text width=4.5cm, fill=orange!30, minimum width=4cm },
+	decision/.style = { diamond, text centered, draw=black, minimum height=1cm, aspect=2, text width=3cm, inner sep=0cm, fill=yellow!30, minimum width=2cm },
+	arrow/.style ={ thick,->,>=stealth },
+	line/.style = { thick,-,>=stealth },
+	coord/.style={ coordinate },
+	middleSpacing/.style = { xshift=0.3cm }
+}
+
+	% left column
+	\node (start) [startfinish] {Start};
+	\node (remoteScore) [process, below=of start] {Pick connection to partner node; \\ Ask for remote chain info};
+	\node (decHeight) [decision, below=of remoteScore] {Remote height more than \textit{max rollback blocks} behind?};
+	\node (finishDecHeight) [finishNeutral, left=of decHeight] {Finish (neutral)};
+
+	\node (decRemoteScore) [decision, below=of decHeight] {Better score?};
+	\node (finishDecRemoteScore) [finishNeutral, left=of decRemoteScore] {Finish (neutral)};
+
+	\node (remoteHashes) [process, below=of decRemoteScore] {Ask for last hashes};
+
+	\node (decHashesCount) [decision, below=of remoteHashes] {Remote returned too many hashes?};
+	\node (finishDecHashesCount) [finishNegative, left=of decHashesCount] {Finish (negative)};
+
+	% invisible helper nodes in the middle
+	\node (middleTop) [coord, middleSpacing, right=of remoteScore] {};
+	\node (middleBottom) [coord] at (middleTop |- decHashesCount) {};
+
+	% right column
+	\node (decHashesCommon) [decision, right=of middleTop, middleSpacing ] {Can find common hash?};
+	\node (finishDecHashesCommon) [finishNegative, right=of decHashesCommon] {Finish (negative)};
+
+	\node (decHashesScoreLier) [decision, below=of decHashesCommon] {Remote lied about score? (all hashes match)};
+	\node (finishDecHashesScoreLier) [finishNegative, right=of decHashesScoreLier] {Finish (negative)};
+
+	\node (getBlocks) [process, below=of decHashesScoreLier] {Ask for chain};
+	\node (decBlocksOk) [decision, below=of getBlocks] {All blocks returned?};
+
+	\node (pushToDisruptor) [startfinish, below=of decBlocksOk] {Push blocks to disruptor};
+
+	% paths
+	\draw [arrow] (start) -- (remoteScore);
+	\draw [arrow] (remoteScore) -- (decHeight);
+	\draw [arrow] (decHeight) -- node[anchor=north] {\scriptsize{yes}} (finishDecHeight);
+	\draw [arrow] (decHeight) -- node[anchor=east] {\scriptsize{NO}} (decRemoteScore);
+
+	\draw [arrow] (decRemoteScore) -- node[anchor=north] {\scriptsize{no}} (finishDecRemoteScore);
+	\draw [arrow] (decRemoteScore) -- node[anchor=east] {\scriptsize{YES}} (remoteHashes);
+
+	\draw [arrow] (remoteHashes) -- (decHashesCount);
+	\draw [arrow] (decHashesCount) -- node[anchor=north] {\scriptsize{yes}} (finishDecHashesCount);
+
+	\draw [line] (decHashesCount) -- (middleBottom);
+	\draw [line] (middleBottom) -- node[anchor=east] {\scriptsize{NO}} (middleTop);
+	\draw [arrow] (middleTop) -- (decHashesCommon);
+
+	\draw [arrow] (decHashesCommon) -- node[anchor=north] {\scriptsize{no}} (finishDecHashesCommon);
+	\draw [arrow] (decHashesCommon) -- node[anchor=east] {\scriptsize{YES}} (decHashesScoreLier);
+
+	\draw [arrow] (decHashesScoreLier) -- node[anchor=north] {\scriptsize{yes}} (finishDecHashesScoreLier);
+	\draw [arrow] (decHashesScoreLier) -- node[anchor=east] {\scriptsize{NO}} (getBlocks);
+
+	\draw [arrow] (getBlocks) -- (decBlocksOk);
+	\draw (decBlocksOk.0)  edge[arrow, out=0, in=0, looseness=1.5]  node[anchor=west] {\scriptsize{no}} (getBlocks.0);
+	\draw [arrow] (decBlocksOk) -- node[anchor=east] {\scriptsize{YES}} (pushToDisruptor);
+\end{tikzpicture}
