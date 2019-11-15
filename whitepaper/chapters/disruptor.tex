@@ -167,6 +167,7 @@ All consumers can inspect the data being processed and some can modify it.
 \end{figure}
 
 \subsubsection{Common Consumers}
+\label{sec:disruptor:commonConsumers}
 \index{consumers!common}
 The block and transaction disruptors share a number of consumers.
 
@@ -204,6 +205,7 @@ It triggers downstream propagation of the statuses of all transactions that were
 The overall result of the sync operation is used to update the reputation of - and possibly ban - the sync partner (see \nemref{sec:reputation}).
 
 \subsubsection{Additional Block Consumers}
+\label{sec:disruptor:blockConsumers}
 \index{consumers!block}
 The block disruptor also uses a few block-specific consumers.
 

@@ -1,0 +1,222 @@
+\section{System}
+\label{sec:system}
+
+\nemquote{
+}{}
+
+\nemchapterfirstletter{H}igh degrees of customization are supported by \codenamespace at both the network level and the individual node level.
+Network wide settings specified in \nemsetting{network}{network} must be the same for all nodes in a network.
+Node specific settings specified in \nemsetting{node}{node} can vary across nodes in the same network.
+
+\subsection{Transaction Plugins}
+
+All nodes in a network must support the same types of transactions and process them in exactly the same manner so that all nodes can agree on the global blockchain state.
+The transactions a network supports are determined by the set of \textit{transaction plugins} the network requires each node to load.
+This set is determined by the presence of \nemsetting{network}{plugin*} sections in the configuration.
+Any changes, additions or deletions of these plugins must be coordinated and accepted by all network nodes.
+If only a subset of nodes agree to these modifications, those nodes will be on a fork.
+All built-in \codenamespace transactions are built using this plugin model in order to validate its extensibility.
+
+A plugin is a separate dynamically linked library that exposes a single entry point in the following form
+\footnote{Format of plugins depends on target operating system and compiler used, so all host applications and plugins must be built with the same compiler version and options.}:
+
+\begin{lstlisting}
+extern "C" PLUGIN_API
+void RegisterSubsystem(
+	catapult::plugins::PluginManager& manager);
+\end{lstlisting}
+
+\class{PluginManager} provides access to the subset of configuration that plugins need to initialize themselves.
+Through this class, a plugin can register zero or more of the following:
+
+\begin{enumerate}
+	\item{Transactions -
+		New transaction types and the mapping of those types to parsing rules can be specified.
+		Specifically, the plugin defines rules for translating a transaction into component notifications that are used in further processing.
+		A handful of processing constraints can also be specified, such as indicating a transaction can only appear within an aggregate transaction (\nemref{sec:transactions:aggregate}).
+	}
+	\item{Caches -
+		New cache types and rules for serializing and deserializing model types to and from binary can be specified.
+		Each state-related cache can optionally be included in the calculation of a block's \field{StateHash} (\nemref{sec:blocks:statehash}) when that feature is enabled.
+	}
+	\item{Handlers - APIs that are always accessible.}
+	\item{Diagnostics - APIs and counters that are accessible only when the node is running in diagnostic mode.}
+	\item{Validators -
+		Stateless and stateful validators that process the notifications produced by block and transaction processing.
+		The registered validators can subscribe to general or plugin-defined notifications and reject disallowed values or state changes.
+	}
+	\item{Observers -
+		Observers that process the notifications produced by block and transaction processing.
+		The registered observers can subscribe to general or plugin-defined notifications and update blockchain state based on their values.
+		Observers don't require any validation logic because they are only called after all applicable validators succeed.
+	}
+	\item{Resolvers -
+		Custom mappings from unresolved to resolved types can be specified.
+		For example, this is used by the namespace plugin to add support for alias resolutions.
+	}
+\end{enumerate}
+
+\subsection{\codenamespace Extensions}
+
+Individual nodes within a network are allowed to support a heterogeneous mix of capabilities.
+For example, some nodes might want to store data in a database or publish events to a message queue.
+These capabilities are all optional because none of them impact consensus.
+Such capabilities are determined by the set of \textit{extensions} a node loads as specified in \nemsetting{extensions-\{process\}}{extensions}.
+Most built-in \codenamespace functionality is built using this extension model in order to validate its extensibility.
+
+An extension is a separate dynamically linked library that exposes a single entry point in the following form
+\footnote{Format of extensions depends on target operating system and compiler used, so all host applications and plugins must be built with the same compiler version and options.}:
+
+\begin{lstlisting}
+extern "C" PLUGIN_API
+void RegisterExtension(
+	catapult::extensions::ProcessBootstrapper& bootstrapper);
+\end{lstlisting}
+
+\class{ProcessBootstrapper} provides access to full \codenamespace configuration and services that extensions need to initialize themselves.
+Providing this additional access allows extensions to be more powerful than plugins.
+Through this class, an extension can register zero or more of the following:
+
+\begin{enumerate}
+	\item{Services -
+		A service represents an independent behavior.
+		Services are passed an object representing the executable's state and can use it to configure a multitude of things.
+		Among others, a service can add diagnostic counters, define APIs (both diagnostic and non-diagnostic) and add tasks to the task scheduler.
+		It can also create dependent services and tie their lifetimes to that of the hosting executable.
+		There are very few limitations on what a service can do, which allows the potential for significant customizations.
+	}
+	\item{Subscriptions -
+		An extension can subscribe to any supported blockchain event.
+		Events are raised when changes are detected.
+		Block, state, unconfirmed transaction and partial transaction change events are supported.
+		Transaction status events are raised when the processing of a transaction completes.
+		Node events are raised when remote nodes are discovered.
+	}
+\end{enumerate}
+
+In addition to the above, extensions can configure the node in more intricate ways.
+For example, an extension can register a custom network time supplier.
+In fact, there is a specialized extension that sets a time supplier based on algorithms described in \nemref{sec:timesync}.
+This is an example of the high levels of customization allowed by this extension model.
+For understanding the full range of extensibility allowed by extensions, please refer to the project code or developer documentation.
+
+\subsection{Server}
+
+The most simple catapult topology is composed of a single server executable.
+Transaction Plugins required by the network and \codenamespace Extensions desired by the node operator are loaded and initialized by the server.
+
+\codenamespace stores all of its data in a \filepath{data} directory.
+The contents of the data directory are as follows:
+
+\begin{enumerate}
+	\item{Block Versioned Directories -
+		These directories contain block information in a proprietary format.
+		Each confirmed block's binary data, transactions and associated data are stored in these directories.
+		The statements (\nemref{sec:blocks:receipts}) generated when processing each block are also stored here for quick access.
+		An example of a versioned directory is \filepath{00000}, which contains the first group of blocks.
+	}
+	\item{\filepath{audit} - Audit files created by the audit consumer (\nemref{sec:disruptor:commonConsumers}) are stored in this directory.}
+	\item{\filepath{spool} -
+		Subscription notifications are written out to this directory.
+		They are used as a message queue to pass messages from the server to the broker.
+		They are also used by the recovery process to recover data in the case of an ungraceful termination.
+	}
+	\item{\filepath{state} -
+		\codenamespace stores its proprietary storage files in this directory.
+		\filepath{supplemental.dat} and files ending with \filepath{\_summary.dat} store summarized data.
+		Files ending in \filepath{Cache.dat} store complete cache data.
+	}
+	\item{\filepath{statedb} - When \nemsetting{node}{enableCacheDatabaseStorage} is set, this directory will contain RocksDB files.}
+	\item{\filepath{transfer\_message} -
+		When \nemsetting{user}{enableDelegatedHarvestersAutoDetection} is set, this directory will contain extracted delegated harvesting requests for the current node.
+	}
+	\item{\filepath{commit\_step.dat} -
+		Stores the most recent step of the commit process initiated by the server.
+		This is primarily used for recovery purposes.
+	}
+	\item{\filepath{index.dat} - Counter that contains the number of blocks stored on disk.}
+\end{enumerate}
+
+\subsubsection{Cache Database}
+
+The server supports running both with and without a cache database.
+When \nemsetting{node}{enableCacheDatabaseStorage} is set, RocksDB is used to store cache data.
+Verifiable state (\nemref{sec:blocks:statehash}) requires a cache database and most network configurations are expected to have it enabled.
+
+A cache database should only be \emph{disabled} when all of the following are true:
+
+\begin{enumerate}
+	\item{High rate of transactions per second is desired.}
+	\item{Trustless verification of cache state is not important.}
+	\item{Servers are configured with a large amount of RAM.}
+\end{enumerate}
+
+In this mode, all cache entries are always resident in memory.
+On shutdown, cache data is written to disk across multiple flat files.
+On startup, this data is read and used to populate the memory caches.
+
+When a cache database is enabled, summarized cache data is written to disk across multiple flat files.
+This summarized data is derivable from data stored in caches.
+One example is the list all high-value accounts that have a balance of at least \nemsetting{network}{minHarvesterBalance}.
+While this list can be generated by (re)inspecting all accounts stored in the account state cache, it is saved to and loaded from disk as an optimization.
+
+\subsection{Broker}
+
+The broker process allows more complex \codenamespace behaviors to be added without sacrificing parallelization.
+Transaction Plugins required by the network and \codenamespace Extensions desired by the node operator are loaded and initialized by the broker.
+Although the broker supports all features of Transaction Plugins, it only supports a subset of \codenamespace Extensions features.
+For example, overriding the network time supplier in the broker is not supported.
+Broker extensions are primarily intended to register subscribers and react to events forwarded to those subscribers.
+Accordingly, it's expected that the server and broker have different extensions loaded.
+Please refer to the project code or developer documentation for more details.
+
+The broker monitors the \filepath{spool} directories for changes and forwards any event notifications to subscribers registered by loaded extensions.
+Extensions register their subscribers to process these events.
+For example, a database extension can read these events and use them to update a database to accurately reflect the global blockchain state.
+
+\filepath{spool} directories function as one way message queues.
+The server writes messages and the broker reads them.
+There is no way for the broker to send messages to the server.
+This decoupling is intentional and was done for performance reasons.
+
+The server raises subscription events in the block chain sync consumer (\nemref{sec:disruptor:blockConsumers}) when it holds an exclusive lock to the blockchain data.
+In order to prevent slow database operations from occurring when the server has an exclusive lock, these operations are offloaded to the broker.
+The server overhead is minimal because most of the data used by the broker is also required to recover data after an ungraceful server termination.
+
+\subsection{Recovery}
+
+The recovery process is used to repair the global blockchain state after an ungraceful server and/or broker termination.
+Transaction Plugins required by the network and \codenamespace Extensions desired by the node operator are loaded and initialized by the recovery process.
+When a broker is used, the recovery process must load the same extensions as the broker.
+
+The specific recovery procedure depends on the process configuration and the value of the \filepath{commit\_step.dat} file.
+Generally, if the server exited after state changes were flushed to disk, those changes will be reapplied.
+The blockchain state will be the same as if the server had applied and committed those changes.
+Otherwise, if the server exited before state changes were flushed to disk, pending changes will be discarded.
+The blockchain state will be the same as if the server had never attempted to process those changes.
+
+After the recovery process completes, the blockchain state should be indistinguishable from the state of a node that never terminated ungracefully.
+\filepath{spool} directories are repaired and processed.
+Block and cache data stored on disk are reconciled and updated.
+Pending state changes, if applicable, are applied.
+Other files indicating the presence of an ungraceful termination are updated or removed.
+
+\subsection{Common Topologies}
+
+Although a network can be composed of a large number of heterogeneous topologies, it is likely that most nodes will fall into one of three categories: Peer, Api or Dual.
+The same server process is used across all of these topologies.
+The only difference is in what extensions each loads.
+
+Peer nodes are lightweight nodes.
+They have enough functionality to add security to the blockchain network, but little beyond that.
+They can synchronize with other nodes and harvest new blocks.
+
+Api nodes are more heavyweight nodes.
+They can synchronize with other nodes, but cannot harvest new blocks.
+They support hosting bonded aggregate transactions and collecting cosignatures to complete them.
+They require a broker process, which is configured to persist data into a MongoDB database and propagate changes over public message queues to subscribers.
+The REST Api is dependent on both of these capabilities and is typically co-located with an Api node for performance reasons in order to minimize latency.
+
+Dual nodes are simply a superset of Peer and Api nodes.
+They support all capabilities of both node types.
+Since these nodes support all Api node capabilities, they also require a broker.
