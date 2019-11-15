@@ -23,6 +23,13 @@
 
 %%% figure formatting %%%
 
+% centers an image without a caption
+\newcommand{\nemcenter}[1]{
+	\begin{center}
+		#1
+	\end{center}
+}
+
 % centers an image with a caption
 \newcommand{\nemcenterwithcaption}[2]{
 	\begin{center}
@@ -52,4 +59,33 @@
 	\begin{quote}\openquote #1 \hfill\closequote
 	\par \hfill \textit{- #2}
 	\end{quote}
+}
+
+%%% memory layout commands %%%
+
+% prepares an 8 byte memory layout with a caption
+\newcommand{\nemmemorylayout}[2]{
+	\centering
+	\begin{bytefield}[bitwidth=1.1em, leftcurly=., leftcurlyspace=0pt]{8}
+		\bitheader{0-7} \\
+		#1
+	\end{bytefield}
+	\caption{#2}
+}
+
+% creates a multiword memory layout wordbox that has top-aligned text
+\newcommand{\nemmemorymultiwordbox}[3]{
+	\begin{leftwordgroup}{#1}
+		\wordbox[tlr]{1}{#2}
+	\end{leftwordgroup} \\
+	\wordbox[blr]{#3}{}
+}
+
+% creates a multiword memory layout wordbox with variable sized data that has top-aligned text
+\newcommand{\nemmemorymultiwordboxskipped}[3]{
+	\begin{leftwordgroup}{#1}
+		\wordbox[tlr]{1}{#2}
+	\end{leftwordgroup} \\
+	\skippedwords \\
+	\wordbox[blr]{1}{#3}
 }
