@@ -1,7 +1,16 @@
-sudo: required
+# using build procedure from: https://github.com/PHPirates/travis-ci-latex-pdf/blob/master/4-texlive
 
-before_install: ./scripts/tlsetup.sh
+language: generic
+dist: bionic
+
+install:
+  - source ./texlive/texlive_install.sh
+
+cache:
+  directories:
+    - /tmp/texlive
+    - $HOME/.texlive
 
 script:
  - cd whitepaper
- - make latex COMPILER=xelatex
+ - make latex
