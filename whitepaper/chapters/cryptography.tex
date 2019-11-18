@@ -24,7 +24,7 @@ Neither key generation nor signing is used during block processing, so the speed
 A \nind{private key} is a random 256-bit integer $k$. To derive the public key \underline{A} from it, the following steps are taken:
 \begin{align}
 H(k) &=(h_0, h_1,..., h_{511}) \\
-a &= 2^{254} + \sum_{3\leq i \leq 253} 2^i h_i \label{a} \\
+a &= 2^{254} + \sum_{3\leq i \leq 253} 2^i h_i \\
 A &= aB
 \end{align}
 Since $A$ is a group element, it can be encoded into a 256-bit integer \underline{A}, which serves as the public key.
@@ -36,7 +36,7 @@ Given a message $M$, private key $k$ and its associated public key \underline{A}
 H(k) &=(h_0, h_1,..., h_{511}) \\
 r &= H(h_{256},...,h_{511}, M) \text{ where the comma means concatenation} \\
 R &= rB \\
-S &= (r + H(\underline{R}, \underline{A}, M)a) \: mod \: q \label{S}
+S &= (r + H(\underline{R}, \underline{A}, M)a) \: mod \: q \label{eq:cryptography:S}
 \end{align}
 
 Then $(\underline{R}, \underline{S})$ is the \nind{signature} for the message $M$ under the private key $k$.
@@ -47,12 +47,12 @@ To verify the signature $(\underline{R}, \underline{S})$ for the given message $
 \tilde{R} = SB - H(\underline{R}, \underline{A}, M)A
 \end{align*}
 and verifies that
-\begin{equation}\label{veri}
-\tilde{R} = R
+\begin{equation}
+\tilde{R} = R \label{eq:cryptography:verifyR}
 \end{equation}
-If $S$ was computed as shown in \eqref{S} then
+If $S$ was computed as shown in \eqref{eq:cryptography:S} then
 $$SB = rB + (H(\underline{R}, \underline{A}, M)a)B = R + H(\underline{R}, \underline{A}, M)A$$
-so \eqref{veri} will hold.
+so \eqref{eq:cryptography:verifyR} will hold.
 
 \subsection{Batch Verification}
 

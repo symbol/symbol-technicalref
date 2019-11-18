@@ -1,7 +1,6 @@
 \section{Time Synchronization}
 \label{sec:timesync}
 
-
 \nemquote{
 You spend too much time on ephemeras. The majority of modern books are merely wavering reflections of the present. They disappear very quickly. You should read more old books. The classics. Goethe.
 }{Franz Kafka}
@@ -40,7 +39,7 @@ For all selected partners, the local node sends out a request asking the partner
 The local node remembers the network timestamps when each request was sent and when each response was received.
 Each partner node responds with a sample that contains the timestamp of the arrival of the request and the timestamp of the response.
 The partner node uses its own network time to create the timestamps.
-\autoref{fig:timesync} illustrates the communication between the nodes.
+\autoref{fig:timesync:img1} illustrates the communication between the nodes.
 
 \input{images/timesync_img1}
 
@@ -114,7 +113,7 @@ $$c = \max\left(e^{-0.3a},\: 0.1\right) \; \text{where} \; a = \max(nodeAge - 5,
 This ensures that the coupling factor will be 1 for 5 rounds and then decay exponentially to 0.1.
 
 \begin{figure}
-	\begin{center}
+	\nemcenterwithcaption{
 		\begin{tikzpicture}[trim axis left]
 			\begin{axis}[
 					scale only axis,
@@ -126,8 +125,7 @@ This ensures that the coupling factor will be 1 for 5 rounds and then decay expo
 				\addplot[color=blue,domain=0.1:20,]{max(exp(-0.3*max(x-5, 0)), 0.1))};
 			\end{axis}
 		\end{tikzpicture}
-	\end{center}
-	\caption{Coupling factor}
+	}{Coupling factor}
 \end{figure}
 
 Finally, a node only adds any calculated final offset to its internal offset if the absolute value is above a given threshold (currently set to 75ms).

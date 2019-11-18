@@ -1,7 +1,10 @@
 \section{Accounts and Addresses}
 \label{sec:accounts}
 
-Catapult uses elliptic curve cryptography to ensure confidentiality, authenticity and non-repudiability of all transactions.
+\nemquote{
+}{}
+
+\codenamechapterfirstword uses elliptic curve cryptography to ensure confidentiality, authenticity and non-repudiability of all transactions.
 Each account is a private+public Ed25519 keypair (\nemref{sec:cryptography}) and is associated with a mutable state that is updated when transactions are accepted by the network.
 Accounts are identified by addresses, which are derived in part from one way mutations of public keys.
 
@@ -30,10 +33,9 @@ In order to convert a public key to an address, the following steps are performe
 \end{enumerate}
 
 \begin{figure}
-	\begin{center}
+	\nemcenterwithcaption{
 		\input{chapters/accounts_img1}
-		\caption{Address generation}
-	\end{center}
+	}{Address generation}
 \end{figure}
 
 \pagebreak

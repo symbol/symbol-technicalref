@@ -1,6 +1,7 @@
 % constants
 \newcommand*{\codename}{Catapult}
 \newcommand*{\codenamespace}{Catapult }
+\newcommand*{\codenamechapterfirstword}{\nemchapterfirstletter{C}{atapult} }
 
 % nem index
 \newcommand{\nind}[1]{
@@ -18,6 +19,16 @@
 
 \newcommand{\nemchapterfirstletter}[1]{
 	\lettrine[lraise=0,lines=4,nindent=0.5em,slope=0.0em]{\initfamily\color{nemgreen}\fontsize{72pt}{74pt}\selectfont #1}
+}
+
+%%% figure formatting %%%
+
+% centers an image with a caption
+\newcommand{\nemcenterwithcaption}[2]{
+	\begin{center}
+		#1
+	\end{center}
+	\caption{#2}
 }
 
 %%% quote formating %%%

@@ -1,8 +1,25 @@
 \section{Trees}
 \label{sec:trees}
 
+% custom tree commands
+\newcommand{\nemtree}[2]{
+	\nemcenterwithcaption{
+		\begin{tikzpicture}[every node/.style = {shape=rectangle, rounded corners, draw, align=center}]]
+			#1
+		\end{tikzpicture}
+	}{#2}
+}
+
+\newcommand{\nemtreelabeled}[3]{
+	\nemtree{#1}{#2\label{fig:trees:#3}}
+}
+
 \nemquote{
 }{}
+
+\codenamechapterfirstword uses tree structures in order to support trustless light clients.
+Merkle trees allow a client to cryptographically confirm the existence of data stored within them.
+Patricia trees allow a client to cryptographically confirm the existence or non-existence of data stored within them.
 
 \subsection{Merkle Tree}
 
@@ -13,54 +30,48 @@ Each non-leaf node is constructed by hashing the hashes stored in child nodes.
 In the \codenamespace implementation, when any (non-root) layer contains an odd number of hashes, the last hash is doubled when calculating the parent hash.
 
 \begin{figure}[h]
-	\begin{center}
-		\begin{tikzpicture}[every node/.style = {shape=rectangle, rounded corners, draw, align=center}]]
-			\tikzstyle{level 3}=[sibling distance=8em]
-			\node {Merkle Hash = $H_{Root}$ =\\H($H_{ABCD}$, $H_{EE^2}$)}
-				child [sibling distance=16em] { node {$H_{ABCD}$ =\\H($H_{AB}$, $H_{CD}$)}
-					child { node {$H_{AB}$ =\\H(H(A), H(B))}
-						child { node {H(A)} { child { node {A} } } }
-						child { node {H(B)} { child { node {B} } } }
-					}
-					child { node {$H_{CD}$ =\\H(H(C), H(D))}
-						child { node {H(C)} { child { node {C} } } }
-						child { node {H(D)} { child { node {D} } } }
-					}
+	\nemtree{
+		\tikzstyle{level 3}=[sibling distance=8em]
+		\node {Merkle Hash = $H_{Root}$ =\\H($H_{ABCD}$, $H_{EE^2}$)}
+			child [sibling distance=16em] { node {$H_{ABCD}$ =\\H($H_{AB}$, $H_{CD}$)}
+				child { node {$H_{AB}$ =\\H(H(A), H(B))}
+					child { node {H(A)} { child { node {A} } } }
+					child { node {H(B)} { child { node {B} } } }
 				}
-				child [sibling distance=16em] { node {$H_{EE^2}$ =\\H($H_{EE}$, $H_{EE}$)}
-					child { node {$H_{EE}$ =\\H(H(E), H(E))}
-						child { node {H(E)} { child { node {E} } } }
-					}
-				};
-		\end{tikzpicture}
-		\caption{Four level Merkle tree composed of five data items}
-	\end{center}
+				child { node {$H_{CD}$ =\\H(H(C), H(D))}
+					child { node {H(C)} { child { node {C} } } }
+					child { node {H(D)} { child { node {D} } } }
+				}
+			}
+			child [sibling distance=16em] { node {$H_{EE^2}$ =\\H($H_{EE}$, $H_{EE}$)}
+				child { node {$H_{EE}$ =\\H(H(E), H(E))}
+					child { node {H(E)} { child { node {E} } } }
+				}
+			};
+	}{Four level Merkle tree composed of five data items}
 \end{figure}
 
 \begin{figure}
-	\begin{center}
-		\begin{tikzpicture}[every node/.style = {shape=rectangle, rounded corners, draw, align=center}]]
-			\tikzset{ highlight/.style = {fill = yellow} }
-			\tikzstyle{level 3}=[sibling distance=8em]
-			\node [highlight] {Merkle Hash = $H_{Root}$ =\\H($H_{ABCD}$, $H_{EE^2}$)}
-				child [sibling distance=16em] { node {$H_{ABCD}$ =\\H($H_{AB}$, $H_{CD}$)}
-					child { node {$H_{AB}$ =\\H(H(A), H(B))}
-						child { node [highlight] {H(A)} { child { node {A} } } }
-						child { node {H(B)} { child { node [highlight] {B} } } }
-					}
-					child { node [highlight] {$H_{CD}$ =\\H(H(C), H(D))}
-						child { node {H(C)} { child { node {C} } } }
-						child { node {H(D)} { child { node {D} } } }
-					}
+	\nemtree{
+		\tikzset{ highlight/.style = {fill = yellow} }
+		\tikzstyle{level 3}=[sibling distance=8em]
+		\node [highlight] {Merkle Hash = $H_{Root}$ =\\H($H_{ABCD}$, $H_{EE^2}$)}
+			child [sibling distance=16em] { node {$H_{ABCD}$ =\\H($H_{AB}$, $H_{CD}$)}
+				child { node {$H_{AB}$ =\\H(H(A), H(B))}
+					child { node [highlight] {H(A)} { child { node {A} } } }
+					child { node {H(B)} { child { node [highlight] {B} } } }
 				}
-				child [sibling distance=16em] { node [highlight] {$H_{EE^2}$ =\\H($H_{EE}$, $H_{EE}$)}
-					child { node {$H_{EE}$ =\\H(H(E), H(E))}
-						child { node {H(E)} { child { node {E} } } }
-					}
-				};
-		\end{tikzpicture}
-		\caption{Merkle proof required for proving existence of B in the tree}
-	\end{center}
+				child { node [highlight] {$H_{CD}$ =\\H(H(C), H(D))}
+					child { node {H(C)} { child { node {C} } } }
+					child { node {H(D)} { child { node {D} } } }
+				}
+			}
+			child [sibling distance=16em] { node [highlight] {$H_{EE^2}$ =\\H($H_{EE}$, $H_{EE}$)}
+				child { node {$H_{EE}$ =\\H(H(E), H(E))}
+					child { node {H(E)} { child { node {E} } } }
+				}
+			};
+	}{Merkle proof required for proving existence of B in the tree}
 \end{figure}
 
 A benefit of using merkle trees is that the existence of a hash in a tree can be proven with only $\log(N)$ hashes.
@@ -86,17 +97,17 @@ The application of the same data, in any order, will always result in the same t
 When inserting a new key value pair into the tree, the key is decomposed into nibbles and each nibble is logically its own node in the tree.
 All keys within a single tree are required to have the same length, which allows slightly optimized algorithms.
 
-For illustration, consider the following key value pairs in \autoref{treesExampleData}.
+For illustration, consider the following key value pairs in \autoref{tab:trees:exampleData}.
 Some examples will use ASCII keys to more clearly elucidate concepts, while others will use hex keys to more accurately depict \codenamespace implementations.
 
-\autoref{treesAsciiExpanded} depicts a full patricia tree where each letter is represented by a separate node.
+\autoref{fig:trees:asciiExpanded} depicts a full patricia tree where each letter is represented by a separate node.
 Although this tree is logically correct, it is quite expansive and uses a lot of memory.
 A typical key is a 32 byte hash value, which implies that storing a single value could require up to 64 nodes!
 In order to work around this limitation, successive empty branch nodes can be collapsed into either a branch node with at least two connections or a leaf node.
-This leads to a different but more compact tree, as depicted in \autoref{treesAsciiCompact}.
+This leads to a different but more compact tree, as depicted in \autoref{fig:trees:asciiCompact}.
 
 \begin{table}[ht]
-	\begin{center}
+	\nemcenterwithcaption{
 		\begin{tabular}{|c|c|c|}
 			\hline
 			key & hex-key & value \\
@@ -107,62 +118,54 @@ This leads to a different but more compact tree, as depicted in \autoref{treesAs
 			hors & \texttt{686F7273} & stallion \\
 			\hline
 		\end{tabular}
-		\caption{Patricia tree example data}
-		\label{treesExampleData}
-	\end{center}
+	}{Patricia tree example data\label{tab:trees:exampleData}}
 \end{table}
 
 \begin{figure}[H]
-	\begin{center}
-		\begin{tikzpicture}[every node/.style = {shape=rectangle, rounded corners, draw, align=center}]]
-			\tikzstyle{level 1}=[sibling distance=20em]
-			\tikzstyle{level 3}=[sibling distance=16em]
-			\tikzstyle{level 4}=[sibling distance=8em]
-			\node {Root}
-				child { node {D}
-					child { node {O}
-						child { node {*}
-							child { node {* [verb]} }
-						}
-						child { node {G}
-							child { node {* [puppy]} }
-							child { node {E [mascot]} }
-						}
+	\nemtreelabeled{
+		\tikzstyle{level 1}=[sibling distance=20em]
+		\tikzstyle{level 3}=[sibling distance=16em]
+		\tikzstyle{level 4}=[sibling distance=8em]
+		\node {Root}
+			child { node {D}
+				child { node {O}
+					child { node {*}
+						child { node {* [verb]} }
 					}
-				}
-				child { node {H}
-					child { node {O}
-						child { node {R}
-							child { node {S [stallion]} }
-						}
-					}
-				};
-		\end{tikzpicture}
-		\caption{Conceptual (expanded) patricia tree composed of four data items}
-		\label{treesAsciiExpanded}
-	\end{center}
-\end{figure}
-
-\begin{figure}[H]
-	\begin{center}
-		\begin{tikzpicture}[every node/.style = {shape=rectangle, rounded corners, draw, align=center}]]
-			\tikzset{ highlight/.style = {fill = yellow} }
-			\tikzstyle{level 1}=[sibling distance=20em]
-			\tikzstyle{level 3}=[sibling distance=16em]
-			\tikzstyle{level 4}=[sibling distance=8em]
-			\node {Root}
-				child { node [highlight] {DO}
-					child { node [highlight] {** [verb]} }
 					child { node {G}
 						child { node {* [puppy]} }
 						child { node {E [mascot]} }
 					}
 				}
-				child { node [highlight] {HORS [stallion]} };
-		\end{tikzpicture}
-		\caption{Conceptual (compact) patricia tree composed of four data items}
-		\label{treesAsciiCompact}
-	\end{center}
+			}
+			child { node {H}
+				child { node {O}
+					child { node {R}
+						child { node {S [stallion]} }
+					}
+				}
+			};
+	}{Conceptual (expanded) patricia tree composed of four data items
+	}{asciiExpanded}
+\end{figure}
+
+\begin{figure}[H]
+	\nemtreelabeled{
+		\tikzset{ highlight/.style = {fill = yellow} }
+		\tikzstyle{level 1}=[sibling distance=20em]
+		\tikzstyle{level 3}=[sibling distance=16em]
+		\tikzstyle{level 4}=[sibling distance=8em]
+		\node {Root}
+			child { node [highlight] {DO}
+				child { node [highlight] {** [verb]} }
+				child { node {G}
+					child { node {* [puppy]} }
+					child { node {E [mascot]} }
+				}
+			}
+			child { node [highlight] {HORS [stallion]} };
+	}{Conceptual (compact) patricia tree composed of four data items
+	}{asciiCompact}
 \end{figure}
 
 \subsection{Merkle Patricia Tree}
@@ -182,7 +185,7 @@ If the path is composed of an odd number of nibbles, $\texttt{0x1}$ will be set 
 If the path is composed of an even number, the second nibble will be set to $\texttt{0x0}$ and the second byte will contain the first path nibble.
 
 \begin{figure}[ht]
-	\begin{center}
+	\nemcenterwithcaption{
 		\begin{tikzpicture}[node distance=-\pgflinewidth]
 			% odd tree node path
 			\node[anchor=center] (lbl1) {odd path};
@@ -216,8 +219,7 @@ If the path is composed of an even number, the second nibble will be set to $\te
 			\node[fit=(nibble21)(nibble22), draw, dotted, rounded corners] (byte21) {};
 			\draw[decorate,decoration={brace,mirror,raise=2pt},very thick] (byte21.south west) -- node[below=4pt] {byte 1} (byte21.south east);
 		\end{tikzpicture}
-		\caption{Tree node path encoding}
-	\end{center}
+	}{Tree node path encoding}
 \end{figure}
 
 A \emph{leaf node}\index{node!leaf} is composed of the following two items:
@@ -239,39 +241,35 @@ The hash of a branch node can be calculated by hashing its component parts: $$\t
 
 Reconstructing the earlier example with hex keys yields a tree that illustrates a more accurate view of how a \codenamespace tree is constructed.
 Notice that each branch node index composes a single nibble of the path.
-This is depicted in \autoref{treesHexCompact}.
+This is depicted in \autoref{fig:trees:hexCompact}.
 
 \begin{figure}[ht]
-	\begin{center}
-		\begin{tikzpicture}
-			\begin{scope}[every node/.style = {shape=rectangle, rounded corners, draw, align=center}]
-				\tikzstyle{level 1}=[sibling distance=20em]
-				\tikzstyle{level 3}=[sibling distance=16em]
-				\tikzstyle{level 4}=[sibling distance=8em]
-				\node (6) [red] {\texttt{6}}
-					child { node (646F) [red] {\texttt{6F}}
-						child { node (646F0000) {\texttt{000} [verb]} }
-						child { node (646F67) [red] {\texttt{7}}
-							child { node (646F6700) {\texttt{0} [puppy]} }
-							child { node (646F6765) [red] {\texttt{5} [mascot]} }
-						}
-					}
-					child { node (686F7273) {\texttt{6F7273} [stallion] } };
-			\end{scope}
+	\nemtreelabeled{
+		\tikzstyle{level 1}=[sibling distance=20em]
+		\tikzstyle{level 3}=[sibling distance=16em]
+		\tikzstyle{level 4}=[sibling distance=8em]
+		\node (6) [red] {\texttt{6}}
+			child { node (646F) [red] {\texttt{6F}}
+				child { node (646F0000) {\texttt{000} [verb]} }
+				child { node (646F67) [red] {\texttt{7}}
+					child { node (646F6700) {\texttt{0} [puppy]} }
+					child { node (646F6765) [red] {\texttt{5} [mascot]} }
+				}
+			}
+			child { node (686F7273) {\texttt{6F7273} [stallion] } };
 
+		\begin{scope}[every node/.style = {draw=none}]
 			\path (6) -- (646F) node [red, above, pos=0.5] {{\texttt{4}}};
 			\path (6) -- (686F7273) node [above, pos=0.5] {\texttt{8}};
 			\path (646F) -- (646F0000) node [above, pos=0.5] {\texttt{0}};
 			\path (646F) -- (646F67) node [red, above, pos=0.5] {{\texttt{6}}};
 			\path (646F67) -- (646F6700) node [above, pos=0.5] {\texttt{0}};
 			\path (646F67) -- (646F6765) node [red, above, pos=0.5] {{\texttt{6}}};
-		\end{tikzpicture}
-		\caption{
-			Realistic patricia tree with branch and leaf nodes and all optimizations.
-			Path to $mascot$ [\texttt{646F6765}] is highlighted.
-		}
-		\label{treesHexCompact}
-	\end{center}
+		\end{scope}
+	}{
+		Realistic patricia tree with branch and leaf nodes and all optimizations.
+		Path to $mascot$ [\texttt{646F6765}] is highlighted.
+	}{hexCompact}
 \end{figure}
 
 \subsection{Merkle Patricia Tree Proofs}
