@@ -41,7 +41,11 @@ Each partner node responds with a sample that contains the timestamp of the arri
 The partner node uses its own network time to create the timestamps.
 \autoref{fig:timesync:img1} illustrates the communication between the nodes.
 
-\input{images/timesync_img1}
+\begin{figure}
+	\nemcenterwithcaption{
+		\input{chapters/timesync_img1}
+	}{Communication between local and partner node.\label{fig:timesync:img1}}
+\end{figure}
 
 Using the timestamps, the local node can calculate the round trip time
 $$\textit{rtt}=(t_4-t_1)-(t_3-t_2)$$
