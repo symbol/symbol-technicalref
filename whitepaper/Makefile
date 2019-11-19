@@ -2,6 +2,7 @@
 BUILDDIR = ../_build
 COMPILER = pdflatex
 BIBER = biber
+MAKEIDX = makeindex
 
 PROJECTDIR = .
 PROJECT = main
@@ -21,11 +22,15 @@ latex:
 	@$(BIBER) --output_directory=$(BUILDDIR) $(PROJECT)
 	@echo "Second pass (via $(BIBER)) done!"
 
-	@$(COMPILER) -interaction=nonstopmode -halt-on-error -output-directory=$(BUILDDIR) $(PROJECTDIR)/$(PROJECT).tex
-	@echo "Third pass (via $(COMPILER)) done!"
+	@$(MAKEIDX) $(BUILDDIR)/main.idx -o main.ind -t main.ilg
+	@mv -f main.ind main.ilg $(BUILDDIR)
+	@echo "Third pass (via $(MAKEIDX)) done!"
 
 	@$(COMPILER) -interaction=nonstopmode -halt-on-error -output-directory=$(BUILDDIR) $(PROJECTDIR)/$(PROJECT).tex
 	@echo "Fourth pass (via $(COMPILER)) done!"
+
+	@$(COMPILER) -interaction=nonstopmode -halt-on-error -output-directory=$(BUILDDIR) $(PROJECTDIR)/$(PROJECT).tex
+	@echo "Fifth pass (via $(COMPILER)) done!"
 
 	@echo "Compilation done. Output file can be seen in $(BUILDDIR)"
 
