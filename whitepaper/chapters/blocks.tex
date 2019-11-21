@@ -1,0 +1,290 @@
+\section{Blocks}
+\label{sec:blocks}
+
+\nemquote{
+}{}
+
+\codenamechapterfirstword is, at its core, a blockchain.
+A blockchain is an ordered collection of blocks.
+Understanding the parts of a \codenamespace block is fundamental to understanding the platform's capabilities.
+
+The layout of a block is similar to the layout of an aggregate transaction (\nemref{sec:transactions:aggregate}).
+A block shares the same unverifiable header as an aggregate transaction, and this data is processed in the same way.
+Likewise, a block has a footer of unverifiable data followed by transactions.
+Unlike an aggregate transaction, a block is followed by basic - not embedded - transactions, and each transaction within a block is signed independently of the block signer\footnote{
+In an aggregate transaction, the account creating the aggregate transaction must sign the transaction's data in order for it to be valid.
+In a block, the block signer does not need to sign the data of any transaction contained within it.
+}.
+This allows any transaction satisfying all conditions to be included in any block.
+
+None of the unverifiable footer fields need to be verified.
+\texttt{Reserved} bytes are used for padding and have no intrinsic meaning.
+
+\begin{figure}
+	\nemcenterwithcaption{
+		\begin{subfigure}{.33\textwidth}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x00}}
+					\bitbox{4}{Size} \bitbox{4}{Reserved}
+				\end{leftwordgroup} \\
+				\nemmemorymultiwordbox{\texttt{0x08}}{Signature}{7} \\
+				\nemmemorymultiwordbox{\texttt{0x48}}{SignerPublicKey}{3} \\
+				\begin{leftwordgroup}{\texttt{0x68}}
+					\bitbox{4}{Reserved} \bitbox[]{4}{}
+				\end{leftwordgroup}
+			}{Header (unsigned)}
+		\end{subfigure}%
+		\begin{subfigure}{.33\textwidth}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x6C}}
+					\bitbox[br]{4}{} \bitbox{4}{V, N, T}
+				\end{leftwordgroup} \\
+				\begin{leftwordgroup}{\texttt{0x70}}
+					\wordbox{1}{Height}
+				\end{leftwordgroup} \\
+				\begin{leftwordgroup}{\texttt{0x78}}
+					\wordbox{1}{Timestamp}
+				\end{leftwordgroup} \\
+				\begin{leftwordgroup}{\texttt{0x80}}
+					\wordbox{1}{Difficulty}
+				\end{leftwordgroup} \\
+				\nemmemorymultiwordbox{\texttt{0x88}}{PreviousBlockHash}{3} \\
+				\nemmemorymultiwordbox{\texttt{0xA8}}{TransactionsHash}{3} \\
+				\nemmemorymultiwordbox{\texttt{0xC8}}{ReceiptsHash}{3} \\
+				\nemmemorymultiwordbox{\texttt{0xE8}}{StateHash}{3} \\
+				\nemmemorymultiwordbox{\texttt{0x108}}{\small BeneficiaryPublicKey}{3} \\
+				\begin{leftwordgroup}{\texttt{0x128}}
+					\bitbox{4}{\tiny FeeMultiplier} \bitbox[]{4}{}
+				\end{leftwordgroup}
+			}{Verifiable data}
+		\end{subfigure}%
+		\begin{subfigure}{.33\textwidth}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x12C}}
+					\bitbox[br]{4}{} \bitbox{4}{Reserved}
+				\end{leftwordgroup} \\
+				\nemmemorymultiwordboxskipped{\texttt{0x130}}{Transactions}{}
+			}{Unverifiable footer}
+		\end{subfigure}
+	}{Block header binary layout}
+\end{figure}
+
+\subsection{Block Fields}
+
+\texttt{Height} is the block sequence number.
+The first block, called the \nind{nemesis block}, has a height of one.
+Each successive block increments the height of the previous block by one.
+
+\texttt{Timestamp} is the number of milliseconds that have elapsed since the nemesis block.
+Each successive block must have a timestamp greater than that of the previous blocks because block time is strictly increasing.
+Each network tries to keep the average time between blocks close to \textit{target block time}.
+
+\texttt{Difficulty} is described in detail in \nemref{sec:blockchain:difficulty}.
+
+\texttt{PreviousBlockHash} is the hash of the previous block.
+This is used to guarantee that all blocks within a blockchain are linked and deterministically ordered.
+
+\texttt{TransactionsHash} is the merkle root hash of the hashes of the transactions stored within the block
+\footnote{This field has the same purpose as the identically named field in an aggregate transaction.}.
+In order to compute this field, a merkle tree is constructed by adding each transaction hash in natural order.
+The resulting root hash is assigned to this field.
+
+\texttt{ReceiptsHash} is the merkle root hash of the hashes of the receipts produced while processing the block.
+When a network is configured without \nemsetting{network}{enableVerifiableReceipts}, this field must be zeroed in all blocks.
+See \nemref{sec:blocks:receipts}.
+
+\texttt{StateHash} is the hash of the global blockchain state after processing the block.
+When a network is configured without \nemsetting{network}{enableVerifiableState}, this field must be zeroed in all blocks.
+Otherwise, it's calculated as described in \nemref{sec:blocks:statehash}.
+
+\texttt{BeneficiaryPublicKey} is the account that will be allocated the block's beneficiary share when the network has a nonzero \nemsetting{network}{harvestBeneficiaryPercentage}.
+This field can be set to any account, even one that isn't yet known to the network.
+This field is set by the node owner when a new block is harvested.
+If this account is set to one owned by the node owner, the node owner will share in fees paid in all blocks harvested on its node.
+This, in turn, incentivizes the node owner to run a strong node with many delegated harvesters.
+
+\texttt{FeeMultiplier} is a multiplier that is used to calculate the effective fee of each transaction contained within a block.
+The \texttt{MinFeeMultiplier} is set by the node owner and can be used to accomplish varying goals, including maximization of profits or confirmed transactions.
+Assuming a block $B$ containing a transaction $T$, the effective transaction fee can be calculated as:
+$$\mathrm{effectiveFee}(T) = B::FeeMultiplier  \cdot \mathrm{sizeof}(T)$$
+If the effective fee is greater than the transaction \textit{MaxFee}, the transaction signer keeps the difference.
+Only the effective fee is deducted from the transaction signer and credited to the harvester.
+Further information about fee multipliers can be found in\nemref{sec:blockchain:generation}.
+
+\subsection{Receipts}
+\label{sec:blocks:receipts}
+
+During the execution of a block, zero or more receipts are generated.
+Receipts are primarily used to communicate state changes triggered by side effects to clients.
+In this way, they allow simpler clients to still be aware of complex state changes.
+
+For example, a namespace expiration is triggered by the number of blocks that have been confirmed since the namespace was created.
+While the triggering event is in the blockchain, there is no indication of this state change in the block at which the expiration occurs.
+Without receipts, a client would need to keep track of all namespaces and expiration heights.
+With receipts, a client merely needs to monitor for expiration receipts.
+
+Another example is around harvest rewards.
+Receipts are produced that indicate the main - not delegated - account that gets credited and any beneficiary splits.
+They also communicate the amount of currency created by inflation.
+
+Receipts are grouped into three different types of statements and collated by receipt sources.
+The three types of statements are transaction, address resolution and mosaic resolution.
+
+\subsubsection{Receipt Source}
+
+Each part of a block that is processed is assigned a two-part block-scoped identifier.
+The source (0, 0) is always used to identify block-triggered events irrespective of the number of transactions in a block.
+
+\begin{table}[ht]
+	\nemcenterwithcaption{
+		\begin{tabular}{|p{0.20\linewidth}|p{0.40\linewidth}|p{0.40\linewidth}|}
+			\hline
+			Source & Primary Id & Secondary Id \\
+			\hline
+			Block & 0 & 0 \\
+			Transaction & 1-based index within the block & 0 \\
+			Embedded Transaction & 1-based index of containing aggregate within the block & 1-based index within the aggregate \\
+			\hline
+		\end{tabular}
+	}{Receipt source values}
+\end{table}
+
+\subsubsection{Transaction Statement}
+
+Transaction statements are used to group receipts that have a shared receipt source.
+Each statement is composed of a receipt source and one or more receipts.
+Accordingly, each receipt source that generates a receipt will have exactly one corresponding transaction statement.
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\begin{subfigure}{.5\textwidth}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x00}}
+					\bitbox{4}{Size} \bitbox{2}{V} \bitbox{2}{T}
+				\end{leftwordgroup} \\
+				\begin{leftwordgroup}{\texttt{0x08}}
+					\wordbox{1}{ReceiptSource}
+				\end{leftwordgroup} \\
+				\nemmemorymultiwordboxskipped{\texttt{0x10}}{Receipts}{} \\
+			}{Transaction statement binary layout}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x00}}
+					\bitbox{4}{Size} \bitbox{2}{V} \bitbox{2}{T}
+				\end{leftwordgroup} \\
+				\nemmemorymultiwordboxskipped{0x08}{Payload}{}
+			}{Receipt binary layout}
+		\end{subfigure}
+	}{Transaction statement layout}
+\end{figure}
+
+Transaction statement data is not padded because it is only written during processing and never read, so padding yields no server performance benefit.
+A transaction statement hash is constructed by concatenating and hashing all statement data excepting \texttt{Size} fields, which are derivable from other data.
+
+\subsubsection{Resolution Statements}
+
+Resolution statements are used exclusively for indicating alias resolutions.
+They allow a client to always resolve an unresolved value even when it changes within a block.
+Theoretically, two unresolved aliases within the same block could resolve to different values if there is an alias change between their usages.
+Each statement is composed of an unresolved value and one or more resolutions in order to support this.
+
+There are two types of resolution statements - address and mosaic - corresponding to the two types of aliases.
+Although \autoref{fig:blocks:mosaicResolutionStatementLayout} illustrates the layout of a mosaic resolution statement, the layout of an address resolution statement is nearly identical.
+The only difference is that the resolved and unresolved values are 25-byte addresses instead of 8-byte mosaic ids.
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\begin{subfigure}{.5\textwidth}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x00}}
+					\bitbox{4}{Size} \bitbox{2}{V} \bitbox{2}{T}
+				\end{leftwordgroup} \\
+				\begin{leftwordgroup}{\texttt{0x08}}
+					\wordbox{1}{\small MosaicId Unresolved}
+				\end{leftwordgroup} \\
+				\nemmemorymultiwordboxskipped{\texttt{0x10}}{Resolution}{Entries} \\
+			}{Mosaic resolution statement binary layout}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x00}}
+					\bitbox{8}{ReceiptSource}
+				\end{leftwordgroup} \\
+				\begin{leftwordgroup}{\texttt{0x08}}
+					\bitbox{8}{\small MosaicId Resolved}
+				\end{leftwordgroup} \\
+			}{Resolution entry binary layout}
+		\end{subfigure}
+	}{Mosaic resolution statement layout\label{fig:blocks:mosaicResolutionStatementLayout}}
+\end{figure}
+
+Resolution statement data is not padded because it is only written during processing and never read, so padding yields no server performance benefit.
+A resolution statement hash is constructed by concatenating and hashing all statement data excepting \texttt{Size} fields, which are derivable from other data.
+
+It is important to note that a resolution statement is only produced when a resolution occurs.
+If an alias is registered or changed in a block, but not used in that block, no resolution statement will be produced.
+However, a resolution statement will be produced by each block that contains that alias and requires it to be resolved.
+
+\subsubsection{Receipt Hash}
+
+In order to calculate a block's receipt hash, first all statements generated during block processing are collected.
+Then a merkle tree is created by adding all statement hashes in the following order:
+
+\begin{enumerate}
+\item{Hashes of transaction statements ordered by receipt source.}
+\item{Hashes of address resolution statements ordered by unresolved address.}
+\item{Hashes of mosaic resolution statements ordered by unresolved mosaic id.}
+\end{enumerate}
+
+When a network is configured with \nemsetting{network}{enableVerifiableReceipts}, the root hash of this merkle tree is set as the block's \texttt{ReceiptHash}.
+A client can perform a merkle proof to prove a particular statement was produced during the processing of a specific block.
+
+\subsection{State Hash}
+\label{sec:blocks:statehash}
+
+\codenamespace stores the global blockchain state across multiple typed state repositories.
+For example, the account state is stored in one repository and the multsignature state is stored in another.
+Each repository is a simple key value store.
+The specific repositories present in a network are determined by the transaction plugins enabled by that network.
+
+When a network is configured with \nemsetting{network}{enableVerifiableState}, a patricia tree is created for each repository.
+This produces a single hash that deterministically fingerprints each repository.
+Accordingly, assuming $N$ repositories, $N$ hashes deterministically fingerprint the global blockchain state.
+
+It is possible to store all $N$ hashes directly in each block header, but this is undesirable.
+Each block header should be as small as possible because all clients, minimally, need to sync all headers to verify a chain is rooted to the nemesis block.
+Additionally, adding or removing functionality could change the number of repositories ($N$) and the format of the block header.
+
+Instead, all root hashes are concatenated\footnote{The concatenation order is fixed and determined by the repository id.} and hashed to calculate the \texttt{StateHash}, which is a single hash that deterministically fingerprints the global blockchain state.
+\begin{align*}
+RepositoryHashes = \: & 0 \\
+RepositoryHashes = \: & \sum_{0\leq i \leq N} concat(RepositoryHashes, RepositoryHash_i) \\
+StateHash = \: & H(RepositoryHashes)
+\end{align*}
+
+\subsection{Extended Layout}
+
+The block layout described earlier was correct with one simplification\footnote{
+This is consistent with the extended layout of an aggregate transaction as well.}.
+All transactions are padded so that they end on 8-byte boundaries.
+This ensures that all transactions begin on 8-byte boundaries as well.
+The padding bytes are never signed nor included in any hashes.
+
+\begin{figure}[H]
+	\nemcenter{
+		\nemmemorylayout{
+			\begin{leftwordgroup}{}
+				\bitbox[br]{4}{} \bitbox{4}{Reserved}
+			\end{leftwordgroup} \\
+			\nemmemorymultiwordboxskipped{}{Transaction 1}{} \\
+			\begin{leftwordgroup}{}
+				\wordbox{1}{\emph{optional} padding}
+			\end{leftwordgroup} \\
+			\nemmemorymultiwordboxskipped{}{Transaction 2}{} \\
+			\begin{leftwordgroup}{}
+				\wordbox{1}{\emph{optional} padding}
+			\end{leftwordgroup}
+		}{Block transaction footer with padding}
+	}
+\end{figure}

@@ -57,7 +57,7 @@ Please refer to the published schemas for the most up to date specifications.
 					\bitbox[br]{4}{} \bitbox{4}{V, N, T}
 				\end{leftwordgroup} \\
 				\begin{leftwordgroup}{\texttt{0x70}}
-					\wordbox[tlr]{1}{MaxFee}
+					\wordbox{1}{MaxFee}
 				\end{leftwordgroup} \\
 				\begin{leftwordgroup}{\texttt{0x78}}
 					\wordbox{1}{Deadline}
@@ -69,6 +69,7 @@ Please refer to the published schemas for the most up to date specifications.
 \end{figure}
 
 \subsection{Aggregate Transaction}
+\label{sec:transactions:aggregate}
 
 The layout of an aggregate transaction is more complex than that of a basic transaction, but there are some similarities.
 An aggregate transaction shares the same unverifiable header as a basic transaction, and this data is processed in the same way.
@@ -110,7 +111,7 @@ None of the unverifiable footer fields need to be verified.
 					\bitbox[br]{4}{} \bitbox{4}{V, N, T}
 				\end{leftwordgroup} \\
 				\begin{leftwordgroup}{\texttt{0x70}}
-					\wordbox[tlr]{1}{MaxFee}
+					\wordbox{1}{MaxFee}
 				\end{leftwordgroup} \\
 				\begin{leftwordgroup}{\texttt{0x78}}
 					\wordbox{1}{Deadline}
