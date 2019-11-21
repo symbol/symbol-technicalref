@@ -5,6 +5,7 @@ dist: bionic
 
 install:
   - source ./texlive/texlive_install.sh
+  - pip install ghp-import --user
 
 cache:
   directories:
@@ -14,3 +15,16 @@ cache:
 script:
  - cd whitepaper
  - make latex
+
+deploy:
+  - provider: releases
+    skip_cleanup: true
+    file: ../_build/main.pdf
+    api_key: $GITHUB_TOKEN
+    on:
+      tags: true
+  - provider: script
+    skip_cleanup: true
+    script: make github
+    on:
+      branch: master

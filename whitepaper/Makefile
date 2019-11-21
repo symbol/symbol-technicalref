@@ -37,3 +37,7 @@ latex:
 clean:
 	@rm -rf $(BUILDDIR)
 	@echo "Removed $(BUILDDIR) directory"
+
+github:
+	@ghp-import -n $(BUILDDIR)
+	@git push -fq https://${GITHUB_TOKEN}@github.com/$(REPO_SLUG).git gh-pages > /dev/null
