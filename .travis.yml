@@ -14,3 +14,17 @@ cache:
 script:
  - cd whitepaper
  - make latex
+
+deploy:
+  - provider: releases
+    skip_cleanup: true
+    api_key: $GITHUB_TOKEN
+    file: ../_build/main.pdf
+    on:
+      tags: true
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: _build
+    on:
+      branch: master
