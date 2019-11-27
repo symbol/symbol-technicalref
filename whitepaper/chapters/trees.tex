@@ -102,7 +102,7 @@ Some examples will use ASCII keys to more clearly elucidate concepts, while othe
 
 \autoref{fig:trees:asciiExpanded} depicts a full patricia tree where each letter is represented by a separate node.
 Although this tree is logically correct, it is quite expansive and uses a lot of memory.
-A typical key is a 32 byte hash value, which implies that storing a single value could require up to 64 nodes!
+A typical key is a 32 byte hash value, which implies that storing a single value could require up to 64 nodes.
 In order to work around this limitation, successive empty branch nodes can be collapsed into either a branch node with at least two connections or a leaf node.
 This leads to a different but more compact tree, as depicted in \autoref{fig:trees:asciiCompact}.
 
@@ -293,6 +293,6 @@ In order to prove the non-existence of $\{key = \texttt{646F6764}, value = H(mas
 	\item{
 		Verify that $Node_{646F67}::Link[5]$ is equal to $H(Leaf(mascot))$.
 		Since $Link[5]$ is unset, this check will fail.
-		If the value being searched for was in the tree, it must be linked to by this node because of the determinism of the tree.
+		If the value being searched for was in the tree, it must be linked to this node because of the determinism of the tree.
 	 }
 \end{enumerate}
