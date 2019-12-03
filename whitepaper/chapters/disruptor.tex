@@ -180,7 +180,7 @@ It is very common for a server to receive the same element many times because ne
 For performance reasons, it is desirable to detect at an early stage whether an element has already been processed in order to avoid processing it again.
 
 The hash calculator consumer calculates all the hashes associated with an element.
-The hash check consumer uses the hashes to search the recency cash, which contains the hashes of all recently seen elements.
+The hash check consumer uses the hashes to search the recency cache, which contains the hashes of all recently seen elements.
 The consumer used by the transaction disruptor will also search the hash cache (containing hashes of confirmed transactions) and the unconfirmed transactions cache.
 If the hash is found in any cache, the element is marked as {\it Aborted} and further processing is bypassed.
 
