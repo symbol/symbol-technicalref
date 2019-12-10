@@ -69,11 +69,18 @@ The score for a block is derived from its difficulty and the time (in seconds) t
 \index{block!generation}
 
 The process of creating new blocks is called \nind{harvesting}.
-Any account that has a network defined \nemsetting{network}{minHarvesterBalance} is eligible to harvest.
-An account owner can delegate its importance to some other account\footnote{See \url{https://nemtech.github.io/concepts/harvesting.html\#account-link-transaction} for details.} in order to avoid exposing a private key with funds.
-
 The harvesting account gets the fees from the transactions it includes in a block.
 This gives the harvester an incentive to create a valid block and add as many transactions to it as possible.
+
+An account is eligible to harvest if all of the following are true:
+\begin{enumerate}
+\item{Importance score at the last importance recalculation height is nonzero.}
+\item{Balance no less than a network defined \nemsetting{network}{minHarvesterBalance}.}
+\item{Balance no greater than a network defined \nemsetting{network}{maxHarvesterBalance}.}
+\footnote{This feature is primarily intended to prevent core funds and exchange accounts from harvesting.}
+\end{enumerate}
+
+An account owner can delegate its importance to some other account\footnote{See \url{https://nemtech.github.io/concepts/harvesting.html\#account-link-transaction} for details.} in order to avoid exposing a private key with funds.
 
 The actual reward a harvester receives is customizable based on network settings.
 If \nemsetting{inflation}{inflation} configuration has nonzero values, each harvested block may contain an additional inflation block reward.
