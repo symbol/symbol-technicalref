@@ -22,7 +22,7 @@
 	% left column
 	\node (start) [startfinish] {Start};
 	\node (remoteScore) [process, below=of start] {Pick connection to partner node; \\ Ask for remote chain info};
-	\node (decHeight) [decision, below=of remoteScore] {Remote height more than \textit{max rollback blocks} behind?};
+	\node (decHeight) [decision, below=of remoteScore] {Remote height more than \nemsetting{network}{maxRollbackBlocks} behind?};
 	\node (finishDecHeight) [finishNeutral, left=of decHeight] {Finish (neutral)};
 
 	\node (decRemoteScore) [decision, below=of decHeight] {Better score?};
