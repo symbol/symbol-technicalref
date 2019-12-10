@@ -24,13 +24,13 @@ All unverifiable data is either ignored (e.g. padding bytes) or deterministicall
 Each basic transaction requires verification of exactly one signature.
 
 None of the unverifiable header fields need to be verified.
-\texttt{Size} is the serialized size of the transaction and can always be derived from verifiable transaction data.
-\texttt{Signature} is an output from signing and an input to verification.
-\texttt{SignerPublicKey} is an input to both signing and verification.
-In order for a transaction to pass signature verification, both \texttt{Signature} and \texttt{SignerPublicKey} must be matched with the verifiable data, which has a length relative to \texttt{Size}.
-$$verify(T::Signature, T::SignerPublicKey, VerifiableDataBuffer(T))$$
+\field{Size} is the serialized size of the transaction and can always be derived from verifiable transaction data.
+\field{Signature} is an output from signing and an input to verification.
+\field{SignerPublicKey} is an input to both signing and verification.
+In order for a transaction $T$ to pass signature verification, both \field{Signature} and \field{SignerPublicKey} must be matched with the verifiable data, which has a length relative to \field{Size}.
+$$\mathfunc{verify}(\structField{T}{Signature}, \structField{T}{SignerPublicKey}, \mathfunc{VerifiableDataBuffer}(T))$$
 
-\texttt{Reserved} bytes are used for padding transactions so that all integral fields and cryptographic primitives have natural alignment.
+\field{Reserved} bytes are used for padding transactions so that all integral fields and cryptographic primitives have natural alignment.
 Since these bytes are meaningless, they can be stripped without invalidating any cryptographic guarantees.
 
 Binary layouts for all transaction types are specified in \codename's open source schema language
@@ -44,8 +44,8 @@ Please refer to the published schemas for the most up to date specifications.
 				\begin{leftwordgroup}{\texttt{0x00}}
 					\bitbox{4}{Size} \bitbox{4}{Reserved}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordbox{\texttt{0x08}}{Signature}{7} \\
-				\nemmemorymultiwordbox{\texttt{0x48}}{SignerPublicKey}{3} \\
+				\nemmemorymultiwordbox{0x08}{Signature}{7} \\
+				\nemmemorymultiwordbox{0x48}{SignerPublicKey}{3} \\
 				\begin{leftwordgroup}{\texttt{0x68}}
 					\bitbox{4}{Reserved} \bitbox[]{4}{}
 				\end{leftwordgroup}
@@ -62,7 +62,7 @@ Please refer to the published schemas for the most up to date specifications.
 				\begin{leftwordgroup}{\texttt{0x78}}
 					\wordbox{1}{Deadline}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{\texttt{0x80}}{Payload}{} \\
+				\nemmemorymultiwordboxskipped{0x80}{Payload}{} \\
 			}{Verifiable data}
 		\end{subfigure}
 	}{Basic transaction binary layout}
@@ -82,14 +82,14 @@ API nodes can also accept \emph{bonded} aggregate transactions that have incompl
 The submitter must pay a bond that is returned if and only if all requisite cosignatures are collected before the transaction times out.
 Assuming this bond is paid upfront, an API node will collect cosignatures associated with this transaction until it either has sufficient signatures or times out.
 
-\texttt{TransactionsHash} is the most important field in an aggregate transaction.
+\field{TransactionsHash} is the most important field in an aggregate transaction.
 It is the merkle root hash of the hashes of the embedded transactions stored within the aggregate.
 In order to compute this field, a merkle tree is constructed by adding each embedded transaction hash in natural order.
 The resulting root hash is assigned to this field.
 
 None of the unverifiable footer fields need to be verified.
-\texttt{PayloadSize} is a computed size field that must be correct in order to extract the exact same embedded transactions that were used to calculate \texttt{TransactionsHash}.
-\texttt{Reserved} bytes, again, are used for padding and have no intrinsic meaning.
+\field{PayloadSize} is a computed size field that must be correct in order to extract the exact same embedded transactions that were used to calculate \field{TransactionsHash}.
+\field{Reserved} bytes, again, are used for padding and have no intrinsic meaning.
 
 \begin{figure}[H]
 	\nemcenterwithcaption{
@@ -98,8 +98,8 @@ None of the unverifiable footer fields need to be verified.
 				\begin{leftwordgroup}{\texttt{0x00}}
 					\bitbox{4}{Size} \bitbox{4}{Reserved}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordbox{\texttt{0x08}}{Signature}{7} \\
-				\nemmemorymultiwordbox{\texttt{0x48}}{SignerPublicKey}{3} \\
+				\nemmemorymultiwordbox{0x08}{Signature}{7} \\
+				\nemmemorymultiwordbox{0x48}{SignerPublicKey}{3} \\
 				\begin{leftwordgroup}{\texttt{0x68}}
 					\bitbox{4}{Reserved} \bitbox[]{4}{}
 				\end{leftwordgroup}
@@ -126,7 +126,7 @@ None of the unverifiable footer fields need to be verified.
 				\begin{leftwordgroup}{\texttt{0x88}}
 					\bitbox{4}{\tiny PayloadSize} \bitbox{4}{Reserved}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{\texttt{0x90}}{Embedded}{Transactions} \\
+				\nemmemorymultiwordboxskipped{0x90}{Embedded}{Transactions} \\
 				\nemmemorymultiwordboxskipped{}{Cosignatures}{}
 			}{Unverifiable footer}
 		\end{subfigure}
@@ -137,8 +137,8 @@ None of the unverifiable footer fields need to be verified.
 
 An embedded transaction is a transaction that is contained within an aggregate transaction.
 Compared to a basic transaction, the header is smaller, but the transaction-specific data is the same.
-\texttt{Signature} is removed because all signature information is contained in cosignatures.
-\texttt{MaxFee} and \texttt{Deadline} are removed because they are specified by the parent aggregate transaction.
+\field{Signature} is removed because all signature information is contained in cosignatures.
+\field{MaxFee} and \field{Deadline} are removed because they are specified by the parent aggregate transaction.
 
 Client implementations can use the same code to construct the custom parts of either a basic or embedded transaction.
 The only difference is in the creation and application of different headers.
@@ -153,7 +153,7 @@ For example, an aggregate transaction cannot be embedded within another aggregat
 				\begin{leftwordgroup}{\texttt{0x00}}
 					\bitbox{4}{Size} \bitbox{4}{Reserved}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordbox{\texttt{0x08}}{SignerPublicKey}{3} \\
+				\nemmemorymultiwordbox{0x08}{SignerPublicKey}{3} \\
 				\begin{leftwordgroup}{\texttt{0x28}}
 					\bitbox{4}{Reserved} \bitbox[]{4}{}
 				\end{leftwordgroup}
@@ -164,7 +164,7 @@ For example, an aggregate transaction cannot be embedded within another aggregat
 				\begin{leftwordgroup}{\texttt{0x2C}}
 					\bitbox[br]{4}{} \bitbox{4}{V, N, T}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{\texttt{0x30}}{Payload}{}
+				\nemmemorymultiwordboxskipped{0x30}{Payload}{}
 			}{Verifiable data}
 		\end{subfigure}
 	}{Embedded transaction binary layout}
@@ -179,21 +179,21 @@ Cosignatures are used to cryptographically verify an aggregate transaction invol
 \begin{figure}[H]
 	\nemcenter{
 		\nemmemorylayout{
-			\nemmemorymultiwordbox{\texttt{0x00}}{SignerPublicKey}{3} \\
-			\nemmemorymultiwordbox{\texttt{0x20}}{Signature}{7}
+			\nemmemorymultiwordbox{0x00}{SignerPublicKey}{3} \\
+			\nemmemorymultiwordbox{0x20}{Signature}{7}
 		}{Cosignature binary layout}
 	}{}
 \end{figure}
 
-In order for an aggregate transaction \texttt{A} to pass verification, it must pass basic transaction signature verification and have a cosignature for every embedded transaction signer
+In order for an aggregate transaction $A$ to pass verification, it must pass basic transaction signature verification and have a cosignature for every embedded transaction signer
 \footnote{In the case of multisignature accounts, there must be enough cosignatures to satisfy the multisignature account constraints.}.
 
 Like any transaction, an aggregate transaction, must pass basic transaction signature verification.
-$$verify(A::Signature, A::SignerPublicKey, VerifiableDataBuffer(A))$$
+$$\mathfunc{verify}(\structField{A}{Signature}, \structField{A}{SignerPublicKey}, \mathfunc{VerifiableDataBuffer}(A))$$
 
 Additionally, all cosignatures must pass signature verification.
 Notice that cosigners sign the hash of an aggregate transaction data, not the data directly.
-$$\sum_{0\leq i \leq N_C} verify(C::Signature, C::SignerPublicKey, H(VerifiableDataBuffer(A)))$$
+$$\sum_{0\leq i \leq N_C} \mathfunc{verify}(\structField{C}{Signature}, \structField{C}{SignerPublicKey}, H(\mathfunc{VerifiableDataBuffer}(A)))$$
 
 Finally, there must be a cosignature that corresponds to and satisfies each embedded transaction signer.
 

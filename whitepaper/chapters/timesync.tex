@@ -48,9 +48,9 @@ The partner node uses its own network time to create the timestamps.
 \end{figure}
 
 Using the timestamps, the local node can calculate the round trip time
-$$\textit{rtt}=(t_4-t_1)-(t_3-t_2)$$
+$$\mathit{rtt}=(t_4 - t_1) - (t_3 - t_2)$$
 and then estimate the offset o between the network time used by the two nodes as
-$$o = t_2-t_1-\frac{rtt}{2}$$
+$$o = t_2 - t_1 - \frac{\mathit{rtt}}{2}$$
 
 This is repeated for every time synchronization partner until the local node has a list of offset estimations.
 
@@ -92,18 +92,19 @@ Let $I_j$ be the importance of the node reporting the $j$-th offset $o_j$,
 $\textit{n}$ be the number of nodes that were eligible for the last PoI calculation and $\textit{s}$ be the number of samples.
 
 Then the scaling factor used is
-$$ \textit{scale} = \min\left(\frac{1}{\sum_j I_j}, \frac{1}{\frac{\textit{s}}{\textit{n}}}\right)$$
+$$ \mathit{scale} = \min\left(\frac{1}{\sum_j I_j}, \frac{1}{\frac{s}{n}}\right)$$
 
 This gives the formula for the effective offset $o$
-$$ o = scale \sum_j I_j \: o_j$$
+$$ o = \mathit{scale} \sum_j I_j \: o_j$$
 
-Note that the influence of an account with large importance is artificially limited because the term $\frac{\textit{n}}{\textit{s}} $ caps the scale.
+Note that the influence of an account with large importance is artificially limited because the term $\frac{n}{s} $ caps the scale.
 Such an account can raise its influence on a macro level by splitting its balance into accounts that are not capped.
 But, doing so will likely decrease its influence on individual partners because the probability that all of its split accounts are chosen as time-sync partners for any single node is low.
 
 \subsection{Coupling and threshold}
 
-New nodes that just joined the network need to quickly adjust their offset to the already established network time. In contrast, old nodes should behave a lot more rigid in order to not get influenced by malicious nodes or newcomers too much.
+New nodes that just joined the network need to quickly adjust their offset to the already established network time.
+In contrast, old nodes should behave a lot more rigid in order to not get influenced by malicious nodes or newcomers too much.
 
 In order to enable this, nodes only adjust a portion of the reported effective offset.
 Nodes multiply the effective offset with a coupling factor to build the final offset.

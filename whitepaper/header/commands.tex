@@ -6,6 +6,10 @@
 % math constants
 \newcommand{\euler}{\mathrm{e}}
 
+% math formatting
+\newcommand{\mathfunc}[1]{\mathrm{#1}}
+\newcommand{\structField}[2]{#1\mathrm{{::}#2}}
+
 % nem index
 \newcommand{\nind}[1]{
 	\emph{#1}\index{#1}
@@ -27,6 +31,8 @@
 \protected\def \nemsetting #1#2{
 	\ifmmode\text{#2}\else\textit{#1{\allowbreak}:{\allowbreak}#2}\fi
 }
+
+\newcommand{\field}[1]{\texttt{#1}}
 
 %%% figure formatting %%%
 
@@ -81,8 +87,9 @@
 }
 
 % creates a multiword memory layout wordbox that has top-aligned text
+% first param is always offset
 \newcommand{\nemmemorymultiwordbox}[3]{
-	\begin{leftwordgroup}{#1}
+	\begin{leftwordgroup}{\texttt{#1}}
 		\wordbox[tlr]{1}{#2}
 	\end{leftwordgroup} \\
 	\wordbox[blr]{#3}{}
@@ -90,7 +97,7 @@
 
 % creates a multiword memory layout wordbox with variable sized data that has top-aligned text
 \newcommand{\nemmemorymultiwordboxskipped}[3]{
-	\begin{leftwordgroup}{#1}
+	\begin{leftwordgroup}{\texttt{#1}}
 		\wordbox[tlr]{1}{#2}
 	\end{leftwordgroup} \\
 	\skippedwords \\

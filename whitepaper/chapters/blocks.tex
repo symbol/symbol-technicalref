@@ -27,8 +27,8 @@ None of the unverifiable footer fields need to be verified.
 				\begin{leftwordgroup}{\texttt{0x00}}
 					\bitbox{4}{Size} \bitbox{4}{Reserved}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordbox{\texttt{0x08}}{Signature}{7} \\
-				\nemmemorymultiwordbox{\texttt{0x48}}{SignerPublicKey}{3} \\
+				\nemmemorymultiwordbox{0x08}{Signature}{7} \\
+				\nemmemorymultiwordbox{0x48}{SignerPublicKey}{3} \\
 				\begin{leftwordgroup}{\texttt{0x68}}
 					\bitbox{4}{Reserved} \bitbox[]{4}{}
 				\end{leftwordgroup}
@@ -48,11 +48,11 @@ None of the unverifiable footer fields need to be verified.
 				\begin{leftwordgroup}{\texttt{0x80}}
 					\wordbox{1}{Difficulty}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordbox{\texttt{0x88}}{PreviousBlockHash}{3} \\
-				\nemmemorymultiwordbox{\texttt{0xA8}}{TransactionsHash}{3} \\
-				\nemmemorymultiwordbox{\texttt{0xC8}}{ReceiptsHash}{3} \\
-				\nemmemorymultiwordbox{\texttt{0xE8}}{StateHash}{3} \\
-				\nemmemorymultiwordbox{\texttt{0x108}}{\small BeneficiaryPublicKey}{3} \\
+				\nemmemorymultiwordbox{0x88}{PreviousBlockHash}{3} \\
+				\nemmemorymultiwordbox{0xA8}{TransactionsHash}{3} \\
+				\nemmemorymultiwordbox{0xC8}{ReceiptsHash}{3} \\
+				\nemmemorymultiwordbox{0xE8}{StateHash}{3} \\
+				\nemmemorymultiwordbox{0x108}{\small BeneficiaryPublicKey}{3} \\
 				\begin{leftwordgroup}{\texttt{0x128}}
 					\bitbox{4}{\tiny FeeMultiplier} \bitbox[]{4}{}
 				\end{leftwordgroup}
@@ -63,7 +63,7 @@ None of the unverifiable footer fields need to be verified.
 				\begin{leftwordgroup}{\texttt{0x12C}}
 					\bitbox[br]{4}{} \bitbox{4}{Reserved}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{\texttt{0x130}}{Transactions}{}
+				\nemmemorymultiwordboxskipped{0x130}{Transactions}{}
 			}{Unverifiable footer}
 		\end{subfigure}
 	}{Block header binary layout}
@@ -71,43 +71,43 @@ None of the unverifiable footer fields need to be verified.
 
 \subsection{Block Fields}
 
-\texttt{Height} is the block sequence number.
+\field{Height} is the block sequence number.
 The first block, called the \nind{nemesis block}, has a height of one.
 Each successive block increments the height of the previous block by one.
 
-\texttt{Timestamp} is the number of milliseconds that have elapsed since the nemesis block.
+\field{Timestamp} is the number of milliseconds that have elapsed since the nemesis block.
 Each successive block must have a timestamp greater than that of the previous blocks because block time is strictly increasing.
 Each network tries to keep the average time between blocks close to \textit{target block time}.
 
-\texttt{Difficulty} is described in detail in \nemref{sec:blockchain:difficulty}.
+\field{Difficulty} is described in detail in \nemref{sec:blockchain:difficulty}.
 
-\texttt{PreviousBlockHash} is the hash of the previous block.
+\field{PreviousBlockHash} is the hash of the previous block.
 This is used to guarantee that all blocks within a blockchain are linked and deterministically ordered.
 
-\texttt{TransactionsHash} is the merkle root hash of the hashes of the transactions stored within the block
+\field{TransactionsHash} is the merkle root hash of the hashes of the transactions stored within the block
 \footnote{This field has the same purpose as the identically named field in an aggregate transaction.}.
 In order to compute this field, a merkle tree is constructed by adding each transaction hash in natural order.
 The resulting root hash is assigned to this field.
 
-\texttt{ReceiptsHash} is the merkle root hash of the hashes of the receipts produced while processing the block.
+\field{ReceiptsHash} is the merkle root hash of the hashes of the receipts produced while processing the block.
 When a network is configured without \nemsetting{network}{enableVerifiableReceipts}, this field must be zeroed in all blocks.
 See \nemref{sec:blocks:receipts}.
 
-\texttt{StateHash} is the hash of the global blockchain state after processing the block.
+\field{StateHash} is the hash of the global blockchain state after processing the block.
 When a network is configured without \nemsetting{network}{enableVerifiableState}, this field must be zeroed in all blocks.
 Otherwise, it's calculated as described in \nemref{sec:blocks:statehash}.
 
-\texttt{BeneficiaryPublicKey} is the account that will be allocated the block's beneficiary share when the network has a nonzero \nemsetting{network}{harvestBeneficiaryPercentage}.
+\field{BeneficiaryPublicKey} is the account that will be allocated the block's beneficiary share when the network has a nonzero \nemsetting{network}{harvestBeneficiaryPercentage}.
 This field can be set to any account, even one that isn't yet known to the network.
 This field is set by the node owner when a new block is harvested.
 If this account is set to one owned by the node owner, the node owner will share in fees paid in all blocks harvested on its node.
 This, in turn, incentivizes the node owner to run a strong node with many delegated harvesters.
 
-\texttt{FeeMultiplier} is a multiplier that is used to calculate the effective fee of each transaction contained within a block.
-The \texttt{MinFeeMultiplier} is set by the node owner and can be used to accomplish varying goals, including maximization of profits or confirmed transactions.
+\field{FeeMultiplier} is a multiplier that is used to calculate the effective fee of each transaction contained within a block.
+The \nemsetting{node}{minFeeMultiplier} is set by the node owner and can be used to accomplish varying goals, including maximization of profits or confirmed transactions.
 Assuming a block $B$ containing a transaction $T$, the effective transaction fee can be calculated as:
-$$\mathrm{effectiveFee}(T) = B::FeeMultiplier  \cdot \mathrm{sizeof}(T)$$
-If the effective fee is greater than the transaction \textit{MaxFee}, the transaction signer keeps the difference.
+$$\mathfunc{effectiveFee}(T) = \structField{B}{FeeMultiplier} \cdot \mathfunc{sizeof}(T)$$
+If the effective fee is greater than the transaction \field{MaxFee}, the transaction signer keeps the difference.
 Only the effective fee is deducted from the transaction signer and credited to the harvester.
 Further information about fee multipliers can be found in\nemref{sec:blockchain:generation}.
 
@@ -165,7 +165,7 @@ Accordingly, each receipt source that generates a receipt will have exactly one 
 				\begin{leftwordgroup}{\texttt{0x08}}
 					\wordbox{1}{ReceiptSource}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{\texttt{0x10}}{Receipts}{} \\
+				\nemmemorymultiwordboxskipped{0x10}{Receipts}{} \\
 			}{Transaction statement binary layout}
 		\end{subfigure}%
 		\begin{subfigure}{.5\textwidth}
@@ -180,7 +180,7 @@ Accordingly, each receipt source that generates a receipt will have exactly one 
 \end{figure}
 
 Transaction statement data is not padded because it is only written during processing and never read, so padding yields no server performance benefit.
-A transaction statement hash is constructed by concatenating and hashing all statement data excepting \texttt{Size} fields, which are derivable from other data.
+A transaction statement hash is constructed by concatenating and hashing all statement data excepting \field{Size} fields, which are derivable from other data.
 
 \subsubsection{Resolution Statements}
 
@@ -203,7 +203,7 @@ The only difference is that the resolved and unresolved values are 25-byte addre
 				\begin{leftwordgroup}{\texttt{0x08}}
 					\wordbox{1}{\small MosaicId Unresolved}
 				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{\texttt{0x10}}{Resolution}{Entries} \\
+				\nemmemorymultiwordboxskipped{0x10}{Resolution}{Entries} \\
 			}{Mosaic resolution statement binary layout}
 		\end{subfigure}%
 		\begin{subfigure}{.5\textwidth}
@@ -220,7 +220,7 @@ The only difference is that the resolved and unresolved values are 25-byte addre
 \end{figure}
 
 Resolution statement data is not padded because it is only written during processing and never read, so padding yields no server performance benefit.
-A resolution statement hash is constructed by concatenating and hashing all statement data excepting \texttt{Size} fields, which are derivable from other data.
+A resolution statement hash is constructed by concatenating and hashing all statement data excepting \field{Size} fields, which are derivable from other data.
 
 It is important to note that a resolution statement is only produced when a resolution occurs.
 If an alias is registered or changed in a block, but not used in that block, no resolution statement will be produced.
@@ -237,7 +237,7 @@ Then a merkle tree is created by adding all statement hashes in the following or
 \item{Hashes of mosaic resolution statements ordered by unresolved mosaic id.}
 \end{enumerate}
 
-When a network is configured with \nemsetting{network}{enableVerifiableReceipts}, the root hash of this merkle tree is set as the block's \texttt{ReceiptHash}.
+When a network is configured with \nemsetting{network}{enableVerifiableReceipts}, the root hash of this merkle tree is set as the block's \field{ReceiptHash}.
 A client can perform a merkle proof to prove a particular statement was produced during the processing of a specific block.
 
 \subsection{State Hash}
@@ -256,11 +256,12 @@ It is possible to store all $N$ hashes directly in each block header, but this i
 Each block header should be as small as possible because all clients, minimally, need to sync all headers to verify a chain is rooted to the nemesis block.
 Additionally, adding or removing functionality could change the number of repositories ($N$) and the format of the block header.
 
-Instead, all root hashes are concatenated\footnote{The concatenation order is fixed and determined by the repository id.} and hashed to calculate the \texttt{StateHash}, which is a single hash that deterministically fingerprints the global blockchain state.
+Instead, all root hashes are concatenated\footnote{The concatenation order is fixed and determined by the repository id.} and hashed to calculate the \field{StateHash},
+which is a single hash that deterministically fingerprints the global blockchain state.
 \begin{align*}
-RepositoryHashes = \: & 0 \\
-RepositoryHashes = \: & \sum_{0\leq i \leq N} concat(RepositoryHashes, RepositoryHash_i) \\
-StateHash = \: & H(RepositoryHashes)
+\mathit{RepositoryHashes} = \: & 0 \\
+\mathit{RepositoryHashes} = \: & \sum_{0\leq i \leq N} \mathfunc{concat}(\mathit{RepositoryHashes}, \mathit{RepositoryHash}_i) \\
+\mathit{StateHash} = \: & H(\mathit{RepositoryHashes})
 \end{align*}
 
 \subsection{Extended Layout}

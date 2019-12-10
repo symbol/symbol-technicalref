@@ -93,7 +93,9 @@ This makes running network nodes more profitable but harvesting less profitable.
 Each block must specify a \textit{fee multiplier} that determines the effective fee that must be paid by all transactions included in that block.
 Typically, the node owner sets the \nemsetting{node}{minFeeMultiplier} that applies to all blocks harvested by the node.
 Only transactions that satisfy the following will be allowed to enter that node's unconfirmed transactions cache and be eligible for inclusion into blocks harvested by that node:
-$$\textit{transaction max fee} >= \nemsetting{node}{minFeeMultiplier} * \textit{transaction size (bytes)}$$
+\begin{equation}
+\textit{transaction max fee} \geqslant \nemsetting{node}{minFeeMultiplier} \cdot \textit{transaction size (bytes)}
+\end{equation}
 Rejected transactions may still be included in blocks harvested by other nodes with lower requirements.
 The specific algorithm used to select transactions for inclusion in harvested blocks is configured by the \nemsetting{node}{transactionSelectionStrategy} node setting.
 
@@ -102,8 +104,8 @@ The specific algorithm used to select transactions for inclusion in harvested bl
 The generation hash of a block is derived from the previous block generation hash and the public key of the current block harvester:
 \begin{align*}
 \tag{generation hash}
-\mathit{gh(1)} = \: & \nemsetting{network}{generationHash} \\
-\mathit{gh(N)} = \: & H(\textit{gh(N - 1), public key of account})
+\mathfunc{gh}(1) = \: & \nemsetting{network}{generationHash} \\
+\mathfunc{gh}(N) = \: & H(\mathfunc{gh}(N - 1), \textit{public key of account})
 \end{align*}
 
 \index{block!hit}
@@ -120,25 +122,25 @@ In the case of delegated harvesting, the importance of the original account is u
 
 The target is calculated using 256-bit integer arithmetic as follows:
 \begin{align*}
-multiplier = \: & 2^{64} \\
+\mathit{multiplier} = \: & 2^{64} \\
 t = \: & \textit{time in seconds since last block} \\
 b = \: & 8999999998 \: \cdot \: (\textit{account importance}) \\
 i = \: & \textit{total chain importance} \\
 d = \: & \textit{new block difficulty} \\
-target = \: & \frac{multiplier \cdot t \cdot b}{i \cdot d}
+\mathit{target} = \: & \frac{multiplier \cdot t \cdot b}{i \cdot d}
 \end{align*}
 
 \emph{Block time smoothing}\index{block!time smoothing} can be enabled, which results in more stable block times.
 If enabled, $multiplier$ above is calculated in the following way:
 \begin{align*}
-factor = \: & \nemsetting{network}{blockTimeSmoothingFactor} / 1000.0 \\
-tt = \: & \nemsetting{network}{blockGenerationTargetTime} \\
-power = \: & factor \cdot \frac{\textit{time in seconds since last block} - tt}{tt} \\
-smoothing = \: & \min\left(e^{power}, 100.0\right) \\
-multiplier = \: & \mathrm{integer}\left(2^{54} \cdot smoothing\right) \cdot 2^{10}
+\mathit{factor} = \: & \nemsetting{network}{blockTimeSmoothingFactor} / 1000.0 \\
+\mathit{tt} = \: & \nemsetting{network}{blockGenerationTargetTime} \\
+\mathit{power} = \: & factor \cdot \frac{\textit{time in seconds since last block} - \mathit{tt}}{\mathit{tt}} \\
+\mathit{smoothing} = \: & \min\left(e^{\mathit{power}}, 100.0\right) \\
+\mathit{multiplier} = \: & \mathfunc{integer}\left(2^{54} \cdot \mathit{smoothing}\right) \cdot 2^{10}
 \end{align*}
 
-Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{gh}{2^{256}}\right)\right|$, where $gh$ is a new generation hash.
+Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{\mathit{gh}}{2^{256}}\right)\right|$, where $\mathit{gh}$ is a new generation hash.
 
 First, let's rewrite value above using $\log$ with base $2$:
 $$
@@ -150,13 +152,13 @@ Now, $\log_2\left(\frac{gh}{2^{256}}\right)$, can be rewritten as $\log_2\left(g
 
 Dropping absolute value and rewriting yields:
 \begin{align*}
-	scale = \: & \frac{1}{\log_2\left(\euler\right)} \\
-	\textit{hit} = \: & scale \cdot 2^{54} (\log_2\left(2^{256}\right) - \log_2\left(gh\right))
+	\mathit{scale} = \: & \frac{1}{\log_2\left(\euler\right)} \\
+	\mathit{hit} = \: & \mathit{scale} \cdot 2^{54} (\log_2\left(2^{256}\right) - \log_2\left(\mathit{gh}\right))
 \end{align*}
 
 This can be further simplified to:
 $$
-\textit{hit} =  scale \cdot ( 2^{54} \cdot 256 -  2^{54} \cdot \log_2\left(gh\right))
+\mathit{hit} =  \mathit{scale} \cdot ( 2^{54} \cdot 256 -  2^{54} \cdot \log_2\left(\mathit{gh}\right))
 $$
 
 The actual implementation approximates the right part using only the first 32 non-zero bits of the new generation hash.
@@ -169,7 +171,7 @@ Also note that $\mathit{hit}$ has an exponential distribution. Therefore, the pr
 
 A score can be assigned to any chain of blocks by summing the scores of the component blocks:
 \begin{equation}
-\tag{blockchain score} \mathit{score} = \sum_{block \in blocks} \textit{block score}
+\tag{blockchain score} \mathit{score} = \sum_{\mathit{block} \in \mathit{blocks}} \textit{block score}
 \end{equation}
 
 Blockchain synchronization is crucial to maintaining distributed consensus.

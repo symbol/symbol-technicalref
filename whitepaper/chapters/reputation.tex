@@ -81,7 +81,7 @@ Then the raw weight is calculated by the following formula:
 \end{figure}
 
 \begin{align*}
-rawWeight = \max\left(500, \frac{s \cdot 10000}{s + 9 \cdot f}\right)
+\mathit{rawWeight} = \max\left(500, \frac{s \cdot 10000}{s + 9 \cdot f}\right)
 \end{align*}
 \end{itemize}
 
@@ -100,7 +100,7 @@ Each removal candidate that will be closed is replaced with a connection to a ne
 Finally, for each free slot, a candidate node has a chance of getting selected given by:
 
 \begin{align*}
-P(\textrm{node is getting selected}) = \frac{\textrm{node weight}}{\sum\limits_{\substack{candidates\\nodes}} \textrm{candidate node weight}}
+P(\textrm{node is getting selected}) = \frac{\textit{node weight}}{\sum\limits_{\substack{candidates\\nodes}} \textit{candidate node weight}}
 \end{align*}
 
 \subsection{Node Banning}
