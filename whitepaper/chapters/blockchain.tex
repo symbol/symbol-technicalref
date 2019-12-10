@@ -101,7 +101,7 @@ The generation hash of a block is derived from the previous block generation has
 To check if an account is allowed to create a new block at a specific network time, the following values are compared:
 \begin{itemize}
 \item{ $hit$: defines per-block value that needs to be \textit{hit}.}
-\item{ $target$: defines per-harvester power that increases since last harvested block increases.}
+\item{ $target$: defines per-harvester power that increases as time since last harvested block increases.}
 \end{itemize}
 An account is allowed to create a new block whenever $\mathit{hit} < \mathit{target}$.
 Since $\mathit{target}$ is proportional to the elapsed time, a new block will be created after a certain amount of time even if all accounts are unlucky and generate a very high hit.
