@@ -50,7 +50,7 @@ Therefore, consumers always need to act on input elements in a predefined order.
 To ensure this, each consumer has an associated barrier.
 The barrier prevents a consumer from processing an element that has not yet been processed by its immediately preceding consumer.
 The last consumer reclaims all memory that was used during processing.
-Consumers can set an element's completion status to {\it Aborted} in case it is already known or invalid for some reason.
+Consumers can set an element's completion status to \textit{Aborted} in case it is already known or invalid for some reason.
 Subsequent consumers ignore aborted elements.
 
 \begin{tikzpicture}[>=latex,font=\sffamily,thick,,scale=0.8]
@@ -182,7 +182,7 @@ For performance reasons, it is desirable to detect at an early stage whether an 
 The hash calculator consumer calculates all the hashes associated with an element.
 The hash check consumer uses the hashes to search the recency cache, which contains the hashes of all recently seen elements.
 The consumer used by the transaction disruptor will also search the hash cache (containing hashes of confirmed transactions) and the unconfirmed transactions cache.
-If the hash is found in any cache, the element is marked as {\it Aborted} and further processing is bypassed.
+If the hash is found in any cache, the element is marked as \textit{Aborted} and further processing is bypassed.
 
 \subsubsection*{Stateless Validation Consumer}
 This consumer handles state independent validation by validating each entity in an element.
@@ -194,7 +194,7 @@ This check depends on the network configuration but not on the global blockchain
 
 \subsubsection*{Batch Signature Consumer}
 This consumer validates all signatures of all entities in an element.
-This is separate from the {\it Stateless Validation Consumer} because it uses batch verification.
+This is separate from the \textit{Stateless Validation Consumer} because it uses batch verification.
 For improved performance, this consumer processes many signatures at once in a batch instead of individually.
 This can be done in parallel using many threads.
 
@@ -233,7 +233,7 @@ Otherwise, all changes are committed to the chain state (both the block and cach
 
 \subsubsection*{Blockchain Sync Cleanup Consumer}
 This consumer is optional and can be enabled via node configuration.
-If enabled, it removes all files that were created by the {\it Blockchain Sync Consumer}.
+If enabled, it removes all files that were created by the \textit{Blockchain Sync Consumer}.
 This consumer should only be enabled when a server is running without a broker.
 
 \subsubsection*{New Block Consumer}
