@@ -1,0 +1,119 @@
+\section{Unconfirmed Transactions}
+\label{sec:unconfirmedTransactions}
+
+\nemquote{
+}{}
+
+\nemchapterfirstletter{A}{ny} transaction that is not yet included in a block is called an \textit{unconfirmed transaction}.
+These transactions may be valid or invalid.
+Valid unconfirmed transactions are eligible for inclusion in a harvested block.
+Once a transaction is added to a block that is accepted in the blockchain, it is \textit{confirmed}.
+
+Unconfirmed transactions can arrive at a node when:
+\begin{enumerate}
+	\item{A client sends a new transaction directly to the node.}
+	\item{A bonded aggregate transaction is completed with all requisite cosignatures and is promoted from the partial transactions cache.}
+	\item{A peer node broadcasts transactions to the node.}
+	\item{A peer node responds to the node's request for unconfirmed transactions.
+	As an optimization, the requesting node indicates what transactions it already knows in order to avoid receiving redundant transactions.
+	Additionally, it supplies the minimum fee multiplier \nemrefparens{sec:blockchain:generation} it uses when creating blocks.
+	This prevents the remote node from returning unconfirmed transactions that will be immediately rejected by the requesting node.}
+\end{enumerate}
+
+When an unconfirmed transaction arrives at a node, it is added to the transaction disruptor \nemrefparens{sec:disruptor}.
+All transactions that haven't been previously seen and pass stateless validation will be broadcast to peer nodes.
+At this point, it is still possible for the node to reject the broadcast transactions because stateful validation is performed after broadcasting.
+Due to different node settings, it's possible for some nodes to accept a specific unconfirmed transaction and other nodes to reject it.
+For example, the nodes could have different \nemsetting{node}{minFeeMultiplier} settings.
+
+\subsection{Unconfirmed Transactions Cache}
+\index{unconfirmedTransactions!cache}
+
+When a transaction passes all validation, it is eligible for inclusion in a harvested block.
+At this point, the node tries to add it to the \textit{unconfirmed transactions cache}.
+This can fail for two reasons:
+\begin{enumerate}
+	\item{The maximum cache size configured by \nemsetting{node}{unconfirmedTransactionsCacheMaxSize} has been reached.}
+	\item{The cache contains at least as many unconfirmed transactions as can be included in a single block and the new transaction is rejected by the Spam throttle}.
+\end{enumerate}
+
+Whenever new blocks are added to the blockchain, the blockchain state changes and the unconfirmed transactions cache is affected.
+Although all transactions in the cache are valid at the time they were added, this doesn't guarantee that they'll be valid in perpetuity.
+For example, a transaction could have already been included in a block harvested by another node or a conflicting transaction could have been added to the blockchain.
+This means that transactions in the cache that were perfectly valid previously could be invalidated after changes to the blockchain state.
+Additionally, when blocks with transactions are reverted, it's possible that some of those previously confirmed transactions are no longer included in any block in the new chain.
+Those reverted transaction should be added to the cache.
+
+As a result of these considerations, the entire unconfirmed transactions cache is completely rebuilt whenever the blockchain changes.
+Each transaction is rechecked by the stateful validators and purged if it has become invalid or has already been included in a block.
+Otherwise, it is added back to the cache.
+
+\subsection{Spam Throttle}
+\index{unconfirmedTransactions!spamThrottle}
+
+The initiator of an unconfirmed transaction does not have to pay a fee to nodes holding the transaction in the unconfirmed transactions cache.
+Since the cache uses valuable resources, a node must have some protection against being spammed with lots of unconfirmed transactions.
+This is especially important if the node is generous and accepts zero fee transactions.
+
+Simply limiting the number of unconfirmed transactions that a node accepts is suboptimal because normal actors should still be able to send a transaction even when a malicious actor is spamming the network.
+Limiting the number of unconfirmed transactions per account is also not a good option because accounts are free to create.
+
+\codenamespace implements a smart throttle that prevents an attacker from filling the cache completely with transactions while still letting honest actors successfully submit new unconfirmed transactions.
+\nemsetting{node}{enableTransactionSpamThrottling} can be used to activate the throttle.
+Assuming the cache is not full, it works in the following way:
+\begin{enumerate}
+	\item{If the cache contains fewer unconfirmed transactions than can be included in a single block, throttling is bypassed.}
+	\item{If the new transaction is a bonded aggregate transaction, throttling is bypassed.}
+	\item{Else the Spam throttle is applied.}
+\end{enumerate}
+
+Let \textit{curSize} be the current number of transactions in the cache and \textit{maxSize} the configured maximum size of the cache.
+Also let \textit{rel. importance of A} be the relative importance of $A$, i.e. a number between 0 and 1.
+If a new unconfirmed transaction with signer $A$ arrives, then the \textit{fair share} for account $A$ is calculated:
+\begin{align*}
+	\textit{maxBoostFee} &= \text{\nemsetting{node}{transactionSpamThrottlingMaxBoostFee}} \\
+	\textit{maxFee} &= \min(\textit{maxBoostFee}, \structField{transaction}{MaxFee}) \\
+	\textit{eff. importance} &= (\textit{rel. importance of A}) + 0.01 \cdot \frac{\textit{maxFee}}{\textit{maxBoostFee}} \\
+	\textit{fair share} &= 100 \cdot (\textit{eff. importance}) \cdot (\textit{maxSize} - \textit{curSize}) \cdot \exp\left(-3 \frac{\textit{curSize}}{\textit{maxSize}}\right)
+\end{align*}
+
+If account $A$ already has as many transactions in the cache as its fair share, then the new transaction is rejected.
+Otherwise, it is accepted.
+The formula shows that an increase in a transaction's maximum fee increases the number of slots available in the cache.
+Nonetheless, this mechanism for boosting the effective importance is limited by \nemsetting{node}{transactionSpamThrottlingMaxBoostFee}.
+
+\begin{figure}[ht]
+	\nemcenterwithcaption{
+		\pgfplotsset{
+			legend entry/.initial=,
+			every axis plot post/.code={%
+				\pgfkeysgetvalue{/pgfplots/legend entry}\tempValue
+				\ifx\tempValue\empty
+					\pgfkeysalso{/pgfplots/forget plot}%
+				\else
+					\expandafter\addlegendentry\expandafter{\tempValue}%
+				\fi
+			},
+		}
+		\begin{tikzpicture}[trim axis left]
+			\begin{axis}[
+					scale only axis,
+					xlabel = \text{cache fill level [\%]},
+					xticklabel={\pgfmathparse{int(\tick / 100)}\pgfmathprintnumber{\pgfmathresult}},
+					scaled x ticks=false,
+					ylabel = fair share,
+					height = 5cm,
+					width=(4 * \textwidth) / 5
+				]
+				\addplot[color=blue,domain=1500:10000,legend entry=$0.01\%$]{100 * 0.0001 * (10000 - x) * exp(-3 * x / 10000)};
+				\addplot[color=red,domain=1500:10000,legend entry=$0.005\%$]{100 * 0.00005 * (10000 - x) * exp(-3 * x / 10000)};
+				\addplot[color=green,domain=1500:10000,legend entry=$0.001\%$]{100 * 0.00001 * (10000 - x) * exp(-3 * x / 10000)};
+			\end{axis}
+		\end{tikzpicture}
+	}{Fair share for various effective importances with max cache size = 10000}
+	\label{fig:unconfirmedTransactions:fairShare}
+\end{figure}
+
+\autoref{fig:unconfirmedTransactions:fairShare} shows the fair share of slots relative to the fill level of the cache for various effective importances.
+An attacker that tries to occupy many slots cannot gain much by using many accounts because the importance of each account will be very low.
+The attacker can increase maximum transaction fees but that will be more costly and expend funds at a faster rate.
