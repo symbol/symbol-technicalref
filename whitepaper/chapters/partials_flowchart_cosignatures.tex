@@ -1,0 +1,73 @@
+\begin{tikzpicture}[
+	node distance=0.5cm and 0.5cm,
+	font=\scriptsize
+	]
+\tikzset{
+	base/.style = { rectangle, text centered, draw=black, minimum height=1cm },
+	rounded/.style = { base, rounded corners },
+	startfinish/.style = { rounded, fill=green!30, minimum width=2cm, text width=3cm },
+	finish/.style = { rounded, fill=gray!30, minimum width=3cm, text width=2.5cm },
+	process/.style = { base, text width=4cm, fill=orange!30, minimum width=4cm },
+	decision/.style = { diamond, text centered, draw=black,aspect=2, text width=3cm, inner sep=0cm, fill=yellow!30 },
+	arrow/.style ={ thick,->,>=stealth },
+	line/.style = { thick,-,>=stealth },
+	coord/.style={ coordinate },
+	middleSpacing/.style = { xshift=0.3cm }
+}
+	% main column
+	\node (start) [startfinish] {Start};
+	\node (decCache) [decision, below=of start] {Is associated transaction already in PT cache?};
+	\node (finishIgnore) [finish, right=of decCache, xshift=1cm, yshift=0.3cm] {Finish, cosignature can be ignored};
+
+	\node (validateCosigI) [process, below=of decCache] {Validate partial transaction with existing signatures and new cosignature};
+
+	\node (decRedundant) [decision] at (validateCosigI -| finishIgnore) {Is cosignature from this cosignatory already present?};
+
+	\node (decEligibleI) [decision, below=of validateCosigI] {Is eligible?};
+
+	\node (decVerifyCosig) [decision, below=of decEligibleI] {Is cosignature cryptographically verifiable?};
+
+	\node (addToCache) [process, below=of decVerifyCosig] {Add cosignature to PT cache};
+	\node (decComplete) [decision, below=of addToCache] {Is partial transaction complete?};
+	\node (finishWait) [finish, right=of decComplete] {Finish, need to wait for more cosignatures};
+
+	\node (finishComplete) [finish, fill=lime!30, below=of decComplete] {Remove from PT cache \\ Send to transaction dispatcher};
+
+	% side column
+	\node (validateCosigE) [process, middleSpacing, right=of decEligibleI] {Validate partial transaction only with new cosignature};
+	\node (decEligibleE) [decision, below=of validateCosigE, yshift=0.7cm,  xshift=3.5cm] {Is eligible?};
+
+	\node (removeStale) [process, right=of decVerifyCosig] {Find and remove stale cosignatures};
+
+	% paths
+	\draw [arrow] (start) --  (decCache);
+	\draw [arrow] (decCache) -- node[anchor=north] {\scriptsize{no}} (finishIgnore);
+	\draw [arrow] (decCache) -- node[anchor=west] {\scriptsize{yes}} (decRedundant);
+
+	\draw [arrow] (decRedundant) edge[arrow, in=-90] node[anchor=west] {\scriptsize{yes}} (finishIgnore);
+	\draw [arrow] (decRedundant) -- node[anchor=north] {\scriptsize{no}} (validateCosigI);
+
+	\draw [arrow] (validateCosigI) -- (decEligibleI);
+	\draw [arrow] (decEligibleI) -- node[anchor=north] {\scriptsize{no}} (validateCosigE);
+	\draw [arrow] (decEligibleI) -- node[anchor=east] {\scriptsize{yes}} (decVerifyCosig);
+
+	\node (topLeft) [coord, left=of start, xshift=-0.5cm] {};
+
+	\draw [line] (decVerifyCosig) edge[out=180, in=-90] node[anchor=west] {\scriptsize{no (invalid)}} (topLeft);
+	\draw [line] (topLeft) edge[arrow, out=90, in=90] (finishIgnore);
+
+	\draw [arrow] (decVerifyCosig) -- node[anchor=east] {\scriptsize{yes (valid)}} (addToCache);
+
+	\draw [arrow] (addToCache) -- (decComplete);
+
+	\draw [arrow] (decComplete) -- node[anchor=north] {\scriptsize{no}} (finishWait);
+	\draw [arrow] (decComplete) -- node[anchor=east] {\scriptsize{yes}} (finishComplete);
+
+	% side column paths
+	\draw [arrow] (validateCosigE) -- (decEligibleE);
+	\draw [arrow] (decEligibleE) edge[arrow, in=0] node[anchor=east] {\scriptsize{no}} (finishIgnore);
+	\draw [arrow] (decEligibleE) -- node[anchor=east] {\scriptsize{yes}} (removeStale);
+
+	\draw [arrow] (removeStale) -- (decVerifyCosig);
+
+\end{tikzpicture}

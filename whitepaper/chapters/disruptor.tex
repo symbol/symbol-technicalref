@@ -96,7 +96,7 @@ Subsequent consumers ignore aborted elements.
 
 \subsection{Consumers}
 \index{consumers}
-\label{sec:consumers}
+\label{sec:disruptor:consumers}
 In \codename, a block disruptor is used to process incoming blocks and blockchain parts.
 A blockchain part is an input element composed of multiple blocks.
 This disruptor is primarily responsible for validating, reconciling and growing the blockchain.
@@ -242,6 +242,7 @@ This consumer should only be enabled when a server is running without a broker.
 This consumer forwards single blocks, either harvested by the server or pushed from a remote server, to other servers in the network.
 
 \subsubsection{Additional Transaction Consumers}
+\label{sec:disruptor:transactionConsumers}
 \index{consumers!transaction}
 The transaction disruptor uses a single transaction-specific consumer.
 

@@ -1,0 +1,81 @@
+\section{Partial Transactions}
+\label{sec:partials}
+
+\nemquote{
+Lorem ipsum
+}{}
+
+\nemchapterfirstletter{B}onded aggregate transactions \nemrefparens{sec:transactions:aggregate} are also referred to as partial transactions.
+The name \emph{partial} is fitting because the transactions have insufficient cosignatures and are unable to pass validation until more cosignatures are collected.
+
+Support for handling partial transactions is provided by the \textit{partial transaction extension}.
+If a network supports bonded aggregate transactions, this extension should be enabled on all Api and Dual nodes.
+
+Partial transactions are synchronized among all nodes in a network that have this extension enabled.
+A node passively receives partial transactions and cosignatures pushed by remote nodes.
+It also periodically requests transactions and cosignatures from remote nodes via the \textit{pull partial transactions task}.
+As an optimization, the requesting node indicates which transactions and cosignatures it already knows in order to avoid receiving redundant information.
+
+When the hash lock plugin is enabled, in order for a partial transaction to be accepted by the network, a hash lock must be created and associated with the transaction.
+The hash lock is essentially a bond paid in order to use the built-in cosignature collection service.
+If the associated partial transaction is completed and confirmed in the blockchain before the hash lock expires, the bond is returned to the payer.
+Otherwise, the bond is forfeited to the harvester of the block at which the lock expires.
+This feature makes spamming the partial transactions cache more costly because it requires \nemsetting{node}{lockedFundsPerAggregate} to be paid, at least temporarily, for a partial transaction to enter the cache.
+
+When a node receives a new partial transaction, it is pushed to the \textit{partial transaction dispatcher}.
+Received cosignatures are collated with partial transactions already in the cache and are immediately rejected if there are no matching transactions
+\footnote{This implies that a partial transaction must be present in the cache before any of its cosignatures can be accepted.}.
+When transactions and cosignatures are received together, they are split and processed individually as above.
+
+Compared to the normal transaction dispatcher \nemrefparens{sec:disruptor:consumers}, the partial transaction dispatcher is minimalistic.
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\tikzstyle{consumer} = [rectangle, rounded corners, text centered, draw=black, minimum width=7cm, minimum height=0.5cm, text width=6.5cm]
+		\vspace{0pt}
+		\begin{tikzpicture}[>=latex,font=\small ,semithick,scale=1,node distance=1.1cm]
+			% consumers
+			\node (hash calculator consumer) [consumer, below of=audit consumer] {Hash Calculator Consumer};
+			\node (hash check consumer) [consumer, below of=hash calculator consumer] {Hash Check Consumer};
+			\node (new transactions consumer) [consumer, below of=hash check consumer] {New Transactions Consumer};
+
+			% arrows
+			\draw [semithick,->] (hash calculator consumer) -- (hash check consumer);
+			\draw [semithick,->] (hash check consumer) -- (new transactions consumer);
+		\end{tikzpicture}
+	}{Partial transaction consumers}
+\end{figure}
+
+The hash calculator and hash check consumers work as described for the transaction dispatcher in \nemref{sec:disruptor:commonConsumers}.
+The one difference is that the hash check consumer will additionally search the partial transactions cache for previously seen transactions.
+The new transaction consumer has a similar purpose to the one described in \nemref{sec:disruptor:transactionConsumers}.
+The difference is that it broadcasts and processes partial transactions instead of unconfirmed transactions.
+Specifically, it broadcasts partial transactions to the network and then adds valid ones to the partial transactions cache.
+
+\subsection{Partial Transaction Processing}
+\label{sec:partials:processing}
+
+The partial transactions cache contains all partial transactions that are waiting for additional cosignatures.
+When a new partial transaction is received that passes all validation, it is added to the cache.
+It will stay in the cache until a sufficient number of cosignatures are collected or it becomes invalid.
+For example, the transaction will be purged if its associated hash lock expires.
+Whenever a partial transaction is completed by collecting sufficient cosignatures, it will immediately be forwarded to the transaction dispatcher and be processed as an unconfirmed transaction.
+
+\begin{figure}
+	\nemcenterwithcaption{
+		\input{chapters/partials_flowchart}
+	}{Processing of a partial transaction}
+\end{figure}
+
+The partial transactions cache collates all new cosignatures with the transactions it already contains.
+In order to be added to the cache, a cosignature must be new, verifiable and associated with an existing partial transaction.
+It is possible for a previously accepted cosignature to become invalid, in which case it should be purged.
+For example, a cosignature could become invalid if its signer was removed from a multisignature account participating in the partial transaction.
+The cosignature collation process is intricate enough to handle such edge cases.
+
+\begin{figure}
+	\nemcenterwithcaption{
+		\input{chapters/partials_flowchart_cosignatures}
+	}{Processing of a cosignature}
+	\label{fig:partials:flowchart:cosignature}
+\end{figure}
