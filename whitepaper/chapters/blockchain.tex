@@ -97,7 +97,29 @@ Only transactions that satisfy the following will be allowed to enter that node'
 \textit{transaction max fee} \geqslant \nemsetting{node}{minFeeMultiplier} \cdot \textit{transaction size (bytes)}
 \end{equation}
 Rejected transactions may still be included in blocks harvested by other nodes with lower requirements.
-The specific algorithm used to select transactions for inclusion in harvested blocks is configured by the \nemsetting{node}{transactionSelectionStrategy} node setting.
+The specific algorithm used to select transactions for inclusion in harvested blocks is configured by the \nemsetting{node}{transactionSelectionStrategy} setting.
+\codenamespace offers three built-in selection strategies
+\footnote{In all cases, all available transactions must already fulfill the requirement that \nemsetting{node}{minFeeMultiplier} indicates.}:
+
+\begin{enumerate}
+\item{\texttt{oldest}: \\
+This is the least resource-intensive strategy and is recommended for high TPS networks.
+Transactions are added to a new block in the order in which they have been received.
+This ensures that the oldest transactions are selected first and attempts to minimize the number of transactions timing out.
+As a consequence, this strategy is rarely profit maximizing for the harvester.}
+\item{\texttt{maximize-fee}: \\
+Transactions are selected in such a way that the cumulative fee for all transactions in a block is maximized.
+A greedy node will pick this strategy.
+Maximizing the total block fee does not necessarily mean that the number of transactions included is maximized as well.
+In fact, in many cases, the harvester will only include a subset of the transactions that are available.}
+\item{\texttt{minimize-fee}: \\
+Transactions with the lowest maximum fee multipliers are selected first by this strategy.
+Generous nodes will pick this strategy together with a very low  \nemsetting{node}{minFeeMultiplier}.
+If this setting is zero, then the harvester will include transactions with zero fees first.
+This allows users to send transactions that get included in the blockchain for free!
+In practice, it is likely that only a few nodes will support this.
+Even with such a subset of nodes running, zero fee transactions will still have the lowest probability of getting included in a block because they will always be supported by the least number of nodes in the network.}
+\end{enumerate}
 
 \index{block!generation hash}
 
