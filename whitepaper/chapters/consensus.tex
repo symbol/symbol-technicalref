@@ -1,4 +1,199 @@
 \section{Consensus}
 \label{sec:consensus}
 
-Aliquam sem fringilla ut morbi tincidunt. Et molestie ac feugiat sed lectus vestibulum. Leo vel fringilla est ullamcorper eget nulla facilisi. Pharetra convallis posuere morbi leo urna molestie at elementum. Mauris cursus mattis molestie a iaculis at. Sapien nec sagittis aliquam malesuada bibendum arcu. Consectetur adipiscing elit ut aliquam purus sit amet luctus. Egestas dui id ornare arcu. Nunc sed id semper risus in hendrerit gravida. Eu feugiat pretium nibh ipsum consequat nisl vel.
+\nemquote{
+}{}
+
+\nemchapterfirstletter{B}{yzantine} consensus is a key problem faced by all decentralized systems.
+Essentially, the crux of the problem is finding a way to get independent actors to cooperate without cheating.
+Bitcoin's key innovation was a solution to this problem that is based on Proof of Work (PoW).
+After each new block is accepted into Bitcoin's main chain, all miners begin a competition to find the next block.
+All miners are incentivized to extend the main chain instead of forks because the chain with the greatest cumulative hashing power is the reference chain.
+Miners calculate hashes as quickly as possible until one produces a candidate block with a hash below the current network difficulty target.
+A miner's probability of mining a block is proportional to the miner's hash rate relative to the network's total hash rate.
+This necessarily leads to a computational arms race and uses a lot of electricity.
+
+Proof of Stake (PoS) blockchains were introduced after Bitcoin.
+They presented an alternative solution to the Byzantine consensus problem that did not require significant power consumption.
+Fundamentally, these chains behaved similarly to Bitcoin with one important difference.
+Instead of predicating the probability of creating a block on a node's relative hash rate the probability is based on a node's relative stake in the network.
+Since richer accounts are able to produce more blocks than poorer accounts, this scheme tends to allow the rich to get richer.
+
+\codenamespace uses a modified version of PoS that borrows key concepts from Proof of Importance (PoI).
+This new weighting attempts to capture the original intent of PoI, which was to award \emph{users} preferentially relative to \emph{hoarders}, but not suffer from the scaling issues inherent in the original PoI algorithm.
+
+There are multiple factors that contribute to a healthy ecosystem.
+All else equal, accounts with larger stakes making more transactions and running nodes have more skin in the game and should be rewarded accordingly.
+Firstly, accounts with larger balances have larger stakes in the network and have greater incentives to see the ecosystem as a whole succeed.
+The amount of the currency an account owns is a measure of its stake.
+Secondly, accounts should be encouraged to use the network by making transactions.
+Network usage can be approximated by the total amount of fees paid by an account.
+Thirdly, accounts should be encouraged to run nodes to strengthen the network.
+This can approximated by the number of times an account is the beneficiary of a block
+\footnote{
+	This measure is strongly correlated with stake when all accounts are actively running nodes.
+	Its intent is to differentiate accounts running nodes from accounts idling.
+}.
+Since the node owner has complete control over defining its beneficiary, any benevolent node owner can alternatively boost this measure for a third-party.
+
+Importances are recalculated every \nemsetting{network}{importanceGrouping} blocks.
+This reduces the pressure on the blockchain because the importance calculation is relatively expensive and processing it every block would be prohibitive.
+Additionally, recalculating importances periodically allows for automatic state aging.
+Overall, it is beneficial to calculate importances periodically rather than every block.
+
+In order to encourage good behavior, accounts active in an older time period should not obtain an eternal advantage due to their previous virtuous behavior.
+Instead, importance boosts granted by transaction and node scores are time limited.
+The boost lasts for five \nemsetting{network}{importanceGrouping} intervals.
+
+\subsection{Weighting Algorithm}
+
+All accounts that have a balance of at least \nemsetting{network}{minHarvesterBalance} participate in the importance calculation and are called \emph{high value accounts}.
+Notice that this set of accounts is a superset of the set of accounts eligible for block generation \nemrefparens{sec:blockchain:generation}.
+In other words, a nonzero importance at the most recent importance recalculation is a necessary but not sufficient condition for block generation.
+
+An account's \emph{importance score} is calculated by combining three component scores: stake, transaction and node.
+
+The stake score, $S_A$, for an account $A$ is the percentage of currency it owns relative to the total currency owned by all high value accounts.
+This percentage is no less than the percentage of currency the account owns relative to all outstanding currency.
+Let $B_A$ represent the amount of currency owned by account $A$.
+The stake score for account $A$ is calculated for each eligible account as follows:
+
+\begin{equation}
+S_A = \frac{B_A}{\sum\limits_{\substack{a \in \textit{high value accounts}}} B_a}
+\end{equation}
+
+The transaction score, $T_A$, for an account $A$ is the percentage of transaction fees it has paid relative to all fees paid by high value accounts within a time period $P$.
+Let $\mathfunc{FeesPaid}{A}$ represent the amount of fees paid by $A$ in the time period $P$.
+The transaction score for account $A$ is calculated for each eligible account as follows:
+
+\begin{equation}
+T_A = \frac{\mathfunc{FeesPaid}(A)}{\sum\limits_{\substack{a \in \textit{high value accounts}}} \mathfunc{FeesPaid}(a)}
+\end{equation}
+
+The node score, $N_A$, for an account $A$ is the percentage of times it has been specified as a beneficiary relative to the total number of high value account beneficiaries within a time period $P$.
+Let $\mathfunc{BeneficiaryCount}{A}$represent the number of times $A$ has been specified as a beneficiary in the time period $P$.
+The node score for account $A$ is calculated for each eligible account as follows:
+
+\begin{equation}
+N_A = \frac{\mathfunc{BeneficiaryCount}(A)}{\sum\limits_{\substack{a \in \textit{high value accounts}}} \mathfunc{BeneficiaryCount}(a)}
+\end{equation}
+
+Together, the transaction and node scores are called the \emph{activity score} because they are both dynamic and derived from an account's activity as opposed to its stake.
+The transaction score is weighted at 80\% and the node score at 20\%.
+Additionally, the combined score is scaled relative to an account's balance so that there is a dampening effect of activity on importance as stake increases
+\footnote{The activity score is rescaled after dampening so that it contributes the desired \nemsetting{network}{importanceActivityPercentage} to the importance calculation.}.
+This effectively allows active smaller accounts to gain an outsized boost relative to active larger accounts.
+This partially redistributes importance away from rich accounts towards poorer accounts and somewhat counteracts the rich getting richer phenomenon inherent in PoS.
+The prominence of activity relative to stake can be configured by \nemsetting{network}{importanceActivityPercentage}.
+When this value is zero, \codenamespace behaves like a pure PoS blockchain.
+Setting this to too a high value could weaken blockchain security by lowering the cost for an attacker to obtain majority importance and execute a 51\% attack.
+
+As a performance optimization, activity information is only collected for accounts that are \emph{high value} at the time of the most recent importance calculation.
+Between importance recalculations, new data is stored in a working bucket.
+At each importance recalculation, existing buckets are shifted, the working bucket is finalized and a new working bucket is created.
+Each bucket influences at most five importance recalculations.
+As a result, activity information quickly expires.
+
+\begin{figure}[ht]
+	\nemcenterwithcaption{
+		\begin{tikzpicture}[node distance=0.2cm and 0.5cm]
+			\node[anchor=center] (lbl1) {buckets};
+			\node[crecb,right=of lbl1] (bucket1) {\texttt{1}};
+			\node[crecb,right=of bucket1] (bucket2) {\texttt{2}};
+			\node[crecb,right=of bucket2] (bucket3) {\texttt{3}};
+			\node[crecb,right=of bucket3] (bucket4) {\texttt{4}};
+			\node[crecb,right=of bucket4] (bucket5) {\texttt{5}};
+			\node[crecb,right=of bucket5] (bucket6) {\texttt{6}};
+			\node[crecb,right=of bucket6] (bucket7) {\texttt{7}};
+			\node[crecb,right=of bucket7] (bucket8) {\texttt{8}};
+			\node[crecb,right=of bucket8] (bucket9) {\texttt{9}};
+			\node[crecb,right=of bucket9] (bucketW) {\texttt{W}};
+
+			\draw[decorate,decoration={brace,mirror},very thick]
+				([yshift=-4pt] bucket1.south west)
+				-- node[below] (xd1) {bucket group 5}
+				([yshift=-4pt] bucket5.south east);
+
+			\draw[decorate,decoration={brace,mirror},very thick]
+				([yshift=-20pt] bucket2.south west)
+				-- node[below] {bucket group 6}
+				([yshift=-20pt] bucket6.south east);
+
+			\draw[decorate,decoration={brace,mirror},very thick]
+				([yshift=-36pt] bucket3.south west)
+				-- node[below] {bucket group 7}
+				([yshift=-36pt] bucket7.south east);
+
+			\draw[decorate,decoration={brace,mirror},very thick]
+				([yshift=-52pt] bucket4.south west)
+				-- node[below] {bucket group 8}
+				([yshift=-52pt] bucket8.south east);
+
+			\draw[decorate,decoration={brace,mirror},very thick]
+				([yshift=-68pt] bucket5.south west)
+				-- node[below] {bucket group 9}
+				([yshift=-68pt] bucket9.south east);
+		\end{tikzpicture}
+	}{Activity buckets}
+\end{figure}
+
+The \nemsetting{network}{totalChainImportance} setting specifies the total importance that is distributed among all accounts in a network.
+Given that, the spot importance of the account $A$, $I'_A$, can be calculated as follows
+\footnote{
+	There is some additional edge case handling that is not reflected in the equation around how zero component scores are handled.
+	If either the transaction or node scores is zero, the other will be scaled up and serve as the fully weighted activity score.
+	If both are zero, the stake score will be scaled up and used exclusively.
+}:
+\begin{align*}
+	\gamma = \: & \nemsetting{network}{importanceActivityPercentage} \\
+	\mathit{ActivityScore}'_A = \: & \frac{\nemsetting{network}{minHarvesterBalance}}{B_A} \cdot \left( 0.8 \cdot T_A + 0.2 \cdot N_A \right) \\
+	\mathit{ActivityScore}_A = \: & \frac{ActivityScore'_A}{\sum\limits_{\substack{a \in \textit{high value accounts}}} ActivityScore'_a} \\
+	I'_A = \: & \nemsetting{network}{totalChainImportance} \cdot \left( \left(1 - \gamma \right) \cdot S_A + \gamma \cdot ActivityScore_A \right)
+\end{align*}
+
+The final importance score, $I_A$ for account $A$ is calculated as the minimum of $I'_A$ at the current and previous importance calculations.
+This serves as a precaution against a stake grinding attack and a general incentive to minimize unnecessary stake movement.
+There is no rescaling, so the sum of $I_A$ for all high value accounts might be less than \nemsetting{network}{totalChainImportance}.
+
+\subsection{Sybil Attack}
+
+\subsection{Nothing at Stake Attack}
+
+A general criticism of PoS consensus is the \emph{nothing at stake} attack.
+This attack theoretically exists when the opportunity cost of creating a block is negligible.
+There are two variations of this attack.
+
+In the first variation, all harvesters except the attacker harvest on all forks.
+Simplifying the description to assume a binary fork, the attacker would submit a payment to one branch and immediately start harvesting on the other branch.
+Assuming the attacker has sufficient importance to harvest blocks, eventually the branch without the attacker's payment will become the reference chain because it will have a a higher score
+\footnote{This assumes that there is only a single attacker or all attackers collude to withhold harvesting from the same branch.}.
+The attacker's payment is not included in this branch, so the attacker's funds are effectively returned.
+
+There are three primary defenses against this attack.
+First, the attacker has a limited amount of time to produce a better chain because at most \nemsetting{network}{maxRollbackBlocks} blocks can be rolled back.
+If the merchant waits to render services until at least this many blocks are confirmed, the attack is impossible.
+Second, in order to execute a successful nothing at stake attack, the attacker must own a significant importance in the network
+\footnote{
+	Theoretically, an attacker would need just \nemsetting{network}{minHarvesterBalance} to execute this attack.
+	In practice, in order to guarantee successful execution, the attacker would need a large enough importance to always harvest a block within the rollback interval.
+}.
+Third, successful execution of this attack against the network will likely have a negative influence on the currency value.
+Since other harvesters, by harvesting on all forks, enable this attack, profit-maximizing harvesters should only harvest on a single chain to preclude it.
+
+In the second variation, a single attacker harvests on all forks and attempts to capture all fees irrespective of which chain becomes the reference chain.
+An attacker could harvest on all forks starting from the second block searching for the chain in which the attacker has harvested the most fees.
+Since block acceptance is probabilistic, in theory, an attacker could spend infinite time building the perfect chain in which the attacker has harvested all blocks.
+
+Most theoretical nothing at stake attacks imagine an idealized blockchain and ignore protocol-level safeguards that protect against such attacks.
+In practice, this type of attack is impractical if the attacker owns a minority of currency.
+The aforementioned two defenses are also applicable here.
+In addition, changes in block difficulty \nemrefparens{sec:blockchain:difficulty} are capped at 5\%.
+It will take some time for the difficulty of the attacker's chain to adjust downward, which will cause the block times at the beginning of the secret chain to significantly lag those of the main chain.
+These large time differences will make it unlikely for the attacker to produce a chain with a better score \nemrefparens{sec:blockchain:blockScore}.
+
+A small amount of stake aging also decreases the likelihood of this second variation.
+Requiring accounts to have nonzero importances for two consecutive importance recalculations as a precondition for harvesting makes generation hash grinding\footnote{This is an attempt to brute force the block hit \nemrefparens{sec:blockchain:generation}, which is dependent on generation hash.} attacks nonviable.
+In order to exploit this, the attacker would need to move all currency to a specific account more than \nemsetting{network}{importanceGrouping} blocks before the attack could be carried out.
+Since the attacker can't know all the blocks that will be confirmed in the intervening period, such movement cannot result in any benefit.
+
+\subsection{Fee Attack}
