@@ -15,10 +15,9 @@
 	\emph{#1}\index{#1}
 }
 
-% nem reference
-\newcommand{\nemref}[1]{
-	\autoref{#1}:~\nameref{#1}
-}
+% reference formatting
+\newcommand{\nemref}[1]{\autoref{#1}:~\nameref{#1}}
+\newcommand{\nemrefparens}[1]{(see \nemref{#1})}
 
 %%% basic formatting %%%
 

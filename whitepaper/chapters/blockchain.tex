@@ -176,7 +176,7 @@ A score can be assigned to any chain of blocks by summing the scores of the comp
 
 Blockchain synchronization is crucial to maintaining distributed consensus.
 Periodically, a local node will ask a remote node about its chain.
-The remote node is selected from a set of partners based on various factors, including reputation (\nemref{sec:reputation}).
+The remote node is selected from a set of partners based on various factors, including reputation \nemrefparens{sec:reputation}.
 
 If the remote node promises a chain with a higher score, the local node attempts to find the last common block by inspecting the hashes provided by remote node.
 If successful, the remote node will supply as many blocks as settings allow.

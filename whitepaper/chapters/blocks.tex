@@ -8,7 +8,7 @@
 A blockchain is an ordered collection of blocks.
 Understanding the parts of a \codenamespace block is fundamental to understanding the platform's capabilities.
 
-The layout of a block is similar to the layout of an aggregate transaction (\nemref{sec:transactions:aggregate}).
+The layout of a block is similar to the layout of an aggregate transaction \nemrefparens{sec:transactions:aggregate}.
 A block shares the same unverifiable header as an aggregate transaction, and this data is processed in the same way.
 Likewise, a block has a footer of unverifiable data followed by transactions.
 Unlike an aggregate transaction, a block is followed by basic - not embedded - transactions, and each transaction within a block is signed independently of the block signer\footnote{
@@ -90,8 +90,7 @@ In order to compute this field, a merkle tree is constructed by adding each tran
 The resulting root hash is assigned to this field.
 
 \field{ReceiptsHash} is the merkle root hash of the hashes of the receipts produced while processing the block.
-When a network is configured without \nemsetting{network}{enableVerifiableReceipts}, this field must be zeroed in all blocks.
-See \nemref{sec:blocks:receipts}.
+When a network is configured without \nemsetting{network}{enableVerifiableReceipts}, this field must be zeroed in all blocks \nemrefparens{sec:blocks:receipts}.
 
 \field{StateHash} is the hash of the global blockchain state after processing the block.
 When a network is configured without \nemsetting{network}{enableVerifiableState}, this field must be zeroed in all blocks.

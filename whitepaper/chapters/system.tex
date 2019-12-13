@@ -33,11 +33,11 @@ Through this class, a plugin can register zero or more of the following:
 	\item{Transactions -
 		New transaction types and the mapping of those types to parsing rules can be specified.
 		Specifically, the plugin defines rules for translating a transaction into component notifications that are used in further processing.
-		A handful of processing constraints can also be specified, such as indicating a transaction can only appear within an aggregate transaction (\nemref{sec:transactions:aggregate}).
+		A handful of processing constraints can also be specified, such as indicating a transaction can only appear within an aggregate transaction \nemrefparens{sec:transactions:aggregate}.
 	}
 	\item{Caches -
 		New cache types and rules for serializing and deserializing model types to and from binary can be specified.
-		Each state-related cache can optionally be included in the calculation of a block's \field{StateHash} (\nemref{sec:blocks:statehash}) when that feature is enabled.
+		Each state-related cache can optionally be included in the calculation of a block's \field{StateHash} \nemrefparens{sec:blocks:statehash} when that feature is enabled.
 	}
 	\item{Handlers - APIs that are always accessible.}
 	\item{Diagnostics - APIs and counters that are accessible only when the node is running in diagnostic mode.}
@@ -112,10 +112,10 @@ The contents of the data directory are as follows:
 	\item{Block Versioned Directories -
 		These directories contain block information in a proprietary format.
 		Each confirmed block's binary data, transactions and associated data are stored in these directories.
-		The statements (\nemref{sec:blocks:receipts}) generated when processing each block are also stored here for quick access.
+		The statements \nemrefparens{sec:blocks:receipts} generated when processing each block are also stored here for quick access.
 		An example of a versioned directory is \filepath{00000}, which contains the first group of blocks.
 	}
-	\item{\filepath{audit} - Audit files created by the audit consumer (\nemref{sec:disruptor:commonConsumers}) are stored in this directory.}
+	\item{\filepath{audit} - Audit files created by the audit consumer \nemrefparens{sec:disruptor:commonConsumers} are stored in this directory.}
 	\item{\filepath{spool} -
 		Subscription notifications are written out to this directory.
 		They are used as a message queue to pass messages from the server to the broker.
@@ -141,7 +141,7 @@ The contents of the data directory are as follows:
 
 The server supports running both with and without a cache database.
 When \nemsetting{node}{enableCacheDatabaseStorage} is set, RocksDB is used to store cache data.
-Verifiable state (\nemref{sec:blocks:statehash}) requires a cache database and most network configurations are expected to have it enabled.
+Verifiable state \nemrefparens{sec:blocks:statehash} requires a cache database and most network configurations are expected to have it enabled.
 
 A cache database should only be \emph{disabled} when all of the following are true:
 
@@ -179,7 +179,7 @@ The server writes messages and the broker reads them.
 There is no way for the broker to send messages to the server.
 This decoupling is intentional and was done for performance reasons.
 
-The server raises subscription events in the block chain sync consumer (\nemref{sec:disruptor:blockConsumers}) when it holds an exclusive lock to the blockchain data.
+The server raises subscription events in the block chain sync consumer \nemrefparens{sec:disruptor:blockConsumers} when it holds an exclusive lock to the blockchain data.
 In order to prevent slow database operations from occurring when the server has an exclusive lock, these operations are offloaded to the broker.
 The server overhead is minimal because most of the data used by the broker is also required to recover data after an ungraceful server termination.
 
