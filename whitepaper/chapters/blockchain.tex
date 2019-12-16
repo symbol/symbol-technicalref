@@ -199,6 +199,31 @@ There's also additional handling for edge cases.
 
 Also note that $\mathit{hit}$ has an exponential distribution. Therefore, the probability to create a new block does not change if the importance is split among many accounts.
 
+\subsection{Automatic Delegated Harvester Detection}
+
+When \nemsetting{user}{enableDelegatedHarvestersAutoDetection} is set, the server allows other accounts to register as delegated harvesters via special transfer messages.
+The server inspects all transfer messages sent to its \nemsetting{user}{bootPrivateKey} account.
+Each message that begins with the magic bytes \texttt{0x98E5BF64C771CCFE} is written out to a file queue for further processing.
+
+Periodically, a scheduled task inspects all queued messages.
+Each message is expected to contain a private key for a candidate delegated harvester\footnote{
+Please refer to the project code or developer documentation for details about the format of this message.}.
+The delegated harvester private key is encrypted with the server's boot public key in order to prevent a malicious actor from intercepting delegated harvester private keys.
+Any message that contains unexpected contents is ignored and discarded.
+
+Valid messages are decrypted and processed.
+If possible, announced delegated harvester private keys will be used by the server to harvest blocks.
+A server can have at most \nemsetting{harvesting}{maxUnlockedAccounts} harvesters.
+Upon reaching that limit, the evaluation of any new delegated harvester is based on the \nemsetting{harvesting}{delegatePrioritizationPolicy} setting.
+When the policy is set to \texttt{Age}, accounts announced earlier are preferred.
+As a result, a new delegated harvester cannot replace any existing delegated harvester.
+When the policy is set to \texttt{Importance}, accounts with higher importances are preferred.
+As a result, a new delegated harvester can replace an existing delegated harvester with less importance.
+
+Successful announcements are stored in the \filepath{harvesters.dat} file.
+Accepted delegated harvesters are persisted across server reboots.
+The server does not provide any explicit confirmation that it is or is not using an announced delegated harvester private key.
+
 \subsection{Blockchain Synchronization}
 \label{sec:blockchain:sync}
 
