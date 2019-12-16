@@ -120,7 +120,8 @@ Since $\mathit{target}$ is proportional to the elapsed time, a new block will be
 
 In the case of delegated harvesting, the importance of the original account is used instead of the importance of the delegated account.
 
-The target is calculated using 256-bit integer arithmetic as follows:
+The target is calculated as follows
+\footnote{The implementation uses 256-bit integer instead of floating point arithmetic in order to avoid any problems due to rounding.}:
 \begin{align*}
 \mathit{multiplier} = \: & 2^{64} \\
 t = \: & \textit{time in seconds since last block} \\
@@ -131,7 +132,13 @@ d = \: & \textit{new block difficulty} \\
 \end{align*}
 
 \emph{Block time smoothing}\index{block!time smoothing} can be enabled, which results in more stable block times.
-If enabled, $multiplier$ above is calculated in the following way:
+If enabled, $multiplier$ above is calculated in the following way
+\footnote{
+	The implementation uses fixed point instead of floating point arithmetic in order to avoid any problems due to rounding.
+	Specificaly, 128-bit fixed point numbers are used where the 112 high bits represent the integer part and the 16 low bits represent the decimal part.
+	\texttt{log2(e)} is approximated as \texttt{14426950408 / 10000000000}.
+	If the calculated \field{power} is too negative, \field{smoothing} will be set to zero.
+}:
 \begin{align*}
 \mathit{factor} = \: & \nemsetting{network}{blockTimeSmoothingFactor} / 1000.0 \\
 \mathit{tt} = \: & \nemsetting{network}{blockGenerationTargetTime} \\
@@ -140,7 +147,11 @@ If enabled, $multiplier$ above is calculated in the following way:
 \mathit{multiplier} = \: & \mathfunc{integer}\left(2^{54} \cdot \mathit{smoothing}\right) \cdot 2^{10}
 \end{align*}
 
-Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{\mathit{gh}}{2^{256}}\right)\right|$, where $\mathit{gh}$ is a new generation hash.
+Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{\mathit{gh}}{2^{256}}\right)\right|$, where $\mathit{gh}$ is a new generation hash
+\footnote{
+	The implementation uses 128-bit integer instead of floating point arithmetic in order to avoid any problems due to rounding.
+	\texttt{log2(e)} is approximated as \texttt{14426950408889634 / 10000000000000000}.
+}.
 
 First, let's rewrite value above using $\log$ with base $2$:
 $$
@@ -161,7 +172,7 @@ $$
 \mathit{hit} =  \mathit{scale} \cdot ( 2^{54} \cdot 256 -  2^{54} \cdot \log_2\left(\mathit{gh}\right))
 $$
 
-The actual implementation approximates the right part using only the first 32 non-zero bits of the new generation hash.
+The implementation approximates the logarithm using only the first 32 non-zero bits of the new generation hash.
 There's also additional handling for edge cases.
 
 Also note that $\mathit{hit}$ has an exponential distribution. Therefore, the probability to create a new block does not change if the importance is split among many accounts.
