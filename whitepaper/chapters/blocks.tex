@@ -225,7 +225,8 @@ It is important to note that a resolution statement is only produced when a reso
 If an alias is registered or changed in a block, but not used in that block, no resolution statement will be produced.
 However, a resolution statement will be produced by each block that contains that alias and requires it to be resolved.
 
-\subsubsection{Receipt Hash}
+\subsubsection{Receipts Hash}
+\label{sec:blocks:receiptshash}
 
 In order to calculate a block's receipt hash, first all statements generated during block processing are collected.
 Then a merkle tree is created by adding all statement hashes in the following order:

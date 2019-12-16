@@ -244,9 +244,52 @@ If the supplied chain is invalid, the local node will reject the chain and consi
 
 \autoref{fig:blockchain:synchronizationFlowChart} illustrates the process in more detail.
 
-\begin{figure}
+\begin{figure}[H]
 	\begin{center}
 		\input{chapters/blockchain_sync_flowchart}
 		\caption{Blockchain synchronization flow chart\label{fig:blockchain:synchronizationFlowChart}}
 	\end{center}
 \end{figure}
+
+\subsection{Blockchain Processing}
+
+\subsubsection*{Execution}
+
+Conceptually, when a new block is received, it is processed in a series of stages
+\footnote{A more detailed description of these stages can be found in \nemref{sec:disruptor:consumers}.}.
+Prior to processing, the block and its transactions are decomposed into an ordered stream of notifications.
+A notification is the fundamental processing unit used in \codename.
+
+In order to extract an ordered stream of notifications from a block, its transactions are decomposed in order followed by its block-level data.
+The notifications produced by each decomposition are appended to the stream.
+At the end of this process, the notification stream completely describes all state changes specified in the block and its transactions.
+
+Once the stream of notifications is prepared, each notification is processed individually.
+First, it is validated independent of blockchain state.
+Next, it is validated against the current blockchain state.
+If any validation fails, the containing block is rejected.
+Otherwise, the changes specified by the notification are made to the in memory blockchain state and the next notification is processed.
+This sequence allows transactions in a block to be dependent on changes made by previous transactions in the same block.
+
+After all notifications produced by a block are processed, the \field{ReceiptsHash} \nemrefparens{sec:blocks:receiptshash} and \field{StateHash} \nemrefparens{sec:blocks:statehash} fields are calculated and checked for correctness.
+Importantly, when \nemsetting{network}{enableVerifiableState} is enabled, this is the point at which all state patricia trees get updated.
+
+\subsubsection*{Rollback}
+
+Occasionally, a block that has been previously confirmed needs to be undone.
+This is required in order to allow fork resolution.
+For example, to replace a worse block with a better block.
+In \codename, at most \nemsetting{network}{maxRollbackBlocks} can be rolled back at once.
+Forks larger than this setting are irreconcilable.
+
+When a block is being rolled back, it is decomposed into an ordered stream of notifications.
+This stream is reversed relative to the stream used during execution.
+Since transactions in a block may be dependent on changes made by previous transactions in the same block, they need to be undone before their dependencies are undone.
+
+Once the stream of notifications is prepared, each notification is processed individually.
+No validation is needed because the rollback operation is returning the blockchain to a previous state that is known to be valid.
+Instead, the changes specified by the notification are simply reverted from the in memory blockchain state and the next notification is processed.
+
+After all notifications produced by a \emph{blockchain part} are processed, the previous blockchain state is restored.
+When \nemsetting{network}{enableVerifiableState} is enabled, the in memory state hash still needs to be updated.
+Instead of individually applying all tree changes, the in memory state hash is forcibly reset to the state hash of the common block prior to the last rolled back block.
