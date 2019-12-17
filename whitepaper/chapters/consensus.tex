@@ -46,6 +46,7 @@ Instead, importance boosts granted by transaction and node scores are time limit
 The boost lasts for five \nemsetting{network}{importanceGrouping} intervals.
 
 \subsection{Weighting Algorithm}
+\label{sec:consensus:weighting}
 
 All accounts that have a balance of at least \nemsetting{network}{minHarvesterBalance} participate in the importance calculation and are called \emph{high value accounts}.
 Notice that this set of accounts is a superset of the set of accounts eligible for block generation \nemrefparens{sec:blockchain:generation}.
@@ -156,6 +157,73 @@ This serves as a precaution against a stake grinding attack and a general incent
 There is no rescaling, so the sum of $I_A$ for all high value accounts might be less than \nemsetting{network}{totalChainImportance}.
 
 \subsection{Sybil Attack}
+\index{sybil attack}
+
+A \emph{Sybil attack} on a peer-to-peer network occurs when an attacker creates multiple identities in order to gain a disproportionately large influence over the network or some other advantage.
+In \codename, an attacker might attempt such an attack to boost importance.
+Each component of the importance score needs to be robust against such attacks.
+
+As described in \nemref{sec:consensus:weighting}, an account's activity score is dampened relative to its balance.
+Accordingly, splitting an account's balance among multiple accounts will lower the average dampening factor applied.
+Assuming a constant level of activity is \emph{sustained} before and after redistribution, the cumulative importance will be higher post split
+\footnote{
+	This assumes that only one account splits.
+	The effect is lessened when multiple accounts split because activity scores are relative.
+}.
+This effect is by design and encourages virtuous behavior because the importance boost is only realized if activity is sustained.
+Preservation of the transaction score encourages transacting and paying fees from multiple accounts.
+Preservation of the node score encourages running additional nodes and connecting them to the network.
+
+Assume $\mu := \nemsetting{network}{minHarvesterBalance}$ and an attacker that owns $N \cdot \mu$ total currency.
+Consider two extremes:
+
+\begin{enumerate}
+	\item{The attacker has a single account with $N \cdot \mu$ currency}
+	\item{The attacker has $N$ accounts with $\mu$ currency}
+\end{enumerate}
+
+\subsubsection*{Boosting Stake Score}
+
+In both extremes, the total currency owned by the attacker is the same.
+Accordingly, the stake score is the same and there is no benefit gained from splitting accounts.
+For emphasis:
+
+\begin{equation}
+B_A = \sum\limits_{a \in \{1, \dotso, N\}} B_a
+\end{equation}
+
+\subsubsection*{Boosting Node Score}
+
+\codenamespace allows a node owner to specify a beneficiary for every block harvested on their node.
+Each time an account is specified as a beneficiary, assuming it is already a \emph{high value account}, it will get a slight boost in its node score.
+
+In both extremes, the total beneficiary count for the attacker is the same.
+Accordingly, the node score is the same and there is no undeserved benefit gained from splitting accounts.
+For emphasis:
+
+\begin{equation}
+\mathfunc{BeneficiaryCount}(A) = \sum\limits_{a \in \{1, \dotso, N\}} \mathfunc{BeneficiaryCount}(a)
+\end{equation}
+
+The attacker might obtain a higher node score if running more nodes allows the attacker's nodes to host more delegated harvesters.
+This is not a bad outcome and by design.
+It encourages more nodes in the network, which is a good thing that strengthens the network.
+
+The attacker could try to cheat by setting up $N$ virtual nodes pointing to a single physical machine.
+Each of these virtual nodes would be treated by the rest of the network as a normal node, and the underlying physical node would be interacted with $N$ times more often than a normal node in the network.
+This implies that the virtual nodes are running on a strong physical server, which is still beneficial to the network relative to a weaker physical server.
+
+\subsubsection*{Boosting Transaction Score}
+
+The transaction score is solely based on fees.
+There is no difference between one huge account spending $X$ on fees and $N$ smaller accounts each spending $\frac{X}{N}$ on fees.
+For emphasis:
+
+\begin{equation}
+\mathfunc{FeesPaid}(A) = \sum\limits_{a \in \{1, \dotso, N\}} \mathfunc{FeesPaid}(a)
+\end{equation}
+
+The only possibility to boost transaction score is a \emph{fee attack}, which is discussed in detail in \nemref{sec:consensus:feeAttack}.
 
 \subsection{Nothing at Stake Attack}
 
@@ -197,3 +265,4 @@ In order to exploit this, the attacker would need to move all currency to a spec
 Since the attacker can't know all the blocks that will be confirmed in the intervening period, such movement cannot result in any benefit.
 
 \subsection{Fee Attack}
+\label{sec:consensus:feeAttack}
