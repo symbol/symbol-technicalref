@@ -1,6 +1,24 @@
 \section{Consensus}
 \label{sec:consensus}
 
+\pgfplotsset{consensusAxisBasicStyle/.style={
+	axis lines = center,
+	scaled x ticks = false,
+	scaled y ticks = false,
+	legend columns = 3,
+	xmin = 0,
+	height = 5cm,
+	width=(4 * \textwidth) / 5,
+}}
+
+\pgfplotsset{consensusAxisEvStyle/.style={
+	consensusAxisBasicStyle,
+	xlabel = P,
+	ylabel = EV,
+	ymin = -150,
+	ymax = 150,
+}}
+
 \nemquote{
 }{}
 
@@ -257,7 +275,7 @@ In practice, this type of attack is impractical if the attacker owns a minority 
 The aforementioned two defenses are also applicable here.
 In addition, changes in block difficulty \nemrefparens{sec:blockchain:difficulty} are capped at 5\%.
 It will take some time for the difficulty of the attacker's chain to adjust downward, which will cause the block times at the beginning of the secret chain to significantly lag those of the main chain.
-These large time differences will make it unlikely for the attacker to produce a chain with a better score \nemrefparens{sec:blockchain:blockScore}.
+These large time differences will make it unlikely for the attacker to produce a chain with a better score \nemrefparens{sec:blockchain:score}.
 
 A small amount of stake aging also decreases the likelihood of this second variation.
 Requiring accounts to have nonzero importances for two consecutive importance recalculations as a precondition for harvesting makes generation hash grinding\footnote{This is an attempt to brute force the block hit \nemrefparens{sec:blockchain:generation}, which is dependent on generation hash.} attacks nonviable.
@@ -266,3 +284,155 @@ Since the attacker can't know all the blocks that will be confirmed in the inter
 
 \subsection{Fee Attack}
 \label{sec:consensus:feeAttack}
+
+A \emph{fee attack} is an attempt by an attacker to exploit the transaction score by paying large fees in order to boost its own importance.
+The attack is considered effective if it yields a positive expected value.
+
+The analysis in this section will be performed using recommended public network settings.
+These include \nemsetting{network}{totalChainImportance} equal to 9 billion, \nemsetting{network}{importanceGrouping} equal to 359 blocks and \nemsetting{minHarvesterBalance} equal to 10000 currency.
+Additionally, \nemsetting{network}{importanceActivityPercentage} is 5, so the cumulative transaction score accounts for 4\% of importance.
+
+\subsubsection*{Large Account}
+
+Consider an account that is large enough to harvest one block per importance recalculation interval without any activity boosting.
+Assuming only 2 of 9 billion currency is actively harvesting, the account will need at least 5.57 million currency to harvest this frequently.
+
+The account might try to make a profit by adding a transaction with a high fee to one of its own harvested blocks each recalculation interval.
+This would boost the account's importance and allow it to harvest more blocks in the future and, consequently, collect more fees.
+However, this activity is not risk free.
+The account risks paying the high fee if a better block replaces its block.
+When the original block is unwound, the high fee transaction will enter the unconfirmed transactions cache and be eligible for inclusion in a new block created by a different harvester.
+This scenario is a net loss because the account will have to pay the high fee.
+
+Let $P$ be the probability of a fork resulting in a loss, $F$ be the high fee in a block, and $\bar{F}$ be the average fee in a block.
+The expected value, $EV$, can be approximated as follows:
+\begin{align*}
+	\tag{importance boost}\beta &= 0.04 \cdot \frac{1}{557} \cdot \frac{F}{359 \cdot \bar{F} + F} \\
+	\tag{expected value} EV &= \beta \cdot \frac{359}{P} \cdot \bar{F} - F
+\end{align*}
+
+The expected value is positive for small values of $P$.
+As $P$ or $F$ increases, it quickly becomes negative.
+Using the recommended public network settings, $P$ needs to be less than 0.0001 for the expected value to be positive.
+This implies a fork resulting in a loss occurs less than once every 10000 blocks.
+Given the mechanism of distributed consensus, this is a near impossibility.
+Small one or two block forks occur quite frequently.
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\begin{tikzpicture}[trim axis left]
+			\begin{axis}[consensusAxisEvStyle, xtick distance=0.000025, xmax = 0.0001]
+				\addplot[color=red,domain=0:0.0001]{(0.04 / 557 * 100 / (359 * 0.1 + 100)) * (359 / x) * 0.1 - 100};
+				\addlegendentry{$\bar{F} = 0.1$}
+
+				\addplot[color=green,domain=0:0.0001]{(0.04 / 557 * 100 / (359 * 1 + 100)) * (359 / x) * 1 - 100};
+				\addlegendentry{$\bar{F} = 1$}
+
+				\addplot[color=blue,domain=0:0.0001]{(0.04 / 557 * 100 / (359 * 10 + 100)) * (359 / x) * 10 - 100};
+				\addlegendentry{$\bar{F} = 10$}
+			\end{axis}
+		\end{tikzpicture}
+	}{Fee attack large account analysis (F = 100)}
+\end{figure}
+
+\subsubsection*{Small Account}
+
+Consider an account that has a balance equal to \nemsetting{network}{minHarvesterBalance}.
+Assume the account makes one transaction with high fees in two consecutive recalculation intervals.
+These fees are lost to other harvesters because the probability of the account harvesting a block is quite small.
+The high fees paid boost the account’s importance enough so that it is able to harvest at least one block per importance recalculation interval.
+From this point forward, the account behaves like the large account in the previous section.
+It will also add a transaction with a high fee to one of its own harvested blocks each recalculation interval.
+The account hopes that due to the increased probability of harvesting a block, its additional collected fees will exceed its costs.
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\begin{tikzpicture}[trim axis left]
+			\begin{axis}[consensusAxisEvStyle, xtick distance=0.01, xmax = 0.04]
+				\addplot[color=red,domain=0:0.04]{(0.04 / 557 * 100 / (359 * 1 + 100)) * (359 / x) * 1 - 100};
+				\addlegendentry{large}
+
+				\addplot[color=green,domain=0:0.04]{(0.04 / 56 * 100 / (359 * 1 + 100)) * (359 / x) * 1 - 100};
+				\addlegendentry{medium}
+
+				\addplot[color=blue,domain=0:0.04]{(0.04 * 100 / (359 * 1 + 100)) * (359 / x) * 1 - 100};
+				\addlegendentry{small}
+			\end{axis}
+		\end{tikzpicture}
+	}{Fee attack balance sensitivity (F = 100, $\bar{F} = 1$)}
+\end{figure}
+
+Let $P$ be the probability of a fork resulting in a loss, $F$ be the high fee in a block, and $\bar{F}$ be the average fee in a block.
+The expected value, $EV$, excluding the initial transaction fees, can be approximated as follows\footnote{
+The difference relative to the large account example is that the damping factor is completely removed.}:
+\begin{align*}
+	\tag{importance boost}\beta &= 0.04 \cdot \frac{F}{359 \cdot \bar{F} + F} \\
+	\tag{expected value} EV &= \beta \cdot \frac{359}{P} \cdot \bar{F} - F
+\end{align*}
+
+The expected value is positive for larger values of $P$ than in the large account scenario.
+A fee attack confers an outsized benefit to a small account relative to a large account because the activity scores of the latter are dampened more aggressively than those of the former.
+Specifically, a damping factor of $\frac{1}{557}$ is applied to the large account's activity score, but no damping factor is applied to the small account's activity score.
+
+The expected value increases as $\bar{F}$ increases.
+As $P$ or $F$ increases, it quickly becomes negative.
+Using the recommended public network settings, $P$ needs to be less than 0.05 for the expected value to be positive.
+This implies a fork resulting in a loss occurs less than once every 20 blocks.
+Given the mechanism of distributed consensus, this is possible.
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\begin{tikzpicture}[trim axis left]
+			\begin{axis}[consensusAxisEvStyle, xtick distance=0.01, xmax = 0.04]
+				\addplot[color=red,domain=0:0.04]{(0.04 * 100 / (359 * 0.1 + 100)) * (359 / x) * 0.1 - 100};
+				\addlegendentry{$\bar{F} = 0.1$}
+
+				\addplot[color=green,domain=0:0.04]{(0.04 * 100 / (359 * 1 + 100)) * (359 / x) * 1 - 100};
+				\addlegendentry{$\bar{F} = 1$}
+
+				\addplot[color=blue,domain=0:0.04]{(0.04 * 100 / (359 * 10 + 100)) * (359 / x) * 10 - 100};
+				\addlegendentry{$\bar{F} = 10$}
+			\end{axis}
+		\end{tikzpicture}
+	}{Fee attack small account analysis (F = 100)}
+\end{figure}
+
+\subsubsection*{Further Discussion}
+
+Although a single small account can obtain a positive expected value by executing this attack, the payoff decreases as multiple accounts attempt it simultaneously.
+Since there is a positive expected value, profit maximizing actors should all attempt this attack.
+As more accounts attempt it, the importance boost obtained by each individual account decreases rapidly and, consequently, the expected value also decreases.\footnote{
+	As more accounts produce high fee transactions to attempt this attack, $\bar{F}$ increases.
+	For large numbers of attackers, if $F$ is not raised in proportion, the expected value of the attack can increase even though the importance boost per account decreases.
+	This is an expected outcome since the value of blocks also increases significantly.
+}.
+
+Additionally, there is an upper limit on the number of small accounts that can execute this attack simultaneously.
+In order for this attack to be successful, an account needs to be able to to harvest at least one block per importance recalculation interval.
+This presupposes the small account can boost its importance score by exploiting the transaction score component.
+There is a theoretical limit on the number of accounts that can achieve a significant enough boost because both the importance allotted to the transaction score and the recalculation interval are finite.
+Considering the recommended public network settings, this limit is approximately $0.04 \div \frac{1}{359} \approx 14.36$ accounts.
+
+Let $N$ be the number of small accounts attempting the attack, $P$ be the probability of a fork resulting in a loss, $F$ be the high fee in a block, and $\bar{F}$ be the average fee in a block.
+The expected value, $EV$, can be approximated as follows:
+\begin{align*}
+	\tag{importance boost}\beta &= 0.04 \cdot \frac{F}{359 \cdot \bar{F} + N \cdot F} \\
+	\tag{expected value} EV &= \beta \cdot \frac{359}{P} \cdot \left( \bar{F} + \frac{\left( N - 1\right ) \cdot F \cdot P}{359} \right) - F
+\end{align*}
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\begin{tikzpicture}[trim axis left]
+			\begin{axis}[consensusAxisEvStyle, xtick distance=0.01, xmax = 0.04]
+				\addplot[color=red,domain=0:0.04]{(0.04 * 100 / (359 * 1 + 100)) * (359 / x) * (1 + 0) - 100};
+				\addlegendentry{one}
+
+				\addplot[color=green,domain=0:0.04]{(0.04 * 100 / (359 * 1 + 2 * 100)) * (359 / x) * (1 + 1 * 100 * x / 359) - 100};
+				\addlegendentry{two}
+
+				\addplot[color=blue,domain=0:0.04]{(0.04 * 100 / (359 * 1 + 8 * 100)) * (359 / x) * (1 + 7 * 100 * x / 359) - 100};
+				\addlegendentry{eight}
+			\end{axis}
+		\end{tikzpicture}
+	}{Fee attack declining with more attackers (F = 100, $\bar{F} = 1$)}
+\end{figure}
