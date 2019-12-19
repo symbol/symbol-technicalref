@@ -21,11 +21,6 @@ This chapter will outline the heuristics used.
 \index{reputation!connection!management}
 \label{sec:reputation:ConnectionManagement}
 
-When joining a network, a node first connects to the nominally \textit{static} beacon nodes that are found in a peers configuration file
-\footnote{These files don't need to be identical across all nodes in a network.}.
-Next, it queries the static nodes for other nodes in their neighborhoods, so that it can discover more nodes in the network and connect to those as well.
-Discovered nodes are called \textit{dynamic} nodes.
-
 Each node can establish at most \nemsetting{node}{maxConnections} persistent connections at once.
 This limit is expected to be much smaller than the hundreds of thousands of nodes that make up the network as a whole.
 In order to avoid isolated node groups from forming, a node will periodically drop existing connections to make room for new connections to different nodes.
@@ -110,11 +105,7 @@ P(\textrm{node is getting selected}) = \frac{\textit{node weight}}{\sum\limits_{
 In a public network there could be potentially malicious nodes that try to disturb normal processing of the network.
 Therefore, if a node considers a remote node malicious, it will prevent connecting to that node and will not accept incoming connections from it.
 
-Banning is applied at node level and is attached to a node's network scoped identifier.
-The node identification policy is configured by \nemsetting{network}{nodeEqualityStrategy}.
-\codenamespace supports identifying a node by its \textit{resolved host} or its \textit{public key}.
-The former is preferred for public networks.
-
+Banning is applied at node level and is attached to a node's network scoped identifier \nemrefparens{sec:network:discovery}.
 A misbehaving node will be immediately banned for a period of \nemsetting{node}{defaultBanDuration}.
 Even after a node is no longer actively banned, the local node will remember for some time (\nemsetting{node}{keepAliveDuration}) that the node was behaving badly and treat repeat violations more severely by banning the node for longer time periods up to \nemsetting{node}{maxBanDuration}.
 During banning, no connections with the banned node will be established.

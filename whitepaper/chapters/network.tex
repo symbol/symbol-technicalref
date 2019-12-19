@@ -1,4 +1,200 @@
 \section{Network}
 \label{sec:network}
 
-Viverra orci sagittis eu volutpat odio. At elementum eu facilisis sed odio morbi. Euismod in pellentesque massa placerat duis ultricies lacus. Est ultricies integer quis auctor elit sed vulputate mi sit. Tempus iaculis urna id volutpat lacus. Aenean vel elit scelerisque mauris pellentesque pulvinar pellentesque. Tellus mauris a diam maecenas sed. Eget duis at tellus at. Egestas fringilla phasellus faucibus scelerisque eleifend donec.
+\nemquote{
+}{}
+
+\nemchapterfirstletter{D}{ynamic} discovery of nodes allows a peer-to-peer network to grow.
+\codenamespace implements this dynamic discovery in the \emph{node discovery extension}.
+Public networks are typically open and allow any node to join.
+Private networks can restrict the nodes that are allowed to join and behave as a federated system
+\footnote{
+	By carefully distributing harvesting and currency mosaics, a private network can delegate permissions to different accounts.
+	For example, only accounts owning sufficient harvesting mosaic can create blocks and only accounts with nonzero currency can initiate transactions with nonzero fees.
+}.
+\codenamespace is flexible enough to even allow private networks to specify all node relationships via configuration files.
+
+\subsection{Beacon Nodes}
+
+A freshly booted node is initially isolated and not connected with any peers.
+It needs to join a network before it can make any meaningful contributions, like validating or harvesting blocks.
+In \codename, nominally \textit{static} beacon nodes are stored in a peers configuration file.
+In order to join a network, a new node first connects to these nodes.
+These files don't need to be identical across all nodes in a network.
+
+A public network is recommended to specify a set of high availability beacon node candidates.
+Each node's peers configuration file should contain a random subset of these nodes.
+This reduces stress on individual beacon nodes and makes DoS attacks on beacon nodes more difficult.
+These nodes are given slight preference in node selection \nemrefparens{sec:reputation:NodeSelection} relative to non-beacon nodes because they are assumed to have high-availability.
+They aren't conferred any other special privileges or responsibilities.
+They can be thought of as doors into the network.
+
+Certain extensions may require their own set of beacon nodes.
+For example, the \emph{partial transaction extension} stores its own set of beacon nodes in a separate peers configuration file.
+Nodes with this extension enabled need to additionally synchronize partial transactions among other nodes that also have this extension enabled  \nemrefparens{sec:partials}.
+
+A node's roles specify the capabilities it supports.
+Typically, these are used by a connecting node to choose appropriate partners.
+Nodes with the \texttt{Peer} role support basic synchronization.
+Nodes with the \texttt{Api} role support partial transaction synchronization.
+Roles are not mutually exclusive.
+Nodes are allowed to support multiple roles.
+
+\subsection{Connection Handshake}
+
+When two \codenamespace nodes connect with each other, they first perform a two-party custom handshake.
+If either node fails the handshake, the connection is immediately terminated.
+The primary purpose of this handshake is for each node to prove ownership of its \nemsetting{user}{bootPrivateKey}.
+Partner nodes use this verified identity to collate reputation \nemrefparens{sec:reputation} information
+\footnote{In the public network, nodes are primarily identified by their resolved IP.}.
+
+Potential vulnerabilities in the \codenamespace proprietary handshake protocol have been identified by penetration testing.
+In light of these, the protocol needs to undergo a more thorough review and potential changes.
+This section will be updated once a corrective plan is prepared.
+
+\subsection{Packets}
+
+\codenamespace uses TCP for network communication on the port specified by \nemsetting{node}{port}.
+Communication is centered around a higher level \emph{packet} model on top of and distinct from TCP packets.
+All packets begin with an 8-byte header that specifies each packet's size and type.
+Once a complete packet is received, it is ready for further processing.
+
+\begin{figure}[H]
+	\nemcenter{
+		\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x00}}
+					\bitbox{4}{Size} \bitbox{4}{Type}
+				\end{leftwordgroup} \\
+		}{Packet header binary layout}
+	}{}
+\end{figure}
+
+A mix of long lived and short lived connections are used.
+Long lived connections are used for repetitive activities like syncing blocks or transactions.
+They support both push and request/response semantics.
+The connections are allowed to last for \nemsetting{node}{maxConnectionAge} selection rounds \nemrefparens{sec:reputation:ConnectionManagement} before they are eligible for recycling.
+Connections older than this setting are recycled primarily to allow direct interactions with other partner nodes and secondarily as a precaution against zombie connections.
+
+Short lived connections are used for more complex multistage interactions between nodes.
+For example, they are used for node discovery \nemrefparens{sec:network:discovery} and time synchronization \nemrefparens{sec:timesync}.
+Short lived connections help prevent sync starvation, which can occur when all long lived connections are in use and no sync partners are available.
+
+\emph{Handlers} are used to process packets.
+Each handler is registered to accept all packets with a specified packet type.
+When a complete packet is ready for processing, it is dispatched to the handler registered with its type.
+All handlers must accept matching packets for processing.
+Some handlers can also write response packets in order to allow request/response protocols.
+
+\subsection{Connection Types}
+
+In \codename, long lived connections are primarily identified as readers or writers.
+This is orthogonal to whether they are incoming or outgoing.
+They are secondarily identified by purpose, or \emph{service identifier}
+\footnote{Although the terminology is similar, these are unrelated to services described in \nemref{sec:system:extensions}.}.
+This allows connections to be selected by capability and more granular logging.
+
+Reader connections are mostly passive and used to receive data from other nodes.
+Each server asynchronously reads from each reader connection.
+Whenever a new packet is received in its entirety, it is dispatched to an appropriate handler.
+If no matching handler is available, the connection is closed immediately.
+
+The \nemsetting{node}{maxIncomingConnectionsPerIdentity} limit is applied across all services and long and short lived connections.
+Any incoming connections above this limit will be immediately closed.
+This limit can be hit when multiple short lived connections are initiated with the same remote for different operations.
+This is more likely when connection tasks are more aggressively scheduled immediately after a node boots up.
+These errors are typically transient and can be safely ignored if they don't persist.
+
+Writer connections are more active and used to send data to other nodes.
+\emph{Broadcast} operations push data to all active and available writers.
+Additionally, individual writers can be checked out and be used for request/response protocols.
+In order to simplify recipient processing, no broadcast packets are sent to checked out writers.
+
+Service identifiers are only assigned to long lived connections.
+Sync service is used to manage outgoing connections to nodes with \texttt{Peer} role.
+Api partial service is used to manage outgoing connections to nodes with \texttt{Api} role.
+Readers service is used to manage incoming connections.
+Api writers service is experimental and allows incoming connections on port \nemsetting{node}{apiPort} to register as writers.
+
+\begin{figure}[H]
+	\nemcenterwithcaption{
+		\begin{tabular}{|c|c|c|}
+			\hline
+			Identifier & Name & Direction\\
+			\hline
+			0x41504957 & api.writers & incoming \\
+			0x50415254 & api.partial & outgoing \\
+			0x52454144 & readers & incoming \\
+			0x53594E43 & sync & outgoing \\
+			\hline
+		\end{tabular}
+	}{Service Identifiers}
+	\label{tbl:network:serviceIdentifiers}
+\end{figure}
+
+For the purposes of node selection described in \nemref{sec:reputation:NodeSelection}, node aging and selection are both scoped per service.
+Reputational information is aggregated across all services.
+Specifically, assume a node has made both a Sync and Api partial connection to another node.
+Each connection can have a different age because age is scoped per service.
+Interaction results, from any connection, are always attributed to the node, not the service.
+
+\subsection{Peer Provenance}
+
+A node collects data about all nodes in its network.
+The reputability of the data is dependent on its provenance.
+Possible provenances, ranked from best to worst are:
+\begin{enumerate}
+	\item{Local - Node is specified in \nemsetting{node}{localnode}}
+	\item{Static - Node is in one of the peers configuration files}
+	\item{Dynamic - Node was discovered and supports connections}
+	\item{Dynamic Incoming - Node has made a connection but does not support connections}
+\end{enumerate}
+
+It is important to note that the distinguishing characteristic of a \emph{static} node is that it appears in at least one peers configuration file.
+Excepting the \emph{local} node, all other nodes are \emph{dynamic}.
+A subset of dynamic nodes are \emph{incoming}.
+These nodes have only been seen in incoming but not outgoing connections.
+As a result, their preferred port is unknown and they can't be connected with.
+
+Existing node data can only be updated if the new data does not have worse provenance than the existing data.
+For example, updated information about a static node with dynamic provenance is discarded, but updated information about a dynamic node with dynamic or static provenance is allowed.
+
+When \nemsetting{network}{nodeEqualityStrategy} is \texttt{public-key}, the secondary identity component is the resolved IP.
+When there are no active connections, this is allowed to change.
+This strategy does not support reputational migration.
+
+When \nemsetting{network}{nodeEqualityStrategy} is \texttt{host}, the secondary identity component is the public boot key.
+When there are no active connections, this is allowed to change.
+The resolved IP primary identity component can also be changed when there are no active connections assuming the secondary identity component is unchanged.
+In this case, all reputation data associated with the original host is migrated to the new host.
+When there is an ambiguous match, data with the matching primary identity component is migrated and data with the matching secondary identity component is discarded.
+
+\subsection{Node Discovery}
+\label{sec:network:discovery}
+
+\codenamespace supports a configurable node identification policy configured by \nemsetting{network}{nodeEqualityStrategy}.
+Valid policies allow identifying a node by either its \textit{resolved IP} (\texttt{host})
+\footnote{
+	A node's resolved IP is only broadcast to other nodes when it doesn't specify a hostname.
+	Hostnames are preferentially propagated in order to support nodes with dynamic IPs.
+}or \textit{public boot key} (\texttt{public-key}).
+The former is preferred for public networks.
+
+After starting up, a node attempts to make short lived connections to all static nodes it has loaded from its peers configuration files.
+These connections are primarily intended to retrieve the resolved IP addresses of all static nodes.
+This allows hostnames to be used in the peers configuration files and simplifies node management.
+As long as the node is running, this procedure is periodically repeated with a linear backoff.
+
+Periodically, a node will broadcast identifying information about itself to its remote partner nodes.
+The remote will process the received payload and check it for validity and compatibility.
+In order to be valid, the identity key specified by the node must match the identity key it used to pass the challenge handshake.
+In order to be compatible, both the broadcasting and receiving nodes must target the same network.
+If no hostname is provided, the node's resolved IP will be used in place.
+If all checks succeed, the node will be added as a new potential partner and will be eligible for selection in the next sync round.
+
+Periodically, a node will request all known peers from its remote partner nodes.
+The remote nodes will respond with all of their active static and dynamic peers.
+To the requesting node, these will all be treated as dynamic nodes.
+The original node will request the identifying information from each of these nodes directly.
+This direct communication is required to prevent a malicious actor from relaying false information about other nodes and to ensure a connection can be established with each new node.
+The original node will process the received payload and check it for validity and compatibility as above.
+If all checks succeed, the new node will be added as a new potential partner and will be eligible for selection in the next sync round.
