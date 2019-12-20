@@ -58,7 +58,7 @@ so \eqref{eq:cryptography:verifyR} will hold.
 
 When lots of signatures have to be verified, a batch signature verification can speed up the process by about 80\%.
 \codenamespace uses the algorithm outlined in \cite{Bernstein2011}.
-Given a batch of $(M_i, A_i, R_i, S_i)$ where $(R_i, S_i)$ is the signature for the message $M_i$ with public key $A_i$, 
+Given a batch of $(M_i, A_i, R_i, S_i)$ where $(R_i, S_i)$ is the signature for the message $M_i$ with public key $A_i$,
 uniform distributed 128-bit independent random integers $z_i$ are generated and $H_i(R_i, A_i, M_i)$ is calculated.
 Now consider the equation
 \begin{align}
@@ -71,7 +71,8 @@ Setting $P_i = 8 R_i + 8 H_i A_i - 8 S_i B$, then if \eqref{eq:cryptography:veri
 All $P_i$ are elements of a cyclic group (remember $q$ is a prime).
 If some $P_i$ is not zero, for example $P_2$, it means that for given integers $z_0, z_1, z_3, z_4 ...$, there is exactly one choice for $z_2$ to satisfy \eqref{eq:cryptography:verifyBatch2}.
 The chance for that is $2^{-128}$.
-Therefore if \eqref{eq:cryptography:verifyBatch} holds, we can be fairly sure that $P_i = 0$ for all $i$ which means that the signatures are valid.
+Therefore, if \eqref{eq:cryptography:verifyBatch} holds, it is a near certainty that $P_i = 0$ for all $i$.
+This implies that the signatures are valid.
 
 If \eqref{eq:cryptography:verifyBatch} does not hold, it means that there is at least one invalid signature.
 In that case, \codenamespace falls back to single signature verification to identify the invalid signatures.
