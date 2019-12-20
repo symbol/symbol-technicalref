@@ -116,12 +116,30 @@ Maximizing the total block fee does not necessarily mean that the number of tran
 In fact, in many cases, the harvester will only include a subset of the transactions that are available.}
 \item{\texttt{minimize-fee}: \\
 Transactions with the lowest maximum fee multipliers are selected first by this strategy.
-Generous nodes will pick this strategy together with a very low  \nemsetting{node}{minFeeMultiplier}.
+Generous nodes will pick this strategy together with a very low \nemsetting{node}{minFeeMultiplier}.
 If this setting is zero, then the harvester will include transactions with zero fees first.
 This allows users to send transactions that get included in the blockchain for free!
 In practice, it is likely that only a few nodes will support this.
 Even with such a subset of nodes running, zero fee transactions will still have the lowest probability of getting included in a block because they will always be supported by the least number of nodes in the network.}
 \end{enumerate}
+
+Transactions can initiate transfers of both static and dynamic amounts.
+Static amounts are fixed and independent of external factors.
+For example, the amount specified in a transfer transaction is static.
+The exact amount specified is always transfered from sender to recipient.
+In contrast, dynamic amounts are variable relative to the average transaction cost.
+These are typically reserved for fees paid to acquire unique network artifacts, like namespaces or mosaics.
+For such artifacts, a flat fee is undesirable because it would be unresponsive to the market.
+Likewise, solely using a single block's \field{FeeMultiplier} is problematic because harvesters could cheat and receive artifacts for free by including registrations in self-harvested blocks with zero fees.
+Instead, a dynamic fee multiplier is used.
+This multiplier is calculated as the median of the \field{FeeMultiplier} values in the last \nemsetting{network}{maxDifficultyBlocks} blocks.
+\nemsetting{network}{defaultDynamicFeeMultiplier} is used when there are not enough values and as a replacement for zero values.
+The latter adjustment ensures that the effective amounts are always nonzero.
+In order to arrive at the effective amount, the base amount is multiplied by the dynamic fee multiplier.
+
+\begin{align*}
+\textit{effective amount} = \: & \textit{base amount} \cdot \textit{dynamic fee multiplier}
+\end{align*}
 
 \index{block!generation hash}
 
