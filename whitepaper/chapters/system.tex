@@ -4,20 +4,20 @@
 \nemquote{
 }{}
 
-\nemchapterfirstletter{H}{igh} degrees of customization are supported by \codenamespace at both the network level and the individual node level.
-Network wide settings specified in \nemsetting{network}{network} must be the same for all nodes in a network.
-Node specific settings specified in \nemsetting{node}{node} can vary across nodes in the same network.
+\codenamechapterfirstword supports high customization at both the network and individual node levels.
+Network-wide settings, specified in \nemsetting{network}{network}, must be the same for all nodes in a network.
+In contrast, node-specific settings can vary across all nodes in the same network, and are located in \nemsetting{node}{node}.
 
 \subsection{Transaction Plugins}
 
 All nodes in a network must support the same types of transactions and process them in exactly the same manner so that all nodes can agree on the global blockchain state.
-The transactions a network supports are determined by the set of \textit{transaction plugins} the network requires each node to load.
+The network requires each node to load a set of \textit{transaction plugins}, and this set determines the kinds of transactions the network supports.
 This set is determined by the presence of \nemsetting{network}{plugin*} sections in the configuration.
 Any changes, additions or deletions of these plugins must be coordinated and accepted by all network nodes.
 If only a subset of nodes agree to these modifications, those nodes will be on a fork.
 All built-in \codenamespace transactions are built using this plugin model in order to validate its extensibility.
 
-A plugin is a separate dynamically linked library that exposes a single entry point in the following form
+A plugin is a separate dynamically-linked library that exposes a single entry point in the following form
 \footnote{Format of plugins depends on target operating system and compiler used, so all host applications and plugins must be built with the same compiler version and options.}:
 
 \begin{lstlisting}
@@ -39,14 +39,14 @@ Through this class, a plugin can register zero or more of the following:
 		New cache types and rules for serializing and deserializing model types to and from binary can be specified.
 		Each state-related cache can optionally be included in the calculation of a block's \field{StateHash} \nemrefparens{sec:blocks:statehash} when that feature is enabled.
 	}
-	\item{Handlers - APIs that are always accessible.}
-	\item{Diagnostics - APIs and counters that are accessible only when the node is running in diagnostic mode.}
+	\item{Handlers - These are APIs that are always accessible.}
+	\item{Diagnostics - These are APIs and counters that are accessible only when the node is running in diagnostic mode.}
 	\item{Validators -
-		Stateless and stateful validators that process the notifications produced by block and transaction processing.
+		Stateless and stateful validators process the notifications produced by block and transaction processing.
 		The registered validators can subscribe to general or plugin-defined notifications and reject disallowed values or state changes.
 	}
 	\item{Observers -
-		Observers that process the notifications produced by block and transaction processing.
+		Observers process the notifications produced by block and transaction processing.
 		The registered observers can subscribe to general or plugin-defined notifications and update blockchain state based on their values.
 		Observers don't require any validation logic because they are only called after all applicable validators succeed.
 	}
@@ -103,7 +103,7 @@ For understanding the full range of extensibility allowed by extensions, please 
 
 \subsection{Server}
 
-The most simple catapult topology is composed of a single server executable.
+The simplest \codenamespace topology is composed of a single server executable.
 Transaction Plugins required by the network and \codenamespace Extensions desired by the node operator are loaded and initialized by the server.
 
 \codenamespace stores all of its data in a \filepath{data} directory.
@@ -132,15 +132,15 @@ The contents of the data directory are as follows:
 		When \nemsetting{user}{enableDelegatedHarvestersAutoDetection} is set, this directory will contain extracted delegated harvesting requests for the current node.
 	}
 	\item{\filepath{commit\_step.dat} -
-		Stores the most recent step of the commit process initiated by the server.
+		This stores the most recent step of the commit process initiated by the server.
 		This is primarily used for recovery purposes.
 	}
-	\item{\filepath{index.dat} - Counter that contains the number of blocks stored on disk.}
+	\item{\filepath{index.dat} - This is a counter that contains the number of blocks stored on disk.}
 \end{enumerate}
 
 \subsubsection{Cache Database}
 
-The server supports running both with and without a cache database.
+The server can run with or without a cache database.
 When \nemsetting{node}{enableCacheDatabaseStorage} is set, RocksDB is used to store cache data.
 Verifiable state \nemrefparens{sec:blocks:statehash} requires a cache database and most network configurations are expected to have it enabled.
 
@@ -180,8 +180,8 @@ The server writes messages and the broker reads them.
 There is no way for the broker to send messages to the server.
 This decoupling is intentional and was done for performance reasons.
 
-The server raises subscription events in the block chain sync consumer \nemrefparens{sec:disruptor:blockConsumers} when it holds an exclusive lock to the blockchain data.
-In order to prevent slow database operations from occurring when the server has an exclusive lock, these operations are offloaded to the broker.
+The server raises subscription events in the blockchain sync consumer \nemrefparens{sec:disruptor:blockConsumers} when it holds an exclusive lock to the blockchain data.
+These operations are offloaded to the broker to prevent slow database operations when the server has an exclusive lock.
 The server overhead is minimal because most of the data used by the broker is also required to recover data after an ungraceful server termination.
 
 \subsection{Recovery}
@@ -204,7 +204,7 @@ Other files indicating the presence of an ungraceful termination are updated or 
 
 \subsection{Common Topologies}
 
-Although a network can be composed of a large number of heterogeneous topologies, it is likely that most nodes will fall into one of three categories: Peer, Api or Dual.
+Although a network can be composed of a large number of heterogeneous topologies, it is likely that most nodes will fall into one of three categories: Peer, API or Dual.
 The same server process is used across all of these topologies.
 The only difference is in what extensions each loads.
 
@@ -212,12 +212,12 @@ Peer nodes are lightweight nodes.
 They have enough functionality to add security to the blockchain network, but little beyond that.
 They can synchronize with other nodes and harvest new blocks.
 
-Api nodes are more heavyweight nodes.
+API nodes are more heavyweight nodes.
 They can synchronize with other nodes, but cannot harvest new blocks.
 They support hosting bonded aggregate transactions and collecting cosignatures to complete them.
-They require a broker process, which is configured to persist data into a MongoDB database and propagate changes over public message queues to subscribers.
-The REST Api is dependent on both of these capabilities and is typically co-located with an Api node for performance reasons in order to minimize latency.
+They require a broker process, which is configured to write data into a MongoDB database and propagate changes over public message queues to subscribers.
+The REST API is dependent on both of these capabilities and is typically co-located with an Api node for performance reasons in order to minimize latency.
 
-Dual nodes are simply a superset of Peer and Api nodes.
+Dual nodes are simply a superset of Peer and API nodes.
 They support all capabilities of both node types.
-Since these nodes support all Api node capabilities, they also require a broker.
+Since these nodes support all API node capabilities, they also require a broker.
