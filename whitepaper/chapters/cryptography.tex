@@ -6,17 +6,17 @@ I understood the importance in principle of public key cryptography but it's all
 }{Whitfield Diffie}
 
 \nemchapterfirstletter{B}{lockchain} technology demands the use of some cryptographic concepts.
-\codenamespace is using cryptography based on Elliptic Curve Cryptography (ECC).
+\codenamespace uses cryptography based on Elliptic Curve Cryptography (ECC).
 The choice of the underlying curve is important in order to guarantee security and speed.
 
-\codenamespace has chosen to use the \emph{Twisted Edwards curve}:
+The specific curve being used is the \emph{Twisted Edwards curve}:
 $$ -x^2 + y^2 = 1 - \frac{121665}{121666} x^2 y^2$$
 over the finite field defined by the prime number $2^{255}-19$ together with the digital signature algorithm called Ed25519\index{Ed25519}.
 The base point for the corresponding group G is called B. The group has $q=2^{252} + 27742317777372353535851937790883648493$ elements.
 It was developed by D. J. Bernstein et al. and is one of the safest and fastest digital signature algorithms \cite{Bernstein2011}.
 For the hash function $H$ mentioned in the paper, \codenamespace uses the 512-bit SHA3 hash function.
 
-Importantly for \codenamespace purposes, the algorithm produces short 64 byte signatures and supports fast signature verification.
+Importantly for \codenamespace purposes, the algorithm produces short 64-byte signatures and supports fast signature verification.
 Neither key generation nor signing is used during block processing, so the speed of these operations is unimportant.
 
 \subsection{Public/Private Key Pair}
@@ -42,7 +42,7 @@ S &= (r + H(\underline{R}, \underline{A}, M)a) \: mod \: q \label{eq:cryptograph
 Then $(\underline{R}, \underline{S})$ is the \nind{signature} for the message $M$ under the private key $k$.
 Note that only signatures where $S<q$ and $S>0$ are considered as valid \textbf{to prevent} the problem of \emph{signature malleability}\index{signature!malleability}.
 
-To verify the signature $(\underline{R}, \underline{S})$ for the given message $M$ and public key \underline{A} one checks $S<q$ and $S>0$ and then calculates
+To verify the signature $(\underline{R}, \underline{S})$ for the given message $M$ and public key \underline{A}, the verifier checks $S<q$ and $S>0$ and then calculates
 \begin{align*}
 \tilde{R} = SB - H(\underline{R}, \underline{A}, M)A
 \end{align*}
