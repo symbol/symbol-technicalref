@@ -29,8 +29,8 @@
 	\lettrine[lraise=0,lines=3,nindent=0.5em,slope=0.0em]{\color{nemdark}\fontseries{bx}\fontsize{54pt}{56pt}\selectfont #1}
 }
 
-\protected\def \nemsetting #1#2{
-	\ifmmode\text{#2}\else\textit{#1{\allowbreak}:{\allowbreak}#2}\fi
+\protected\def \nemsetting #1#2{%
+	\ifmmode\text{#2}\else\textit{\ifstrequal{#1}{#2}{#1}{#1{\allowbreak}:{\allowbreak}#2}}\fi
 }
 
 %%% figure formatting %%%

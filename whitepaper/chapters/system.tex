@@ -9,11 +9,17 @@ A new technology can transform society, but when the technology is in its infanc
 Network-wide settings, specified in \nemsetting{network}{network}, must be the same for all nodes in a network.
 In contrast, node-specific settings can vary across all nodes in the same network, and are located in \nemsetting{node}{node}.
 
+\codenamespace was designed to use a \textit{plugin / extension} approach instead of supporting Turing complete smart contracts.
+While the latter can allow for more user flexibility, it's also more error prone from the user perspective.
+A plugin model limits the operations that can be performed on a blockchain and consequently has a smaller attack surface.
+Additionally, it's much simplier to optimize the performance of a discrete set of operations than an infinite set.
+This helps \codenamespace achieve the high throughput for which it was designed.
+
 \subsection{Transaction Plugins}
 
 All nodes in a network must support the same types of transactions and process them in exactly the same manner so that all nodes can agree on the global blockchain state.
 The network requires each node to load a set of \textit{transaction plugins}, and this set determines the kinds of transactions the network supports.
-This set is determined by the presence of \nemsetting{network}{plugin*} sections in the configuration.
+This set is determined by the presence of \nemsetting{network}{plugin*} sections in the \nemsetting{network}{network} configuration.
 Any changes, additions or deletions of these plugins must be coordinated and accepted by all network nodes.
 If only a subset of nodes agree to these modifications, those nodes will be on a fork.
 All built-in \codenamespace transactions are built using this plugin model in order to validate its extensibility.
@@ -100,7 +106,7 @@ In addition to the above, extensions can configure the node in more intricate wa
 For example, an extension can register a custom network time supplier.
 In fact, there is a specialized extension that sets a time supplier based on algorithms described in \nemref{sec:timesync}.
 This is an example of the high levels of customization allowed by this extension model.
-For understanding the full range of extensibility allowed by extensions, please refer to the project code or developer documentation.
+For understanding the full range of extensibility allowed by extensions, please refer to the project code or developer documentation\footnote{See \url{nemtech.github.io}.}.
 
 \subsection{Server}
 
