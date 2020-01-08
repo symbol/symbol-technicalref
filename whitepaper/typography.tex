@@ -1,0 +1,26 @@
+\section*{Typographical conventions}
+%\addcontentsline{toc}{section}{Typographical conventions}
+
+This documentation uses the following typographical conventions:
+
+\renewcommand{\arraystretch}{1.3}
+
+\begin{tabular}{l p{9cm}} 
+	Sample & Description \\
+	\hline
+	\codenamespace & bold, colored - when referring to project name \\
+	\hline
+	\class{ProcessBootstrapper} & \multirow[t]{3}{=}{fixed-width font is used for: classes, names of fields (of transaction, blocks or other entities), file paths} \\
+	\field{FeeMultiplier} & \\
+	\filepath{commit\_step.dat} & \\
+	\hline
+	\nemsetting{network}{maxDifficultyBlocks} & italic, prefixed with configuration file name -  when referring configuration settings in the text \\
+	\hline
+	$\nemsetting{network}{maxDifficultyBlocks}$ & non-slanted - when referring to configuration settings in equations, formulas \\
+	\hline
+	$\structField{T}{SignerPublicKey}$ & non-slanted - when referring to model fiels in equations, formulas \\
+	\hline
+	$\mathfunc{VerifiableDataBuffer}()$ & non-slanted - when referring to functions in equations, formulas \\
+\end{tabular}
+
+\renewcommand{\arraystretch}{1.0}
