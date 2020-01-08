@@ -1,0 +1,27 @@
+\section*{Typographical Conventions}
+
+This document uses the following typographical conventions:
+
+\renewcommand{\arraystretch}{1.3}
+
+\begin{tabular}{l p{1.5cm} p{7cm}} 
+	Sample & Attributes & Description \\
+	\hline
+	\codenamespace & bold, colored & when referring to project name \\
+	\hline
+	\class{ProcessBootstrapper} & 
+	\multirow[t]{3}{=}{fixed-width font} &
+	\multirow[t]{3}{=}{classes, file paths, fields (of transactions, blocks or other entities)} \\
+	\field{FeeMultiplier} & & \\
+	\filepath{commit\_step.dat} & & \\
+	\hline
+	\nemsetting{network}{maxDifficultyBlocks} & italic & configuration settings, prefixed with configuration filename in text mode\\
+	\hline
+	$\nemsetting{network}{maxDifficultyBlocks}$ & regular & configuration settings, without configuration filename in equations and formulas \\
+	\hline
+	$\structField{T}{SignerPublicKey}$ & regular & model fields in equations and formulas \\
+	\hline
+	$\mathfunc{VerifiableDataBuffer}()$ & regular & function names in equations and formulas \\
+\end{tabular}
+
+\renewcommand{\arraystretch}{1.0}
