@@ -1,5 +1,5 @@
-Catapult whitepaper repository
-==============================
+Symbol whitepaper repository
+============================
 
 In math and text mode:
  * Use `\nemsetting` to refer to configuration variables
