@@ -21,7 +21,7 @@ Neither key generation nor signing is used during block processing, so the speed
 
 \subsection{Public/Private Key Pair}
 
-A \nind{private key} is a random 256-bit integer $k$. To derive the public key \underline{A} from it, the following steps are taken:
+A \nind{private key} is a random 256-bit integer $k$ represented as sixty-four hexadecimal digits. To derive the public key \underline{A} from it, the following steps are taken:
 \begin{align}
 H(k) &=(h_0, h_1,..., h_{511}) \\
 a &= 2^{254} + \sum_{3\leq i \leq 253} 2^i h_i \\
