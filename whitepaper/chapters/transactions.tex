@@ -57,13 +57,9 @@ Please refer to the published schemas for the most up to date specifications.
 				\begin{leftwordgroup}{\texttt{0x6C}}
 					\bitbox[br]{4}{} \bitbox{4}{V, N, T}
 				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x70}}
-					\wordbox{1}{MaxFee}
-				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x78}}
-					\wordbox{1}{Deadline}
-				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{0x80}{Payload}{} \\
+				\nemmemorysinglewordbox{0x70}{MaxFee} \\
+				\nemmemorysinglewordbox{0x78}{Deadline} \\
+				\nemmemorymultiwordboxskipped{0x80}{Payload}{}
 			}{Verifiable data}
 		\end{subfigure}
 	}{Basic transaction binary layout}
@@ -111,15 +107,9 @@ None of the unverifiable footer fields need to be verified.
 				\begin{leftwordgroup}{\texttt{0x6C}}
 					\bitbox[br]{4}{} \bitbox{4}{V, N, T}
 				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x70}}
-					\wordbox{1}{MaxFee}
-				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x78}}
-					\wordbox{1}{Deadline}
-				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x80}}
-					\wordbox{1}{TransactionsHash}
-				\end{leftwordgroup}
+				\nemmemorysinglewordbox{0x70}{MaxFee} \\
+				\nemmemorysinglewordbox{0x78}{Deadline} \\
+				\nemmemorysinglewordbox{0x80}{TransactionsHash}
 			}{Verifiable data}
 		\end{subfigure}%
 		\begin{subfigure}{.33\textwidth}
@@ -212,13 +202,9 @@ The padding bytes are never signed nor included in any hashes.
 				\bitbox{4}{\tiny PayloadSize} \bitbox{4}{Reserved}
 			\end{leftwordgroup} \\
 			\nemmemorymultiwordboxskipped{}{Embedded}{Transaction 1} \\
-			\begin{leftwordgroup}{}
-				\wordbox{1}{\emph{optional} padding}
-			\end{leftwordgroup} \\
+			\nemmemorysinglewordbox{}{\emph{optional} padding} \\
 			\nemmemorymultiwordboxskipped{}{Embedded}{Transaction 2} \\
-			\begin{leftwordgroup}{}
-				\wordbox{1}{\emph{optional} padding}
-			\end{leftwordgroup} \\
+			\nemmemorysinglewordbox{}{\emph{optional} padding} \\
 			\nemmemorymultiwordboxskipped{}{Cosignatures}{}
 		}{Aggregate transaction footer with padding}
 	}

@@ -84,6 +84,13 @@
 	\caption{#2}
 }
 
+% creates a single word memory layout wordbox
+\newcommand{\nemmemorysinglewordbox}[2]{
+	\begin{leftwordgroup}{\texttt{#1}}
+		\wordbox{1}{#2}
+	\end{leftwordgroup}
+}
+
 % creates a multiword memory layout wordbox that has top-aligned text
 % first param is always offset
 \newcommand{\nemmemorymultiwordbox}[3]{

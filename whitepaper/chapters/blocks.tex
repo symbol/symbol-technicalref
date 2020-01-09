@@ -40,15 +40,9 @@ None of the unverifiable footer fields need to be verified.
 				\begin{leftwordgroup}{\texttt{0x6C}}
 					\bitbox[br]{4}{} \bitbox{4}{V, N, T}
 				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x70}}
-					\wordbox{1}{Height}
-				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x78}}
-					\wordbox{1}{Timestamp}
-				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x80}}
-					\wordbox{1}{Difficulty}
-				\end{leftwordgroup} \\
+				\nemmemorysinglewordbox{0x70}{Height} \\
+				\nemmemorysinglewordbox{0x78}{Timestamp} \\
+				\nemmemorysinglewordbox{0x80}{Difficulty} \\
 				\nemmemorymultiwordbox{0x88}{PreviousBlockHash}{3} \\
 				\nemmemorymultiwordbox{0xA8}{TransactionsHash}{3} \\
 				\nemmemorymultiwordbox{0xC8}{ReceiptsHash}{3} \\
@@ -162,10 +156,8 @@ Accordingly, each receipt source that generates a receipt will have exactly one 
 				\begin{leftwordgroup}{\texttt{0x00}}
 					\bitbox{4}{Size} \bitbox{2}{V} \bitbox{2}{T}
 				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x08}}
-					\wordbox{1}{ReceiptSource}
-				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{0x10}{Receipts}{} \\
+				\nemmemorysinglewordbox{0x08}{ReceiptSource} \\
+				\nemmemorymultiwordboxskipped{0x10}{Receipts}{}
 			}{Transaction statement binary layout}
 		\end{subfigure}%
 		\begin{subfigure}{.5\textwidth}
@@ -200,10 +192,8 @@ The only difference is that the resolved and unresolved values are 25-byte addre
 				\begin{leftwordgroup}{\texttt{0x00}}
 					\bitbox{4}{Size} \bitbox{2}{V} \bitbox{2}{T}
 				\end{leftwordgroup} \\
-				\begin{leftwordgroup}{\texttt{0x08}}
-					\wordbox{1}{\small MosaicId Unresolved}
-				\end{leftwordgroup} \\
-				\nemmemorymultiwordboxskipped{0x10}{Resolution}{Entries} \\
+				\nemmemorysinglewordbox{0x08}{\small MosaicId Unresolved} \\
+				\nemmemorymultiwordboxskipped{0x10}{Resolution}{Entries}
 			}{Mosaic resolution statement binary layout}
 		\end{subfigure}%
 		\begin{subfigure}{.5\textwidth}
@@ -213,7 +203,7 @@ The only difference is that the resolved and unresolved values are 25-byte addre
 				\end{leftwordgroup} \\
 				\begin{leftwordgroup}{\texttt{0x08}}
 					\bitbox{8}{\small MosaicId Resolved}
-				\end{leftwordgroup} \\
+				\end{leftwordgroup}
 			}{Resolution entry binary layout}
 		\end{subfigure}
 	}{Mosaic resolution statement layout\label{fig:blocks:mosaicResolutionStatementLayout}}
@@ -280,13 +270,9 @@ The padding bytes are never signed nor included in any hashes.
 				\bitbox[br]{4}{} \bitbox{4}{Reserved}
 			\end{leftwordgroup} \\
 			\nemmemorymultiwordboxskipped{}{Transaction 1}{} \\
-			\begin{leftwordgroup}{}
-				\wordbox{1}{\emph{optional} padding}
-			\end{leftwordgroup} \\
+			\nemmemorysinglewordbox{}{\emph{optional} padding} \\
 			\nemmemorymultiwordboxskipped{}{Transaction 2}{} \\
-			\begin{leftwordgroup}{}
-				\wordbox{1}{\emph{optional} padding}
-			\end{leftwordgroup}
+			\nemmemorysinglewordbox{}{\emph{optional} padding}
 		}{Block transaction footer with padding}
 	}
 \end{figure}
