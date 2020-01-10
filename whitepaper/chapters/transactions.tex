@@ -209,3 +209,19 @@ The padding bytes are never signed nor included in any hashes.
 		}{Aggregate transaction footer with padding}
 	}
 \end{figure}
+
+\subsection{Transaction Hashes}
+
+Each transaction has two associated hashes - an \emph{entity hash} and a \emph{merkle component hash}.
+The former uniquely identifies a transaction and is used to prevent multiple confirmations of the same transaction.
+The latter is more specific and is used when calculating \field{TransactionsHash} \nemrefparens{sec:transactions:aggregate}.
+
+A transaction's entity hash is always calculated as the hash of its verifiable data.
+All confirmed transactions must have a unique entity hash.
+An aggregate transaction's entity hash is independent of its cosignatures.
+This prevents the same aggregate transaction from being confirmed multiple times with different sets of valid cosignatures.
+
+A regular transaction's merkle component hash is identical to its entity hash.
+An aggregate transaction's merkle component hash is calculated by hashing its entity hash concatenated with all the public keys of its cosignatures
+\footnote{Cosignature signatures are not included because they can only have a single value given a specific public key and payload.}.
+This ensures that \field{TransactionsHash} reflects all cosignatures that allowed the confirmation of an aggregate transaction.
