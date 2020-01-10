@@ -82,7 +82,7 @@ Let $B_A$ represent the amount of currency owned by account $A$.
 The stake score for account $A$ is calculated for each eligible account as follows:
 
 \begin{equation}
-S_A = \frac{B_A}{\sum\limits_{\substack{a \in \textit{high value accounts}}} B_a}
+S_A = \frac{B_A}{\sum\limits_{\substack{a \in \mathname{high value accounts}}} B_a}
 \end{equation}
 
 The transaction score, $T_A$, for an account $A$ is the percentage of transaction fees it has paid relative to all fees paid by high value accounts within a time period $P$.
@@ -90,7 +90,7 @@ Let $\mathfunc{FeesPaid}{A}$ represent the amount of fees paid by $A$ in the tim
 The transaction score for account $A$ is calculated for each eligible account as follows:
 
 \begin{equation}
-T_A = \frac{\mathfunc{FeesPaid}(A)}{\sum\limits_{\substack{a \in \textit{high value accounts}}} \mathfunc{FeesPaid}(a)}
+T_A = \frac{\mathfunc{FeesPaid}(A)}{\sum\limits_{\substack{a \in \mathname{high value accounts}}} \mathfunc{FeesPaid}(a)}
 \end{equation}
 
 The node score, $N_A$, for an account $A$ is the percentage of times it has been specified as a beneficiary relative to the total number of high value account beneficiaries within a time period $P$.
@@ -98,7 +98,7 @@ Let $\mathfunc{BeneficiaryCount}{A}$represent the number of times $A$ has been s
 The node score for account $A$ is calculated for each eligible account as follows:
 
 \begin{equation}
-N_A = \frac{\mathfunc{BeneficiaryCount}(A)}{\sum\limits_{\substack{a \in \textit{high value accounts}}} \mathfunc{BeneficiaryCount}(a)}
+N_A = \frac{\mathfunc{BeneficiaryCount}(A)}{\sum\limits_{\substack{a \in \mathname{high value accounts}}} \mathfunc{BeneficiaryCount}(a)}
 \end{equation}
 
 Together, the transaction and node scores are called the \emph{activity score} because they are both dynamic and derived from an account's activity as opposed to its stake.
@@ -169,8 +169,8 @@ Given that, the spot importance of the account $A$, $I'_A$, can be calculated as
 }:
 \begin{align*}
 	\gamma = \: & \nemsetting{network}{importanceActivityPercentage} \\
-	\mathit{ActivityScore}'_A = \: & \frac{\nemsetting{network}{minHarvesterBalance}}{B_A} \cdot \left( 0.8 \cdot T_A + 0.2 \cdot N_A \right) \\
-	\mathit{ActivityScore}_A = \: & \frac{ActivityScore'_A}{\sum\limits_{\substack{a \in \textit{high value accounts}}} ActivityScore'_a} \\
+	\mathvar{ActivityScore}'_A = \: & \frac{\nemsetting{network}{minHarvesterBalance}}{B_A} \cdot \left( 0.8 \cdot T_A + 0.2 \cdot N_A \right) \\
+	\mathvar{ActivityScore}_A = \: & \frac{ActivityScore'_A}{\sum\limits_{\substack{a \in \mathname{high value accounts}}} ActivityScore'_a} \\
 	I'_A = \: & \nemsetting{network}{totalChainImportance} \cdot \left( \left(1 - \gamma \right) \cdot S_A + \gamma \cdot ActivityScore_A \right)
 \end{align*}
 

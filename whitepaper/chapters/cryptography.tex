@@ -21,9 +21,9 @@ Neither key generation nor signing is used during block processing, so the speed
 
 \subsection{Public/Private Key Pair}
 
-A \nind{private key} is a random 256-bit integer $k$. To derive the public key \underline{A} from it, the following steps are taken:
+A \nind{private key} is a random 256-bit integer $k$. To derive the public key\index{public key} \underline{A} from it, the following steps are taken:
 \begin{align}
-H(k) &=(h_0, h_1,..., h_{511}) \\
+\hf(k) &=(h_0, h_1,..., h_{511}) \\
 a &= 2^{254} + \sum_{3\leq i \leq 253} 2^i h_i \\
 A &= aB
 \end{align}
@@ -33,10 +33,10 @@ Since $A$ is a group element, it can be encoded into a 256-bit integer \underlin
 
 Given a message $M$, private key $k$ and its associated public key \underline{A}, the following steps are taken to create a signature:
 \begin{align}
-H(k) &=(h_0, h_1,..., h_{511}) \\
-r &= H(h_{256},...,h_{511}, M) \text{ where the comma means concatenation} \\
+\hf(k) &=(h_0, h_1,..., h_{511}) \\
+r &= \hf(h_{256},...,h_{511}, M) \text{ where the comma means concatenation} \\
 R &= rB \\
-S &= (r + H(\underline{R}, \underline{A}, M)a) \: mod \: q \label{eq:cryptography:S}
+S &= (r + \hf(\underline{R}, \underline{A}, M)a) \: mod \: q \label{eq:cryptography:S}
 \end{align}
 
 Then $(\underline{R}, \underline{S})$ is the \nind{signature} for the message $M$ under the private key $k$.
@@ -44,14 +44,14 @@ Note that only signatures where $S<q$ and $S>0$ are considered as valid \textbf{
 
 To verify the signature $(\underline{R}, \underline{S})$ for the given message $M$ and public key \underline{A}, the verifier checks $S<q$ and $S>0$ and then calculates
 \begin{align*}
-\tilde{R} = SB - H(\underline{R}, \underline{A}, M)A
+\tilde{R} = SB - \hf(\underline{R}, \underline{A}, M)A
 \end{align*}
 and verifies that
 \begin{equation}
 \tilde{R} = R \label{eq:cryptography:verifyR}
 \end{equation}
 If $S$ was computed as shown in \eqref{eq:cryptography:S} then
-$$SB = rB + (H(\underline{R}, \underline{A}, M)a)B = R + H(\underline{R}, \underline{A}, M)A$$
+$$SB = rB + (\hf(\underline{R}, \underline{A}, M)a)B = R + \hf(\underline{R}, \underline{A}, M)A$$
 so \eqref{eq:cryptography:verifyR} will hold.
 
 \subsection{Batch Verification}
@@ -59,7 +59,8 @@ so \eqref{eq:cryptography:verifyR} will hold.
 When lots of signatures have to be verified, a batch signature verification can speed up the process by about 80\%.
 \codenamespace uses the algorithm outlined in \cite{Bernstein2011}.
 Given a batch of $(M_i, A_i, R_i, S_i)$ where $(R_i, S_i)$ is the signature for the message $M_i$ with public key $A_i$,
-uniform distributed 128-bit independent random integers $z_i$ are generated and $H_i(R_i, A_i, M_i)$ is calculated.
+let $H_i = \hf(R_i, A_i, M_i)$.
+Additionally, assume a corresponding number of uniform distributed 128-bit independent random integers $z_i$ are generated.
 Now consider the equation
 \begin{align}
 \left(-\sum_i{z_i S_i \: \mathrm{mod} \: q}\right)B + \sum_i{z_i R_i} + \sum_i{(z_i H_i \: \mathrm{mod} \: q)A_i = 0} \label{eq:cryptography:verifyBatch}

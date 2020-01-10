@@ -26,7 +26,7 @@ Otherwise, the difficulty is calculated from the last $n$ blocks in the followin
 \begin{align*}
 \tag{average difficulty} d &= \frac{1}{n}\sum_{i=1}^n (\text{difficulty of $block_i$}) \\
 \tag{average creation time} t &= \frac{1}{n}\sum_{i=1}^n (\text{time to create $block_i$}) \\
-\tag{new difficulty} \mathit{difficulty} &= d \; \frac{\nemsetting{network}{blockGenerationTargetTime}}{t}
+\tag{new difficulty} \mathvar{difficulty} &= d \; \frac{\nemsetting{network}{blockGenerationTargetTime}}{t}
 \end{align*}
 
 This algorithm produces blocks with an average time close to the desired \nemsetting{network}{blockGenerationTargetTime} network setting.
@@ -65,7 +65,7 @@ Block times will be considerably higher than \nemsetting{network}{blockGeneratio
 
 The score for a block is derived from its difficulty and the time (in seconds) that has elapsed since the last block:
 \begin{equation}
-\tag{block score} \mathit{score} = \mathit{difficulty} - \textit{time elasped since last block}
+\tag{block score} \mathvar{score} = \mathvar{difficulty} - \mathname{time elasped since last block}
 \end{equation}
 
 \subsection{Block Generation}
@@ -94,11 +94,11 @@ This makes running network nodes more profitable but harvesting less profitable.
 
 \index{block!fee multiplier}
 
-Each block must specify a \textit{fee multiplier} that determines the effective fee that must be paid by all transactions included in that block.
+Each block must specify a \emph{fee multiplier} that determines the effective fee that must be paid by all transactions included in that block.
 Typically, the node owner sets the \nemsetting{node}{minFeeMultiplier} that applies to all blocks harvested by the node.
 Only transactions that satisfy the following will be allowed to enter that node's unconfirmed transactions cache and be eligible for inclusion into blocks harvested by that node:
 \begin{equation}
-\textit{transaction max fee} \geqslant \nemsetting{node}{minFeeMultiplier} \cdot \textit{transaction size (bytes)}
+\mathname{transaction max fee} \geqslant \nemsetting{node}{minFeeMultiplier} \cdot \mathname{transaction size (bytes)}
 \end{equation}
 Rejected transactions may still be included in blocks harvested by other nodes with lower requirements.
 The specific algorithm used to select transactions for inclusion in harvested blocks is configured by the \nemsetting{node}{transactionSelectionStrategy} setting.
@@ -140,39 +140,40 @@ The latter adjustment ensures that the effective amounts are always nonzero.
 In order to arrive at the effective amount, the base amount is multiplied by the dynamic fee multiplier.
 
 \begin{align*}
-\textit{effective amount} = \: & \textit{base amount} \cdot \textit{dynamic fee multiplier}
+\mathname{effective amount} = \: & \mathname{base amount} \cdot \mathname{dynamic fee multiplier}
 \end{align*}
 
+\index{generation hash}
 \index{block!generation hash}
 
 The generation hash of a block is derived from the previous block generation hash and the public key of the current block harvester:
 \begin{align*}
 \tag{generation hash}
 \mathfunc{gh}(1) = \: & \nemsetting{network}{generationHash} \\
-\mathfunc{gh}(N) = \: & H(\mathfunc{gh}(N - 1), \textit{public key of account})
+\mathfunc{gh}(N) = \: & \hf(\mathfunc{gh}(N - 1), \mathname{public key of account})
 \end{align*}
 
 \index{block!hit}
 \index{block!target}
 To check if an account is allowed to create a new block at a specific network time, the following values are compared:
 \begin{itemize}
-\item{ $hit$: defines per-block value that needs to be \textit{hit}.}
+\item{ $hit$: defines per-block value that needs to be hit.}
 \item{ $target$: defines per-harvester power that increases as time since last harvested block increases.}
 \end{itemize}
-An account is allowed to create a new block whenever $\mathit{hit} < \mathit{target}$.
-Since $\mathit{target}$ is proportional to the elapsed time, a new block will be created after a certain amount of time even if all accounts are unlucky and generate a very high hit.
+An account is allowed to create a new block whenever $\mathvar{hit} < \mathvar{target}$.
+Since $\mathvar{target}$ is proportional to the elapsed time, a new block will be created after a certain amount of time even if all accounts are unlucky and generate a very high hit.
 
 In the case of delegated harvesting, the importance of the original account is used instead of the importance of the delegated account.
 
 The target is calculated as follows
 \footnote{The implementation uses 256-bit integer instead of floating point arithmetic in order to avoid any problems due to rounding.}:
 \begin{align*}
-\mathit{multiplier} = \: & 2^{64} \\
-t = \: & \textit{time in seconds since last block} \\
-b = \: & 8999999998 \: \cdot \: (\textit{account importance}) \\
-i = \: & \textit{total chain importance} \\
-d = \: & \textit{new block difficulty} \\
-\mathit{target} = \: & \frac{multiplier \cdot t \cdot b}{i \cdot d}
+\mathvar{multiplier} = \: & 2^{64} \\
+t = \: & \mathname{time in seconds since last block} \\
+b = \: & 8999999998 \: \cdot \: (\mathname{account importance}) \\
+i = \: & \mathname{total chain importance} \\
+d = \: & \mathname{new block difficulty} \\
+\mathvar{target} = \: & \frac{\mathvar{multiplier} \cdot t \cdot b}{i \cdot d}
 \end{align*}
 
 \emph{Block time smoothing}\index{block!time smoothing} can be enabled, which results in more stable block times.
@@ -184,14 +185,14 @@ If enabled, $multiplier$ above is calculated in the following way
 	If the calculated \field{power} is too negative, \field{smoothing} will be set to zero.
 }:
 \begin{align*}
-\mathit{factor} = \: & \nemsetting{network}{blockTimeSmoothingFactor} / 1000.0 \\
-\mathit{tt} = \: & \nemsetting{network}{blockGenerationTargetTime} \\
-\mathit{power} = \: & factor \cdot \frac{\textit{time in seconds since last block} - \mathit{tt}}{\mathit{tt}} \\
-\mathit{smoothing} = \: & \min\left(e^{\mathit{power}}, 100.0\right) \\
-\mathit{multiplier} = \: & \mathfunc{integer}\left(2^{54} \cdot \mathit{smoothing}\right) \cdot 2^{10}
+\mathvar{factor} = \: & \nemsetting{network}{blockTimeSmoothingFactor} / 1000.0 \\
+\mathvar{tt} = \: & \nemsetting{network}{blockGenerationTargetTime} \\
+\mathvar{power} = \: & factor \cdot \frac{\mathname{time in seconds since last block} - \mathvar{tt}}{\mathvar{tt}} \\
+\mathvar{smoothing} = \: & \min\left(e^{\mathvar{power}}, 100.0\right) \\
+\mathvar{multiplier} = \: & \mathfunc{integer}\left(2^{54} \cdot \mathvar{smoothing}\right) \cdot 2^{10}
 \end{align*}
 
-Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{\mathit{gh}}{2^{256}}\right)\right|$, where $\mathit{gh}$ is a new generation hash
+Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{\mathvar{gh}}{2^{256}}\right)\right|$, where $\mathvar{gh}$ is a new generation hash
 \footnote{
 	The implementation uses 128-bit integer instead of floating point arithmetic in order to avoid any problems due to rounding.
 	\texttt{log2(e)} is approximated as \texttt{14426950408889634 / 10000000000000000}.
@@ -199,27 +200,27 @@ Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{\mathit{gh}}{2^{256}
 
 First, let's rewrite value above using $\log$ with base $2$:
 $$
-\textit{hit} = \frac{2^{54}}{\log_2\left(\euler\right)} \cdot \left|\log_2\left(\frac{gh}{2^{256}}\right)\right|
+\mathvar{hit} = \frac{2^{54}}{\log_2\left(\euler\right)} \cdot \left|\log_2\left(\frac{\mathvar{gh}}{2^{256}}\right)\right|
 $$
 
-Note, that $\frac{gh}{2^{256}}$ is always $< 1$, therefore $\log$ will always yield negative value. \\
-Now, $\log_2\left(\frac{gh}{2^{256}}\right)$, can be rewritten as $\log_2\left(gh\right) - \log_2\left(2^{256}\right)$. \\
+Note, that $\frac{\mathvar{gh}}{2^{256}}$ is always $< 1$, therefore $\log$ will always yield negative value. \\
+Now, $\log_2\left(\frac{\mathvar{gh}}{2^{256}}\right)$, can be rewritten as $\log_2\left(\mathvar{gh}\right) - \log_2\left(2^{256}\right)$. \\
 
 Dropping absolute value and rewriting yields:
 \begin{align*}
-	\mathit{scale} = \: & \frac{1}{\log_2\left(\euler\right)} \\
-	\mathit{hit} = \: & \mathit{scale} \cdot 2^{54} (\log_2\left(2^{256}\right) - \log_2\left(\mathit{gh}\right))
+	\mathvar{scale} = \: & \frac{1}{\log_2\left(\euler\right)} \\
+	\mathvar{hit} = \: & \mathvar{scale} \cdot 2^{54} (\log_2\left(2^{256}\right) - \log_2\left(\mathvar{gh}\right))
 \end{align*}
 
 This can be further simplified to:
 $$
-\mathit{hit} =  \mathit{scale} \cdot ( 2^{54} \cdot 256 -  2^{54} \cdot \log_2\left(\mathit{gh}\right))
+\mathvar{hit} =  \mathvar{scale} \cdot ( 2^{54} \cdot 256 -  2^{54} \cdot \log_2\left(\mathvar{gh}\right))
 $$
 
 The implementation approximates the logarithm using only the first 32 non-zero bits of the new generation hash.
 There's also additional handling for edge cases.
 
-Also note that $\mathit{hit}$ has an exponential distribution. Therefore, the probability to create a new block does not change if the importance is split among many accounts.
+Also note that $\mathvar{hit}$ has an exponential distribution. Therefore, the probability to create a new block does not change if the importance is split among many accounts.
 
 \subsection{Automatic Delegated Harvester Detection}
 
@@ -251,7 +252,7 @@ The server does not provide any explicit confirmation that it is or is not using
 
 A score can be assigned to any chain of blocks by summing the scores of the component blocks:
 \begin{equation}
-\tag{blockchain score} \mathit{score} = \sum_{\mathit{block} \in \mathit{blocks}} \textit{block score}
+\tag{blockchain score} \mathvar{score} = \sum_{\mathvar{block} \in \mathvar{blocks}} \mathname{block score}
 \end{equation}
 
 Blockchain synchronization is crucial to maintaining distributed consensus.

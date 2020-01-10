@@ -8,12 +8,12 @@ The whole is greater than the sum of its parts.
 \nemchapterfirstletter{B}{onded} aggregate transactions \nemrefparens{sec:transactions:aggregate} are also referred to as partial transactions.
 The name \emph{partial} is fitting because the transactions have insufficient cosignatures and are unable to pass validation until more cosignatures are collected.
 
-Support for handling partial transactions is provided by the \textit{partial transaction extension}.
+Support for handling partial transactions is provided by the \emph{partial transaction extension}.
 If a network supports bonded aggregate transactions, this extension should be enabled on all Api and Dual nodes.
 
 Partial transactions are synchronized among all nodes in a network that have this extension enabled.
 A node passively receives partial transactions and cosignatures pushed by remote nodes.
-It also periodically requests transactions and cosignatures from remote nodes via the \textit{pull partial transactions task}.
+It also periodically requests transactions and cosignatures from remote nodes via the \emph{pull partial transactions task}.
 As an optimization, the requesting node indicates which transactions and cosignatures it already knows in order to avoid receiving redundant information.
 
 When the hash lock plugin is enabled, in order for a partial transaction to be accepted by the network, a hash lock must be created and associated with the transaction.
@@ -22,7 +22,7 @@ If the associated partial transaction is completed and confirmed in the blockcha
 Otherwise, the bond is forfeited to the harvester of the block at which the lock expires.
 This feature makes spamming the partial transactions cache more costly because it requires \nemsetting{node}{lockedFundsPerAggregate} to be paid, at least temporarily, for a partial transaction to enter the cache.
 
-When a node receives a new partial transaction, it is pushed to the \textit{partial transaction dispatcher}.
+When a node receives a new partial transaction, it is pushed to the \emph{partial transaction dispatcher}.
 Received cosignatures are collated with partial transactions already in the cache and are immediately rejected if there are no matching transactions
 \footnote{This implies that a partial transaction must be present in the cache before any of its cosignatures can be accepted.}.
 When transactions and cosignatures are received together, they are split and processed individually as above.

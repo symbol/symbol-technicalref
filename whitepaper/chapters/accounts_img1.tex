@@ -26,7 +26,7 @@
 	% third row - ripeMD
 
 	% it's easier to do it this way, as problems with paths show up when using nested tikzpicture
-	\node[below left=1.5cm and -2cm of bpk,anchor=center] (ripeInner) { $ripemd160(sha3\_256($ };
+	\node[below left=1.5cm and -2cm of bpk,anchor=center] (ripeInner) { $\mathfunc{ripemd160}(\mathfunc{sha3\_256}($ };
 	\node[right=of ripeInner, draw, dotted,rounded corners=0] (bpkInnerLabel) {compressed-public-key};
 	\node[right=of bpkInnerLabel] (ripeInner2) { $)) $ };
 
@@ -44,7 +44,7 @@
 	\draw[dotted] (ripe.south east) -- (brmd20.north east);
 
 	% Fifth row - SHA3(version + ripe)
-	\node[below right=2.5cm and -6cm of brmd20,anchor=center] (checkInner) { $sha3\_256($ };
+	\node[below right=2.5cm and -6cm of brmd20,anchor=center] (checkInner) { $\mathfunc{sha3\_256(}$ };
 	\node[crecb,right=of checkInner] (bInnerRmd1) {1};
 	\node[crecb,right=of bInnerRmd1,text width=7.5cm] (bInnerRmd20) {20 bytes};
 	\node[right=of bInnerRmd20] (checkInner2) { $)) $ };

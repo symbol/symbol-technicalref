@@ -184,7 +184,7 @@ $$\mathfunc{verify}(\structField{A}{Signature}, \structField{A}{SignerPublicKey}
 
 Additionally, all cosignatures must pass signature verification.
 Notice that cosigners sign the hash of an aggregate transaction data, not the data directly.
-$$\sum_{0\leq i \leq N_C} \mathfunc{verify}(\structField{C}{Signature}, \structField{C}{SignerPublicKey}, H(\mathfunc{VerifiableDataBuffer}(A)))$$
+$$\sum_{0\leq i \leq N_C} \mathfunc{verify}(\structField{C}{Signature}, \structField{C}{SignerPublicKey}, \hf(\mathfunc{VerifiableDataBuffer}(A)))$$
 
 Finally, there must be a cosignature that corresponds to and satisfies each embedded transaction signer.
 

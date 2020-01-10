@@ -48,9 +48,9 @@ The partner node uses its own network time to create the timestamps.
 \end{figure}
 
 Using the timestamps, the local node can calculate the round trip time
-$$\mathit{rtt}=(t_4 - t_1) - (t_3 - t_2)$$
+$$\mathvar{rtt} = (t_4 - t_1) - (t_3 - t_2)$$
 and then estimate the offset o between the network time used by the two nodes as
-$$o = t_2 - t_1 - \frac{\mathit{rtt}}{2}$$
+$$o = t_2 - t_1 - \frac{\mathvar{rtt}}{2}$$
 
 This is repeated for every time synchronization partner until the local node has a list of offset estimations.
 
@@ -89,13 +89,13 @@ Also, the numbers of samples that are available and the cumulative importance of
 Each offset is therefore multiplied with a scaling factor.
 
 Let $I_j$ be the importance of the node reporting the $j$-th offset $o_j$,
-$\textit{n}$ be the number of nodes that were eligible for the last PoI calculation and $\textit{s}$ be the number of samples.
+$n$ be the number of nodes that were eligible for the last PoI calculation and $s$ be the number of samples.
 
 Then the scaling factor used is
-$$ \mathit{scale} = \min\left(\frac{1}{\sum_j I_j}, \frac{1}{\frac{s}{n}}\right)$$
+$$ \mathvar{scale} = \min\left(\frac{1}{\sum_j I_j}, \frac{1}{\frac{s}{n}}\right)$$
 
 This gives the formula for the effective offset $o$
-$$ o = \mathit{scale} \sum_j I_j \: o_j$$
+$$ o = \mathvar{scale} \sum_j I_j \: o_j$$
 
 Note that the influence of an account with large importance is artificially limited because the term $\frac{n}{s} $ caps the scale.
 Such an account can raise its influence on a macro level by splitting its balance into accounts that are not capped.
@@ -113,7 +113,7 @@ Each node keeps track of the number of time synchronization rounds it has perfor
 This is called the node age.
 
 The formula for this coupling factor $c$ is:
-$$c = \max\left(e^{-0.3a},\: 0.1\right) \; \text{where} \; a = \max(nodeAge - 5,\: 0)$$
+$$c = \max\left(\euler^{-0.3a},\: 0.1\right) \; \text{where} \; a = \max(nodeAge - 5,\: 0)$$
 
 This ensures that the coupling factor will be 1 for 5 rounds and then decay exponentially to 0.1.
 

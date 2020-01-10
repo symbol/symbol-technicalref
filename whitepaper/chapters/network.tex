@@ -5,7 +5,7 @@
 Pulling a good network together takes effort, sincerity and time.
 }{Alan Collins}
 
-\nemchapterfirstletter{D}{ynamic} discovery of nodes allows a peer-to-peer network to grow.
+\nemchapterfirstletter{D}{ynamic} discovery of nodes\index{node} allows a peer-to-peer network to grow.
 \codenamespace implements this dynamic discovery in the \emph{node discovery extension}.
 Public networks are typically open and allow any node to join.
 Private networks can restrict the nodes that are allowed to join and behave as a federated system
@@ -19,7 +19,7 @@ Private networks can restrict the nodes that are allowed to join and behave as a
 
 A freshly booted node is initially isolated and not connected with any peers.
 It needs to join a network before it can make any meaningful contributions, like validating or harvesting blocks.
-In \codename, nominally \textit{static} beacon nodes are stored in a peers configuration file.
+In \codename, nominally \emph{static}\index{node!static} beacon nodes are stored in a peers configuration file.
 In order to join a network, a new node first connects to these nodes.
 These files don't need to be identical across all nodes in a network.
 
@@ -151,7 +151,7 @@ Possible provenances, ranked from best to worst are:
 \end{enumerate}
 
 It is important to note that the distinguishing characteristic of a \emph{static} node is that it appears in at least one peers configuration file.
-Excepting the \emph{local} node, all other nodes are \emph{dynamic}.
+Excepting the \emph{local} node, all other nodes are \emph{dynamic}\index{node!dynamic}.
 A subset of dynamic nodes are \emph{incoming}.
 These nodes have only been seen in incoming but not outgoing connections.
 As a result, their preferred port is unknown and they can't be connected with.
@@ -173,11 +173,11 @@ When there is an ambiguous match, data with the matching primary identity compon
 \label{sec:network:discovery}
 
 \codenamespace supports a configurable node identification policy configured by \nemsetting{network}{nodeEqualityStrategy}.
-Valid policies allow identifying a node by either its \textit{resolved IP} (\texttt{host})
+Valid policies allow identifying a node by either its \emph{resolved IP} (\texttt{host})
 \footnote{
 	A node's resolved IP is only broadcast to other nodes when it doesn't specify a hostname.
 	Hostnames are preferentially propagated in order to support nodes with dynamic IPs.
-}or \textit{public boot key} (\texttt{public-key}).
+}or \emph{public boot key} (\texttt{public-key}).
 The former is preferred for public networks.
 
 After starting up, a node attempts to make short lived connections to all static nodes it has loaded from its peers configuration files.

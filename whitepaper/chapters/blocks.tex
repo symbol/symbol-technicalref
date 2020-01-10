@@ -67,12 +67,12 @@ None of the unverifiable footer fields need to be verified.
 \subsection{Block Fields}
 
 \field{Height} is the block sequence number.
-The first block, called the \nind{nemesis block}, has a height of one.
+The first block, called the \nind{nemesis block}\index{block!nemesis}, has a height of one.
 Each successive block increments the height of the previous block by one.
 
 \field{Timestamp} is the number of milliseconds that have elapsed since the nemesis block.
 Each successive block must have a timestamp greater than that of the previous blocks because block time is strictly increasing.
-Each network tries to keep the average time between blocks close to \textit{target block time}.
+Each network tries to keep the average time between blocks close to \nind{target block time}.
 
 \field{Difficulty} is described in detail in \nemref{sec:blockchain:difficulty}.
 
@@ -250,9 +250,9 @@ Additionally, adding or removing functionality could change the number of reposi
 Instead, all root hashes are concatenated\footnote{The concatenation order is fixed and determined by the repository id.} and hashed to calculate the \field{StateHash},
 which is a single hash that deterministically fingerprints the global blockchain state.
 \begin{align*}
-\mathit{RepositoryHashes} = \: & 0 \\
-\mathit{RepositoryHashes} = \: & \sum_{0\leq i \leq N} \mathfunc{concat}(\mathit{RepositoryHashes}, \mathit{RepositoryHash}_i) \\
-\mathit{StateHash} = \: & H(\mathit{RepositoryHashes})
+\mathvar{RepositoryHashes} = \: & 0 \\
+\mathvar{RepositoryHashes} = \: & \sum_{0\leq i \leq N} \mathfunc{concat}(\mathvar{RepositoryHashes}, \mathvar{RepositoryHash}_i) \\
+\mathvar{StateHash} = \: & \hf(\mathvar{RepositoryHashes})
 \end{align*}
 
 \subsection{Extended Layout}

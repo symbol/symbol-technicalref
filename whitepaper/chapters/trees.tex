@@ -33,20 +33,20 @@ In the \codenamespace implementation, when any (non-root) layer contains an odd 
 \begin{figure}[h]
 	\nemtree{
 		\tikzstyle{level 3}=[sibling distance=8em]
-		\node {Merkle Hash = $H_{Root}$ =\\H($H_{ABCD}$, $H_{EE^2}$)}
-			child [sibling distance=16em] { node {$H_{ABCD}$ =\\H($H_{AB}$, $H_{CD}$)}
-				child { node {$H_{AB}$ =\\H(H(A), H(B))}
-					child { node {H(A)} { child { node {A} } } }
-					child { node {H(B)} { child { node {B} } } }
+		\node {Merkle Hash = $H_{Root}$ =\\ $\hf(H_{ABCD}, H_{EE^2})$}
+			child [sibling distance=16em] { node {$H_{ABCD}$ =\\ $\hf(H_{AB}, H_{CD})$}
+				child { node {$H_{AB}$ =\\ $\hf(\hf(A), \hf(B))$}
+					child { node { $\hf(A)$ } { child { node {A} } } }
+					child { node { $\hf(B)$ } { child { node {B} } } }
 				}
-				child { node {$H_{CD}$ =\\H(H(C), H(D))}
-					child { node {H(C)} { child { node {C} } } }
-					child { node {H(D)} { child { node {D} } } }
+				child { node {$H_{CD}$ =\\ $\hf(\hf(C), \hf(D))$ }
+					child { node { $\hf(C)$ } { child { node {C} } } }
+					child { node { $\hf(D)$ } { child { node {D} } } }
 				}
 			}
-			child [sibling distance=16em] { node {$H_{EE^2}$ =\\H($H_{EE}$, $H_{EE}$)}
-				child { node {$H_{EE}$ =\\H(H(E), H(E))}
-					child { node {H(E)} { child { node {E} } } }
+			child [sibling distance=16em] { node {$H_{EE^2}$ =\\ $\hf(H_{EE}, H_{EE})$}
+				child { node {$H_{EE}$ =\\ $\hf(\hf(E), \hf(E))$ }
+					child { node { $\hf(E)$ } { child { node {E} } } }
 				}
 			};
 	}{Four level Merkle tree composed of five data items}
@@ -56,20 +56,20 @@ In the \codenamespace implementation, when any (non-root) layer contains an odd 
 	\nemtree{
 		\tikzset{ highlight/.style = {fill = yellow} }
 		\tikzstyle{level 3}=[sibling distance=8em]
-		\node [highlight] {Merkle Hash = $H_{Root}$ =\\H($H_{ABCD}$, $H_{EE^2}$)}
-			child [sibling distance=16em] { node {$H_{ABCD}$ =\\H($H_{AB}$, $H_{CD}$)}
-				child { node {$H_{AB}$ =\\H(H(A), H(B))}
-					child { node [highlight] {H(A)} { child { node {A} } } }
-					child { node {H(B)} { child { node [highlight] {B} } } }
+		\node [highlight] {Merkle Hash = $H_{Root}$ =\\ $\hf(H_{ABCD}, H_{EE^2})$}
+			child [sibling distance=16em] { node {$H_{ABCD}$ =\\ $\hf(H_{AB}, H_{CD})$}
+				child { node {$H_{AB}$ =\\ $\hf(\hf(A), \hf(B))$ }
+					child { node [highlight] { $\hf(A)$ } { child { node {A} } } }
+					child { node { $\hf(B)$ } { child { node [highlight] {B} } } }
 				}
-				child { node [highlight] {$H_{CD}$ =\\H(H(C), H(D))}
-					child { node {H(C)} { child { node {C} } } }
-					child { node {H(D)} { child { node {D} } } }
+				child { node [highlight] {$H_{CD}$ =\\ $\hf(\hf(C), \hf(D))$ }
+					child { node { $\hf(C)$ } { child { node {C} } } }
+					child { node { $\hf(D)$ } { child { node {D} } } }
 				}
 			}
-			child [sibling distance=16em] { node [highlight] {$H_{EE^2}$ =\\H($H_{EE}$, $H_{EE}$)}
-				child { node {$H_{EE}$ =\\H(H(E), H(E))}
-					child { node {H(E)} { child { node {E} } } }
+			child [sibling distance=16em] { node [highlight] {$H_{EE^2}$ =\\ $\hf(H_{EE}, H_{EE})$}
+				child { node {$H_{EE}$ =\\ $\hf(\hf(E), \hf(E))$ }
+					child { node { $\hf(E)$ } { child { node {E} } } }
 				}
 			};
 	}{Merkle proof required for proving existence of B in the tree}
@@ -81,11 +81,11 @@ This allows for existence proofs with relatively low bandwidth requirements.
 A merkle proof for existence requires a single hash from each level of the tree.
 In order to prove the existence of $B$, a client must:
 \begin{enumerate}
-	\item{Calculate $H(B)$}
+	\item{Calculate $\hf(B)$}
 	\item{Obtain $H_{Root}$; in \codename, this is stored in the block header}
-	\item{Request $H(A)$, $H_{CD}$, $H_{EE^2}$}
-	\item{Calculate $H_{Root'} = H(H(H(H(A), H(B)), H_{CD}), H_{EE^2})$}
-	\item{Compare $H_{Root}$ and $H_{Root'}$; if they match $H(B)$ must be stored in the tree}
+	\item{Request $\hf(A), H_{CD}, H_{EE^2}$}
+	\item{Calculate $H_{Root'} = \hf(\hf(\hf(\hf(A), \hf(B)), H_{CD}), H_{EE^2})$}
+	\item{Compare $H_{Root}$ and $H_{Root'}$; if they match $\hf(B)$ must be stored in the tree}
 \end{enumerate}
 
 \subsection{Patricia Tree}
@@ -224,22 +224,24 @@ If the path is composed of an even number, the second nibble will be set to $\te
 	}{Tree node path encoding}
 \end{figure}
 
-A \emph{leaf node}\index{node!leaf} is composed of the following two items:
+A \emph{leaf node}\index{tree!leaf} is composed of the following two items:
 \begin{enumerate}
 	\item{TreeNodePath: Encoded tree node path (with leaf bit set).}
 	\item{ValueHash: Hash of the value associated with the key ending at the leaf.}
 \end{enumerate}
 
-The hash of a leaf node can be calculated by hashing its component parts: $$\textit{H(Leaf)}=H(TreeNodePath, ValueHash)$$.
+The hash of a leaf node can be calculated by hashing its component parts:
+$$\hf(\mathvar{Leaf}) = \hf(\mathvar{TreeNodePath}, \mathvar{ValueHash})$$.
 
-A \emph{branch node}\index{node!branch} is composed of the following items:
+A \emph{branch node}\index{tree!branch} is composed of the following items:
 \begin{enumerate}
 	\item{TreeNodePath: Encoded tree node path (with leaf bit unset).}
-	\item{$LinkHash_{0...15}$: Hashes of children where the index is the next nibble part of the path.
+	\item{$\mathvar{LinkHash}_{0}, \ldots, \mathvar{LinkHash}_{15}$: Hashes of children where the index is the next nibble part of the path.
 	When no child is present at an index, a zero hash should be used instead.}
 \end{enumerate}
 
-The hash of a branch node can be calculated by hashing its component parts: $$\textit{H(Branch)}=H(TreeNodePath, LinkHash_0,..LinkHash_{15})$$.
+The hash of a branch node can be calculated by hashing its component parts:
+$$\hf(\mathvar{Branch}) = \hf(\mathvar{TreeNodePath}, \mathvar{LinkHash}_0,\ldots,\mathvar{LinkHash}_{15})$$.
 
 Reconstructing the earlier example with hex keys yields a tree that illustrates a more accurate view of how a \codenamespace tree is constructed.
 Notice that each branch node index composes a single nibble of the path.
@@ -277,23 +279,23 @@ This is depicted in \autoref{fig:trees:hexCompact}.
 \subsection{Merkle Patricia Tree Proofs}
 
 A merkle proof for existence requires a single node from each level of the tree.
-In order to prove the existence of $\{key = \texttt{646F6765}, value = H(mascot)\}$, a client must:
+In order to prove the existence of $\{key = \texttt{646F6765}, value = \hf(mascot)\}$, a client must:
 \begin{enumerate}
-	\item{Calculate $H(mascot)$ (remember, all leaf values are hashes).}
+	\item{Calculate $\hf(mascot)$ (remember, all leaf values are hashes).}
 	\item{Request all nodes on the path $\texttt{646F6765}$: $Node_{6}$, $Node_{646F}$, $Node_{646F67}$.}
-	\item{Verify that $Node_{646F67}::Link[6]$ is equal to $H(Leaf(mascot))$.}
-	\item{Calculate $H(Node_{646F67})$ and verify that $Node_{6467}::Link[6]$ is equal to $H(Node_{646F67})$.}
-	\item{Calculate $H(Node_{6467})$ and verify that $Node_{6}::Link[4]$ is equal to $H(Node_{6467})$.}
+	\item{Verify that $Node_{646F67}::Link[6]$ is equal to $\hf(\mathfunc{Leaf}(mascot))$.}
+	\item{Calculate $\hf(Node_{646F67})$ and verify that $Node_{6467}::Link[6]$ is equal to $\hf(Node_{646F67})$.}
+	\item{Calculate $\hf(Node_{6467})$ and verify that $Node_{6}::Link[4]$ is equal to $\hf(Node_{6467})$.}
 	\item{Existence is proven if all calculated and actual hashes match.}
 \end{enumerate}
 
 A merkle proof for non-existence requires a single node from each level of the tree.
-In order to prove the non-existence of $\{key = \texttt{646F6764}, value = H(mascot)\}$, a client must:
+In order to prove the non-existence of $\{key = \texttt{646F6764}, value = \hf(mascot)\}$, a client must:
 \begin{enumerate}
-	\item{Calculate $H(mascot)$ (remember, all leaf values are hashes).}
+	\item{Calculate $\hf(mascot)$ (remember, all leaf values are hashes).}
 	\item{Request all nodes on the path $\texttt{646F6764}$: $Node_{6}$, $Node_{646F}$, $Node_{646F67}$.}
 	\item{
-		Verify that $Node_{646F67}::Link[5]$ is equal to $H(Leaf(mascot))$.
+		Verify that $Node_{646F67}::Link[5]$ is equal to $\hf(\mathfunc{Leaf}(mascot))$.
 		Since $Link[5]$ is unset, this check will fail.
 		If the value being searched for was in the tree, it must be linked to this node because of the determinism of the tree.
 	 }

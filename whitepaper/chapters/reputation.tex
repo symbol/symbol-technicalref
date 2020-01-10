@@ -18,7 +18,7 @@ One of the most successful is building a reputation system for nodes.
 This chapter will outline the heuristics used.
 
 \subsection{Connection Management}
-\index{reputation!connection!management}
+\index{reputation!connection management}
 \label{sec:reputation:ConnectionManagement}
 
 Each node can establish at most \nemsetting{node}{maxConnections} persistent connections at once.
@@ -31,7 +31,8 @@ The next time a node selection round is done, these connections are dropped and 
 This guarantees that over time each node will make connections to many different nodes in the network.
 
 \subsection{Weight Based Node Selection}
-\index{reputation!node!selection}
+\index{node!selection}
+\index{reputation!node selection|see {node, selection}}
 \label{sec:reputation:NodeSelection}
 
 Nodes primarily communicate with each other via the current persistent connections they have established.
@@ -54,7 +55,7 @@ Each candidate node is assigned a raw weight between 500 and 10000 according to 
 \begin{itemize}
 \item If there were 3 or fewer non-neutral interactions with the remote node, it is given a medium raw weight of 5000.
 This gives new nodes a good chance of getting selected.
-\item Else let \textit{s} be the number of successful and \textit{f} the number of failed interactions.
+\item Else let $s$ be the number of successful and $f$ the number of failed interactions.
 Then the raw weight is calculated by the following formula:
 
 \begin{figure}[t!]
@@ -76,7 +77,7 @@ Then the raw weight is calculated by the following formula:
 \end{figure}
 
 \begin{align*}
-\mathit{rawWeight} = \max\left(500, \frac{s \cdot 10000}{s + 9 \cdot f}\right)
+\mathvar{rawWeight} = \max\left(500, \frac{s \cdot 10000}{s + 9 \cdot f}\right)
 \end{align*}
 \end{itemize}
 
@@ -95,11 +96,12 @@ Each removal candidate that will be closed is replaced with a connection to a ne
 Finally, for each free slot, a candidate node has a chance of getting selected given by:
 
 \begin{align*}
-P(\textrm{node is getting selected}) = \frac{\textit{node weight}}{\sum\limits_{\substack{candidates\\nodes}} \textit{candidate node weight}}
+P(\textrm{node is getting selected}) = \frac{\mathname{node weight}}{\sum\limits_{\substack{candidates\\nodes}} \mathname{candidate node weight}}
 \end{align*}
 
 \subsection{Node Banning}
-\index{reputation!node!banning}
+\index{node!banning}
+\index{reputation!node banning|see {node, banning}}
 \label{sec:reputation:NodeBanning}
 
 In a public network there could be potentially malicious nodes that try to disturb normal processing of the network.

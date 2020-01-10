@@ -7,13 +7,18 @@
 \newcommand{\euler}{\mathrm{e}}
 
 % math formatting
-\newcommand{\mathfunc}[1]{\mathrm{#1}}
-\newcommand{\structField}[2]{#1\mathrm{{::}#2}}
+\newcommand{\mathfunc}[1]{\operatorname{#1}}
+\newcommand{\mathvar}[1]{\mathit{#1}}
+\newcommand{\mathname}[1]{\textit{#1}}
+\newcommand{\structField}[2]{%
+	\ifmmode#1{\allowbreak}\mathrm{{::}{\allowbreak}#2}\else\texttt{#1{\allowbreak}::{\allowbreak}#2}\fi
+}
+
+% alias for hash used in many places
+\newcommand{\hf}{\operatorname{H}}
 
 % nem index
-\newcommand{\nind}[1]{
-	\emph{#1}\index{#1}
-}
+\newcommand{\nind}[1]{\emph{#1}\index{#1}}
 
 % reference formatting
 \newcommand{\nemref}[1]{\autoref{#1}:~\nameref{#1}}
