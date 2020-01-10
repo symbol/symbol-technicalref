@@ -1,27 +1,29 @@
+\refstepcounter{section}
 \section*{Typographical Conventions}
+\addcontentsline{toc}{section}{Typographical Conventions}
 
-This document uses the following typographical conventions:
-
-\renewcommand{\arraystretch}{1.3}
-
-\begin{tabular}{l p{1.5cm} p{7cm}} 
-	Sample & Attributes & Description \\
-	\hline
-	\codenamespace & bold, colored & when referring to project name \\
-	\hline
-	\class{ProcessBootstrapper} & 
-	\multirow[t]{3}{=}{fixed-width font} &
-	\multirow[t]{3}{=}{classes, file paths, fields (of transactions, blocks or other entities)} \\
-	\field{FeeMultiplier} & & \\
-	\filepath{commit\_step.dat} & & \\
-	\hline
-	\nemsetting{network}{maxDifficultyBlocks} & italic & configuration settings, prefixed with configuration filename in text mode\\
-	\hline
-	$\nemsetting{network}{maxDifficultyBlocks}$ & regular & configuration settings, without configuration filename in equations and formulas \\
-	\hline
-	$\structField{T}{SignerPublicKey}$ & regular & model fields in equations and formulas \\
-	\hline
-	$\mathfunc{VerifiableDataBuffer}()$ & regular & function names in equations and formulas \\
-\end{tabular}
-
-\renewcommand{\arraystretch}{1.0}
+\begin{table}[ht]
+	\nemcenterwithcaption{
+		\begin{tabular}{|p{0.45\linewidth}|p{0.20\linewidth}|p{0.25\linewidth}|}
+			\hline
+			\textbf{Description} & \textbf{Attributes} & \textbf{Example} \\
+			\hline
+			Project name & bold, colored & \codename \\
+			\hline
+			Classes & fixed-width font & \class{ProcessBootstrapper} \\
+			\hline
+			Fields & fixed-width font & \field{FeeMultiplier} \\
+			\hline
+			File paths & fixed-width font & \filepath{commit\_step.dat} \\
+			\hline
+			Configuration settings (prefixed with configuration filename) in text mode & italic & \nemsetting{network}{maxDifficultyBlocks} \\
+			\hline
+			Configuration settings (without configuration filename) in equations and formulas & regular & $\nemsetting{network}{maxDifficultyBlocks}$  \\
+			\hline
+			Fields in equations and formulas & regular & $\structField{T}{SignerPublicKey}$ \\
+			\hline
+			Function names in equations and formulas & regular & $\mathfunc{VerifiableDataBuffer}()$ \\
+			\hline
+		\end{tabular}
+	}{Typographical conventions used in this document}
+\end{table}

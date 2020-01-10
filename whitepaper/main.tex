@@ -5,12 +5,21 @@
 \input{header/title}
 \input{header/commands}
 
-\makeindex
+\makeindex[intoc]
 
 \begin{document}
+	\pagenumbering{roman}
+
+	\phantomsection\pdfbookmark[section]{\codename}{titlepage}
+
 	\begin{titlepage}
 	\maketitle
 	\end{titlepage}
+
+	\phantomsection\pdfbookmark[section]{\contentsname}{toc}
+
+	\pagestyle{empty}
+	\setcounter{page}{2}
 
 	\begin{spacing}{0}
 	{
@@ -20,22 +29,15 @@
 			\renewcommand{\headrulewidth}{0pt}
 			\renewcommand{\footrulewidth}{0pt}
 		}
-		\pagenumbering{roman}
-		\pagestyle{empty}
 		\tableofcontents
-		\thispagestyle{empty}
 	}
 	\end{spacing}
 
-	{
-		\pagestyle{empty}
-		\include{typography}
-	}
+	\include{preface}
+	\include{typography}
 
-	{
-		\pagestyle{empty}
-		\include{preface}
-	}
+	\setcounter{section}{0}
+	\renewcommand*{\theHsection}{body\the\value{section}}
 
 	\pagestyle{fancy}
 	\pagenumbering{arabic}
@@ -58,7 +60,7 @@
 	\include{chapters/timesync}
 	\include{chapters/messaging}
 
-	\printbibliography
+	\printbibliography[heading=bibintoc]
 
 	\printindex
 \end{document}
