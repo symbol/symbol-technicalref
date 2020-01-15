@@ -11,7 +11,7 @@
 \newcommand{\mathvar}[1]{\mathit{#1}}
 \newcommand{\mathname}[1]{\textit{#1}}
 \newcommand{\structField}[2]{%
-	\ifmmode#1{\allowbreak}\mathrm{{::}{\allowbreak}#2}\else\texttt{#1{\allowbreak}::{\allowbreak}#2}\fi
+	\ifmmode#1\hspace{0pt}\mathrm{{::}\hspace{0pt}#2}\else\texttt{#1\hspace{0pt}::\hspace{0pt}#2}\fi
 }
 
 % alias for hash used in many places
@@ -36,7 +36,7 @@
 }
 
 \protected\def \nemsetting #1#2{%
-	\ifmmode\text{#2}\else\textit{\ifstrequal{#1}{#2}{#1}{#1{\allowbreak}:{\allowbreak}#2}}\fi
+	\ifmmode\text{#2}\else\textit{\ifstrequal{#1}{#2}{#1}{#1\hspace{0pt}:\hspace{0pt}#2}}\fi
 }
 
 %%% figure formatting %%%
