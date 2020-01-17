@@ -27,7 +27,7 @@ For an overview of different custom protocols see \cite{Scipioni2009}.
 \codenamespace uses a custom protocol based on Chapter 3 of this thesis in order to be completely independent from any outside entity.
 The protocol is implemented in the timesync extension.
 
-\subsection{Gathering samples}
+\subsection{Gathering Samples}
 \index{time offset}
 
 Each node in the network manages an integer \emph{offset} that is set to 0 at start.
@@ -54,7 +54,7 @@ $$o = t_2 - t_1 - \frac{\mathvar{rtt}}{2}$$
 
 This is repeated for every time synchronization partner until the local node has a list of offset estimations.
 
-\subsection{Applying filters to remove bad data}
+\subsection{Applying Filters To Remove Bad Data}
 
 There could be bad samples due to various reasons:
 \begin{itemize}
@@ -76,7 +76,7 @@ This ensures that malicious nodes reporting huge offsets are ignored after some 
 In other words, on both sides a certain portion of the samples is discarded.
 \end{enumerate}
 
-\subsection{Calculation of the effective offset}
+\subsection{Calculation Of The Effective Offset}
 
 The reported offset is weighted with the importance of the boot account of the node reporting the offset.
 Only nodes that expose a minimum importance are considered as partners in order to avoid solely picking nodes with nearly zero importance.
@@ -101,7 +101,7 @@ Note that the influence of an account with large importance is artificially limi
 Such an account can raise its influence on a macro level by splitting its balance into accounts that are not capped.
 But, doing so will likely decrease its influence on individual partners because the probability that all of its split accounts are chosen as time-sync partners for any single node is low.
 
-\subsection{Coupling and threshold}
+\subsection{Coupling And Threshold}
 
 New nodes that just joined the network need to quickly adjust their offset to the already established network time.
 In contrast, old nodes should behave a lot more rigid in order to not get influenced by malicious nodes or newcomers too much.
