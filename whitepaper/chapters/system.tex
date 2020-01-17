@@ -59,7 +59,8 @@ Through this class, a plugin can register zero or more of the following:
 	}
 	\item{Resolvers -
 		Custom mappings from unresolved to resolved types can be specified.
-		For example, this is used by the namespace plugin to add support for alias resolutions.
+		For example, this is used by the namespace plugin to add support for alias resolutions
+\nemrefparens{sec:transactions:addressaliases}.
 	}
 \end{enumerate}
 
@@ -223,7 +224,7 @@ API nodes are more heavyweight nodes.
 They can synchronize with other nodes, but cannot harvest new blocks.
 They support hosting bonded aggregate transactions and collecting cosignatures to complete them.
 They require a broker process, which is configured to write data into a MongoDB database and propagate changes over public message queues to subscribers.
-The REST API is dependent on both of these capabilities and is typically co-located with an Api node for performance reasons in order to minimize latency.
+The REST API is dependent on both of these capabilities and is typically co-located with an API node for performance reasons in order to minimize latency.
 
 Dual nodes are simply a superset of Peer and API nodes.
 They support all capabilities of both node types.
