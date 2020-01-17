@@ -81,11 +81,11 @@ This allows for existence proofs with relatively low bandwidth requirements.
 A merkle proof for existence requires a single hash from each level of the tree.
 In order to prove the existence of $B$, a client must:
 \begin{enumerate}
-	\item{Calculate $\hf(B)$}
-	\item{Obtain $H_{Root}$; in \codename, this is stored in the block header}
-	\item{Request $\hf(A), H_{CD}, H_{EE^2}$}
-	\item{Calculate $H_{Root'} = \hf(\hf(\hf(\hf(A), \hf(B)), H_{CD}), H_{EE^2})$}
-	\item{Compare $H_{Root}$ and $H_{Root'}$; if they match $\hf(B)$ must be stored in the tree}
+	\item{Calculate $\hf(B)$.}
+	\item{Obtain $H_{Root}$; in \codename, this is stored in the block header.}
+	\item{Request $\hf(A), H_{CD}, H_{EE^2}$.}
+	\item{Calculate $H_{Root'} = \hf(\hf(\hf(\hf(A), \hf(B)), H_{CD}), H_{EE^2})$.}
+	\item{Compare $H_{Root}$ and $H_{Root'}$; if they match $\hf(B)$ must be stored in the tree.}
 \end{enumerate}
 
 \subsection{Patricia Tree}

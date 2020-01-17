@@ -11,7 +11,7 @@ Accounts are identified by addresses, which are derived in part from one way mut
 
 \subsection{Addresses}
 
-An \nind{address} is a base32\footnote{ \url{http://en.wikipedia.org/wiki/Base32} } encoded triplet consisting of:
+An \nind{address} is a Base32\footnote{ \url{http://en.wikipedia.org/wiki/Base32} } encoded triplet consisting of:
 \begin{itemize}
 	\item{network byte}
 	\item{160-bit hash of the account's public key}
@@ -25,12 +25,12 @@ If nobody owns the private key of the account to which the mosaics are sent, the
 \subsection{Address Derivation}
 In order to convert a public key to an address, the following steps are performed:
 \begin{enumerate}
-	\item{Perform 256-bit SHA3 on the public key}
-	\item{Perform 160-bit RIPEMD of hash resulting from step 1}
-	\item{Prepend network version byte to RIPEMD hash}
-	\item{Perform 256-bit SHA3 on the result, take the first four bytes as a checksum}
-	\item{Concatenate output of step 3 and the checksum from step 4}
-	\item{Encode result using base32}
+	\item{Perform 256-bit SHA3 on the public key.}
+	\item{Perform 160-bit RIPEMD of hash resulting from step 1.}
+	\item{Prepend network version byte to RIPEMD hash.}
+	\item{Perform 256-bit SHA3 on the result, take the first four bytes as a checksum.}
+	\item{Concatenate output of step 3 and the checksum from step 4.}
+	\item{Encode result using Base32.}
 \end{enumerate}
 
 \begin{figure}

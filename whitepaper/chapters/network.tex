@@ -37,7 +37,7 @@ Nodes with this extension enabled need to additionally synchronize partial trans
 A node's roles specify the capabilities it supports.
 Typically, these are used by a connecting node to choose appropriate partners.
 Nodes with the \texttt{Peer} role support basic synchronization.
-Nodes with the \texttt{Api} role support partial transaction synchronization.
+Nodes with the \texttt{API} role support partial transaction synchronization.
 Roles are not mutually exclusive.
 Nodes are allowed to support multiple roles.
 
@@ -112,9 +112,9 @@ In order to simplify recipient processing, no broadcast packets are sent to chec
 
 Service identifiers are only assigned to long lived connections.
 Sync service is used to manage outgoing connections to nodes with \texttt{Peer} role.
-Api partial service is used to manage outgoing connections to nodes with \texttt{Api} role.
+API partial service is used to manage outgoing connections to nodes with \texttt{API} role.
 Readers service is used to manage incoming connections.
-Api writers service is experimental and allows incoming connections on port \nemsetting{node}{apiPort} to register as writers.
+API writers service is experimental and allows incoming connections on port \nemsetting{node}{apiPort} to register as writers.
 
 \begin{figure}[H]
 	\nemcenterwithcaption{
@@ -134,7 +134,7 @@ Api writers service is experimental and allows incoming connections on port \nem
 
 For the purposes of node selection described in \nemref{sec:reputation:NodeSelection}, node aging and selection are both scoped per service.
 Reputational information is aggregated across all services.
-Specifically, assume a node has made both a Sync and Api partial connection to another node.
+Specifically, assume a node has made both a Sync and API partial connection to another node.
 Each connection can have a different age because age is scoped per service.
 Interaction results, from any connection, are always attributed to the node, not the service.
 
@@ -144,10 +144,10 @@ A node collects data about all nodes in its network.
 The reputability of the data is dependent on its provenance.
 Possible provenances, ranked from best to worst are:
 \begin{enumerate}
-	\item{Local - Node is specified in \nemsetting{node}{localnode}}
-	\item{Static - Node is in one of the peers configuration files}
-	\item{Dynamic - Node was discovered and supports connections}
-	\item{Dynamic Incoming - Node has made a connection but does not support connections}
+	\item{Local - Node is specified in \nemsetting{node}{localnode}.}
+	\item{Static - Node is in one of the peers configuration files.}
+	\item{Dynamic - Node was discovered and supports connections.}
+	\item{Dynamic Incoming - Node has made a connection but does not support connections.}
 \end{enumerate}
 
 It is important to note that the distinguishing characteristic of a \emph{static} node is that it appears in at least one peers configuration file.

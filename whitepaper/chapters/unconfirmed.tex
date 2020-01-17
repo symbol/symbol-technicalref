@@ -15,8 +15,8 @@ Unconfirmed transactions can arrive at a node when:
 \begin{enumerate}
 	\item{A client sends a new transaction directly to the node.}
 	\item{A bonded aggregate transaction is completed with all requisite cosignatures and is promoted from the partial transactions cache.}
-	\item{A peer node broadcasts transactions to the node.}
-	\item{A peer node responds to the node's request for unconfirmed transactions.
+	\item{A Peer node broadcasts transactions to the node.}
+	\item{A Peer node responds to the node's request for unconfirmed transactions.
 	As an optimization, the requesting node indicates what transactions it already knows in order to avoid receiving redundant transactions.
 	Additionally, it supplies the minimum fee multiplier \nemrefparens{sec:blockchain:generation} it uses when creating blocks.
 	This prevents the remote node from returning unconfirmed transactions that will be immediately rejected by the requesting node.}
