@@ -74,7 +74,8 @@ Each successive block increments the height of the previous block by one.
 Each successive block must have a timestamp greater than that of the previous blocks because block time is strictly increasing.
 Each network tries to keep the average time between blocks close to \nind{target block time}.
 
-\field{Difficulty} is described in detail in \nemref{sec:blockchain:difficulty}.
+\field{Difficulty} determines how hard is to harvest a new block, based on previous blocks.
+Difficulty is described in detail in \nemref{sec:blockchain:difficulty}.
 
 \field{PreviousBlockHash} is the hash of the previous block.
 This is used to guarantee that all blocks within a blockchain are linked and deterministically ordered.
