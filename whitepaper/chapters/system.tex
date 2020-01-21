@@ -48,7 +48,7 @@ Through this class, a plugin can register zero or more of the following:
 	}
 	\item{Handlers - Define APIs that are always accessible.}
 	\item{Diagnostics - Define APIs and counters that are accessible only when the node is running in diagnostic mode.}
-	\item{Validators - Treat the notifications produced by block and transaction processing.
+	\item{Validators - Process the notifications produced by block and transaction processing.
 			These validators can be stateless or stateful.
 			The registered validators can subscribe to general or plugin-defined notifications and reject disallowed values or state changes.
 	}
@@ -87,16 +87,15 @@ Through this class, an extension can register zero or more of the following:
 
 \begin{enumerate}
 	\item{Services -
-		A service represents an independent behavior.
+		Represent an independent behavior.
 		Services are passed an object representing the executable's state and can use it to configure a multitude of things.
 		Among others, a service can add diagnostic counters, define APIs (both diagnostic and non-diagnostic) and add tasks to the task scheduler.
 		It can also create dependent services and tie their lifetimes to that of the hosting executable.
 		There are very few limitations on what a service can do, which allows the potential for significant customizations.
 	}
 	\item{Subscriptions -
-		An extension can subscribe to any supported blockchain event.
+		Process any supported blockchain event: block, state, unconfirmed transaction and partial transaction.
 		Events are raised when changes are detected.
-		Block, state, unconfirmed transaction and partial transaction change events are supported.
 		Transaction status events are raised when the processing of a transaction completes.
 		Node events are raised when remote nodes are discovered.
 	}
