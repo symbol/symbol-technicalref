@@ -46,7 +46,7 @@ Through this class, a plugin can register zero or more of the following:
 		Specify new cache types and rules for serializing and deserializing model types to and from binary.
 		Each state-related cache can optionally be included in the calculation of a block's \field{StateHash} \nemrefparens{sec:blocks:statehash} when that feature is enabled.
 	}
-	\item{Handlers - Define APIs that are always accessible.}
+	\item{Handlers - Define public APIs that are always accessible.}
 	\item{Diagnostics - Define APIs and counters that are accessible only when the node is running in diagnostic mode.}
 	\item{Validators - Process the notifications produced by block and transaction processing.
 			These validators can be stateless or stateful.
@@ -175,6 +175,7 @@ Although the broker supports all features of Transaction Plugins, it only suppor
 For example, overriding the network time supplier in the broker is not supported.
 Broker extensions are primarily intended to register subscribers and react to events forwarded to those subscribers.
 Accordingly, it's expected that the server and broker have different extensions loaded.
+To illustrate, the server might want to support harvesting capabilities, but the broker does not normally load this extension.
 Please refer to the project code or developer documentation for more details.
 
 The broker monitors the \filepath{spool} directories for changes and forwards any event notifications to subscribers registered by loaded extensions.
