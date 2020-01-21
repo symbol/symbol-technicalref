@@ -38,29 +38,28 @@ Through this class, a plugin can register zero or more of the following:
 
 \begin{enumerate}
 	\item{Transactions -
-		New transaction types and the mapping of those types to parsing rules can be specified.
+		Specify new transaction types and the mapping of those types to parsing rules.
 		Specifically, the plugin defines rules for translating a transaction into component notifications that are used in further processing.
 		A handful of processing constraints can also be specified, such as indicating a transaction can only appear within an aggregate transaction \nemrefparens{sec:transactions:aggregate}.
 	}
 	\item{Caches -
-		New cache types and rules for serializing and deserializing model types to and from binary can be specified.
+		Specify new cache types and rules for serializing and deserializing model types to and from binary.
 		Each state-related cache can optionally be included in the calculation of a block's \field{StateHash} \nemrefparens{sec:blocks:statehash} when that feature is enabled.
 	}
-	\item{Handlers - These are APIs that are always accessible.}
-	\item{Diagnostics - These are APIs and counters that are accessible only when the node is running in diagnostic mode.}
-	\item{Validators -
-		Stateless and stateful validators process the notifications produced by block and transaction processing.
-		The registered validators can subscribe to general or plugin-defined notifications and reject disallowed values or state changes.
+	\item{Handlers - Define APIs that are always accessible.}
+	\item{Diagnostics - Define APIs and counters that are accessible only when the node is running in diagnostic mode.}
+	\item{Validators - Treat the notifications produced by block and transaction processing.
+			These validators can be stateless or stateful.
+			The registered validators can subscribe to general or plugin-defined notifications and reject disallowed values or state changes.
 	}
-	\item{Observers -
-		Observers process the notifications produced by block and transaction processing.
+	\item{Observers - Process the notifications produced by block and transaction processing.
 		The registered observers can subscribe to general or plugin-defined notifications and update blockchain state based on their values.
 		Observers don't require any validation logic because they are only called after all applicable validators succeed.
 	}
 	\item{Resolvers -
-		Custom mappings from unresolved to resolved types can be specified.
+		Specify custom mappings from unresolved to resolved types.
 		For example, this is used by the namespace plugin to add support for alias resolutions
-\nemrefparens{sec:transactions:addressaliases}.
+\nemrefparens{sec:accounts:addressaliases}.
 	}
 \end{enumerate}
 
