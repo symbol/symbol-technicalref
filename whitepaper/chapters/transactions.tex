@@ -7,7 +7,7 @@ In fact, a large part of what we think of as economic activity is designed to ac
 
 \nemchapterfirstletter{T}{ransactions} are instructions that modify the global chain state.
 They are processed atomically and grouped into blocks.
-If any part of a transaction fails processing, the global chain state is reset to the state prior to the transaction application attempt.
+If any part of a transaction fails to process, the global chain state is reset to the state prior to the transaction application attempt.
 
 There are two fundamental types of transactions: basic transactions and aggregate transactions.
 Basic transactions represent a single operation and require a single signature.
@@ -176,10 +176,10 @@ Cosignatures are used to cryptographically verify an aggregate transaction invol
 	}{}
 \end{figure}
 
-In order for an aggregate transaction $A$ to pass verification, it must pass basic transaction signature verification and have a cosignature for every embedded transaction signer
+In order for an aggregate transaction $A$ to pass verification, it must have a cosignature for every embedded transaction signer
 \footnote{In the case of multisignature accounts, there must be enough cosignatures to satisfy the multisignature account constraints.}.
 
-Like any transaction, an aggregate transaction, must pass basic transaction signature verification.
+Like any transaction, an aggregate transaction, must also pass basic transaction signature verification.
 $$\mathfunc{verify}(\structField{A}{Signature}, \structField{A}{SignerPublicKey}, \mathfunc{VerifiableDataBuffer}(A))$$
 
 Additionally, all cosignatures must pass signature verification.
