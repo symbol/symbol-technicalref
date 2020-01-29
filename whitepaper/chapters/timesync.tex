@@ -14,7 +14,7 @@ This causes those nodes to reject valid transactions or blocks, which makes it i
 It is therefore needed to have a synchronization mechanism to ensure all nodes agree on time.
 There are basically two ways to do this:
 \begin{enumerate}
-\item Use an existing protocol, such as NTP.
+\item Use an existing protocol, such as Network Time Protocol (NTP).
 \item Use a custom protocol.
 \end{enumerate}
 
@@ -35,7 +35,7 @@ The local system time in milliseconds adjusted by the offset (which can be negat
 
 After the start up of a node is completed, the node (hereafter called \emph{local node}) selects partner nodes for performing a time synchronization round.
 
-For all selected partners, the local node sends out a request asking the partner for its current network time.
+For all selected partners, the local node sends out a request asking the partners for their current network time.
 The local node remembers the network timestamps when each request was sent and when each response was received.
 Each partner node responds with a sample that contains the timestamp of the arrival of the request and the timestamp of the response.
 The partner node uses its own network time to create the timestamps.
@@ -60,7 +60,7 @@ There could be bad samples due to various reasons:
 \begin{itemize}
 \item A malicious node supplies incorrect timestamps.
 \item An honest node has a clock far from real time without knowing it and without having synchronized yet.
-\item The round trip time is be highly asymmetric due to internet problems or one of the nodes being very busy.
+\item The round trip time is highly asymmetric due to internet problems or one of the nodes being very busy.
 This is known as channel asymmetry and cannot be avoided.
 \end{itemize}
 
@@ -69,7 +69,7 @@ Filters are applied that try to remove the bad samples. The filtering is done in
 \item If the response from a partner is not received within an expected time frame (i.e. if $t_4-t_1 > 1000ms$) the sample is discarded.
 \item If the calculated offset is not within certain bounds, the sample is discarded.
 The allowable bounds decrease as a node's uptime increases.
-When a node first joins the network, it tolerates a high offset in order to adjust to the already existing consensus of network time within the network.
+When a node first joins the network, it tolerates a high offset in order to adjust to the existing consensus of network time within the network.
 As time passes, the node gets less tolerant with respect to reported offsets.
 This ensures that malicious nodes reporting huge offsets are ignored after some time.
 \item The remaining samples are ordered by their offset and then alpha trimmed on both ends.
@@ -97,7 +97,7 @@ $$ \mathvar{scale} = \min\left(\frac{1}{\sum_j I_j}, \frac{1}{\frac{s}{n}}\right
 This gives the formula for the effective offset $o$
 $$ o = \mathvar{scale} \sum_j I_j \: o_j$$
 
-Note that the influence of an account with large importance is artificially limited because the term $\frac{n}{s} $ caps the scale.
+Note that the influence of an account with large importance is artificially limited because the term $\frac{s}{n} $ caps the scale.
 Such an account can raise its influence on a macro level by splitting its balance into accounts that are not capped.
 But, doing so will likely decrease its influence on individual partners because the probability that all of its split accounts are chosen as time-sync partners for any single node is low.
 
