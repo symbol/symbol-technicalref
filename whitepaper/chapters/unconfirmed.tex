@@ -44,7 +44,7 @@ Although all transactions in the cache are valid at the time they were added, th
 For example, a transaction could have already been included in a block harvested by another node or a conflicting transaction could have been added to the blockchain.
 This means that transactions in the cache that were perfectly valid previously could be invalidated after changes to the blockchain state.
 Additionally, when blocks with transactions are reverted, it's possible that some of those previously confirmed transactions are no longer included in any block in the new chain.
-Those reverted transaction should be added to the cache.
+Those reverted transactions should be added to the cache.
 
 As a result of these considerations, the entire unconfirmed transactions cache is completely rebuilt whenever the blockchain changes.
 Each transaction is rechecked by the stateful validators and purged if it has become invalid or has already been included in a block.
