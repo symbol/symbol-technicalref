@@ -22,7 +22,7 @@ The difficulty for a new block is derived from the difficulties and timestamps o
 The number of blocks taken into consideration is configurable per-network.
 
 If less than \nemsetting{network}{maxDifficultyBlocks} are available, only those available are taken into account.
-Otherwise, the difficulty is calculated from the last $n$ blocks in the following way:
+Otherwise, the difficulty is calculated from the last \nemsetting{network}{maxDifficultyBlocks} in the following way:
 \begin{align*}
 \tag{average difficulty} d &= \frac{1}{n}\sum_{i=1}^n (\text{difficulty of $block_i$}) \\
 \tag{average creation time} t &= \frac{1}{n}\sum_{i=1}^n (\text{time to create $block_i$}) \\
@@ -113,12 +113,12 @@ This ensures that the oldest transactions are selected first and attempts to min
 As a consequence, this strategy is rarely profit maximizing for the harvester.}
 \item{\texttt{maximize-fee}: \\
 Transactions are selected in such a way that the cumulative fee for all transactions in a block is maximized.
-A greedy node will pick this strategy.
+A profit-centric node will pick this strategy.
 Maximizing the total block fee does not necessarily mean that the number of transactions included is maximized as well.
 In fact, in many cases, the harvester will only include a subset of the transactions that are available.}
 \item{\texttt{minimize-fee}: \\
 Transactions with the lowest maximum fee multipliers are selected first by this strategy.
-Generous nodes will pick this strategy together with a very low \nemsetting{node}{minFeeMultiplier}.
+Service-centric nodes will pick this strategy together with a very low \nemsetting{node}{minFeeMultiplier}.
 If this setting is zero, then the harvester will include transactions with zero fees first.
 This allows users to send transactions that get included in the blockchain for free!
 In practice, it is likely that only a few nodes will support this.
@@ -128,7 +128,7 @@ Even with such a subset of nodes running, zero fee transactions will still have 
 Transactions can initiate transfers of both static and dynamic amounts.
 Static amounts are fixed and independent of external factors.
 For example, the amount specified in a transfer transaction is static.
-The exact amount specified is always transfered from sender to recipient.
+The exact amount specified is always transferred from sender to recipient.
 In contrast, dynamic amounts are variable relative to the average transaction cost.
 These are typically reserved for fees paid to acquire unique network artifacts, like namespaces or mosaics.
 For such artifacts, a flat fee is undesirable because it would be unresponsive to the market.
@@ -180,7 +180,7 @@ d = \: & \mathname{new block difficulty} \\
 If enabled, $multiplier$ above is calculated in the following way
 \footnote{
 	The implementation uses fixed point instead of floating point arithmetic in order to avoid any problems due to rounding.
-	Specificaly, 128-bit fixed point numbers are used where the 112 high bits represent the integer part and the 16 low bits represent the decimal part.
+	Specifically, 128-bit fixed point numbers are used where the 112 high bits represent the integer part and the 16 low bits represent the decimal part.
 	\texttt{log2(e)} is approximated as \texttt{14426950408 / 10000000000}.
 	If the calculated \field{power} is too negative, \field{smoothing} will be set to zero.
 }:
@@ -217,7 +217,7 @@ $$
 \mathvar{hit} =  \mathvar{scale} \cdot ( 2^{54} \cdot 256 -  2^{54} \cdot \log_2\left(\mathvar{gh}\right))
 $$
 
-The implementation approximates the logarithm using only the first 32 non-zero bits of the new generation hash.
+The implementation approximates the logarithm using only the first 32 nonzero bits of the new generation hash.
 There's also additional handling for edge cases.
 
 Also note that $\mathvar{hit}$ has an exponential distribution. Therefore, the probability to create a new block does not change if the importance is split among many accounts.
