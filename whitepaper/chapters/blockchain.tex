@@ -226,7 +226,7 @@ Also note that $\mathvar{hit}$ has an exponential distribution. Therefore, the p
 
 When \nemsetting{user}{enableDelegatedHarvestersAutoDetection} is set, the server allows other accounts to register as delegated harvesters via special transfer messages.
 The server inspects all transfer messages sent to its \nemsetting{user}{bootPrivateKey} account.
-Each message that begins with the magic bytes \texttt{0x98E5BF64C771CCFE} is written out to a file queue for further processing.
+Each message that begins with the magic bytes \texttt{0xE201735761802AFE} is written out to a file queue for further processing.
 
 Periodically, a scheduled task inspects all queued messages.
 Each message is expected to contain a private key for a candidate delegated harvester\footnote{
