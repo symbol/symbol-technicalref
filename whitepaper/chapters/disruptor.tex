@@ -11,7 +11,7 @@ A disruptor uses a ring buffer data structure to hold all elements in need of pr
 New elements are inserted into the next free slot of the ring buffer.
 Fully processed elements are removed to make space for new elements.
 Since the ring buffer has a finite number of slots, it can run out of space if processing can't keep up with new insertions.
-The behavior of \codename, in such a case, can be configured either to exit the server or to discard new data until a slot becomes available.
+The behavior of \codename, in such a case, can be configured to either exit the server or discard new data until a slot becomes available.
 
 \begin{tikzpicture}[>=latex,font=\sffamily,semithick,scale=3,label distance=-2mm]
 	\fill [green!25] (0,0) -- (70:1) arc [end angle=-150, start angle=70, radius=1] -- cycle;
@@ -200,7 +200,7 @@ For improved performance, this consumer processes many signatures at once in a b
 This can be done in parallel using many threads.
 
 \subsubsection*{Reclaim Memory Consumer}
-This consumer completes processing the element and frees all memory associated with it.
+This consumer completes the processing of an element and frees all memory associated with it.
 It triggers downstream propagation of the statuses of all transactions that were updated during processing.
 The overall result of the sync operation is used to update the reputation of - and possibly ban - the sync partner \nemrefparens{sec:reputation}).
 
