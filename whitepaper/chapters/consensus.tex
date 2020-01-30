@@ -38,7 +38,7 @@ This necessarily leads to a computational arms race and uses a lot of electricit
 Proof of Stake (PoS)\cite{King:2012:PPP}\cite{Nxt2013} blockchains were introduced after Bitcoin.
 They presented an alternative solution to the Byzantine consensus problem that did not require significant power consumption.
 Fundamentally, these chains behaved similarly to Bitcoin with one important difference.
-Instead of predicting the probability of creating a block on a node's relative hash rate, the probability is based on a node's relative stake in the network.
+Instead of predicating the probability of creating a block on a node's relative hash rate, the probability is based on a node's relative stake in the network.
 Since richer accounts are able to produce more blocks than poorer accounts, this scheme tends to allow the rich to get richer.
 
 \codenamespace uses a modified version of PoS that borrows key concepts from Proof of Importance (PoI).
@@ -104,7 +104,7 @@ N_A = \frac{\mathfunc{BeneficiaryCount}(A)}{\sum\limits_{\substack{a \in \mathna
 Together, the transaction and node scores are called the \emph{activity score} because they are both dynamic and derived from an account's activity as opposed to its stake.
 The transaction score is weighted at 80\% and the node score at 20\%.
 Additionally, the combined score is scaled relative to an account's balance so that there is a dampening effect of activity on importance as stake increases
-\footnote{The activity score is rescaled after dampening so that it contributes to the desired \nemsetting{network}{importanceActivityPercentage} to the importance calculation.}.
+\footnote{The activity score is rescaled after dampening so that it contributes the desired \nemsetting{network}{importanceActivityPercentage} to the importance calculation.}.
 This effectively allows active smaller accounts to gain an outsized boost relative to active larger accounts.
 This partially redistributes importance away from rich accounts towards poorer accounts and somewhat counteracts the rich getting richer phenomenon inherent in PoS.
 The prominence of activity relative to stake can be configured by \nemsetting{network}{importanceActivityPercentage}.
@@ -164,7 +164,7 @@ The \nemsetting{network}{totalChainImportance} setting specifies the total impor
 Given that, the spot importance of the account $A$, $I'_A$, can be calculated as follows
 \footnote{
 	There is some additional edge case handling that is not reflected in the equation around how zero component scores are handled.
-	If either the transaction or node scores are zero, the other will be scaled up and serve as the fully weighted activity score.
+	If either the transaction or node scores is zero, the other will be scaled up and serve as the fully weighted activity score.
 	If both are zero, the stake score will be scaled up and used exclusively.
 }:
 \begin{align*}
