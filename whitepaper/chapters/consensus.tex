@@ -49,7 +49,7 @@ All else equal, accounts with larger stakes making more transactions and running
 Firstly, accounts with larger balances have larger stakes in the network and have greater incentives to see the ecosystem as a whole succeed.
 The amount of the currency an account owns is a measure of its stake.
 Secondly, accounts should be encouraged to use the network by making transactions.
-Network usage can be approximated by the total amount of fees paid by an account.
+Network usage can be approximated by the total amount of transaction fees paid by an account.
 Thirdly, accounts should be encouraged to run nodes to strengthen the network.
 This can be approximated by the number of times an account is the beneficiary of a block
 \footnote{
@@ -270,7 +270,7 @@ Second, in order to execute a successful nothing at stake attack, the attacker m
 Third, successful execution of this attack against the network will likely have a negative influence on the currency value.
 Since other harvesters, by harvesting on all forks, enable this attack, profit-maximizing harvesters should only harvest on a single chain to preclude it.
 
-In the second variation, a single attacker harvests on all forks and attempts to capture all fees irrespective of which chain becomes the reference chain.
+In the second attack variation, a single attacker harvests on all forks and attempts to capture all fees irrespective of which chain becomes the reference chain.
 An attacker could harvest on all forks starting from the second block searching for the chain in which the attacker has harvested the most fees.
 Since block acceptance is probabilistic, in theory, an attacker could spend infinite time building the perfect chain in which the attacker has harvested all blocks.
 
@@ -347,7 +347,7 @@ These fees are lost to other harvesters because the probability of the account h
 The high fees paid boost the account’s importance enough so that it is able to harvest at least one block per importance recalculation interval.
 From this point forward, the account behaves like the large account in the previous section.
 It will also add a transaction with a high fee to one of its own harvested blocks each recalculation interval.
-The account hopes that due to the increased probability of harvesting a block, its additional collected fees will exceed its costs.
+The account operator hopes that due to the increased probability of harvesting a block, its additional collected fees will exceed its costs.
 
 \begin{figure}[H]
 	\nemcenterwithcaption{
