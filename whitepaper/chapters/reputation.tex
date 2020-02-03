@@ -36,10 +36,10 @@ This guarantees that over time each node will make connections to many different
 \label{sec:reputation:NodeSelection}
 
 Nodes primarily communicate with each other via the current persistent connections they have established.
-A node can query another node for new transactions or blocks, or ask for a list of other nodes with which it has interacted.
+A node can query another node for new transactions or blocks, or ask for a list of other nodes with which the partner has interacted.
 Nodes can also voluntarily send data to other nodes.
 Each communication between nodes is considered an interaction and each interaction is scored as either successful, neutral or failed.
-For example, when a remote node sends new, valid data the interaction is considered successful because it has contributed to the synchronization of the two nodes.
+For example, when a remote node sends new valid data, the interaction is considered successful because it has contributed to the synchronization of the two nodes.
 If the remote node has no new data, the interaction is neutral.
 Otherwise, the interaction is considered failed.
 
@@ -96,7 +96,7 @@ Each removal candidate that will be closed is replaced with a connection to a ne
 Finally, for each free slot, a candidate node has a chance of getting selected given by:
 
 \begin{align*}
-P(\textrm{node is getting selected}) = \frac{\mathname{node weight}}{\sum\limits_{\substack{candidates\\nodes}} \mathname{candidate node weight}}
+P(\textrm{node is getting selected}) = \frac{\mathname{node weight}}{\sum\limits_{\substack{candidate\\nodes}} \mathname{candidate node weight}}
 \end{align*}
 
 \subsection{Node Banning}
