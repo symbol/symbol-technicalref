@@ -295,7 +295,7 @@ Otherwise, the changes specified by the notification are made to the in memory b
 This sequence allows transactions in a block to be dependent on changes made by previous transactions in the same block.
 
 After all notifications produced by a block are processed, the \field{ReceiptsHash} \nemrefparens{sec:blocks:receiptshash} and \field{StateHash} \nemrefparens{sec:blocks:statehash} fields are calculated and checked for correctness.
-Importantly, when \nemsetting{network}{enableVerifiableState} is enabled, this is the point at which all state patricia trees get updated.
+Importantly, when \nemsetting{network}{enableVerifiableState} is enabled, this is the point at which all state Patricia trees get updated.
 
 \subsubsection*{Rollback}
 
