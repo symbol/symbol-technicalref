@@ -40,7 +40,7 @@ S &= (r + \hf(\underline{R}, \underline{A}, M)a) \: mod \: q \label{eq:cryptogra
 \end{align}
 
 Then $(\underline{R}, \underline{S})$ is the \nind{signature} for the message $M$ under the private key $k$.
-Note that only signatures where $S<q$ and $S>0$ are considered as valid \textbf{to prevent} the problem of \emph{signature malleability}\index{signature!malleability}.
+Only signatures where $S<q$ and $S>0$ are considered valid in order \textbf{to prevent} the problem of \emph{signature malleability}\index{signature!malleability}.
 
 To verify the signature $(\underline{R}, \underline{S})$ for the given message $M$ and public key \underline{A}, the verifier checks $S<q$ and $S>0$ and then calculates
 \begin{align*}
