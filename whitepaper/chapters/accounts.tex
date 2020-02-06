@@ -56,6 +56,6 @@ In case of such transactions, the format of the address alias field is:
 It is possible that two different public keys will yield the same address.
 If such an address contains any valuable assets \textbf{AND} has not been associated with a public key earlier (for example, by sending a transaction from the account), it would be possible for an attacker to withdraw funds from such an account.
 
-In order for the attack to succeed, the attacker would need to find a private+public keypair such that the SHA3\_256 of the public key would \textbf{at the same time} be equal to the ripemd-160 preimage of the 160-bit hash mentioned above.
+In order for the attack to succeed, the attacker would need to find a private+public keypair such that the SHA3\_256 of the public key would \textbf{at the same time} be equal to the RIPEMD\_160 preimage of the 160-bit hash mentioned above.
 Since SHA3\_256 offers 128 bits of security, it is mathematically improbable for a single SHA3\_256 collision to be found.
 Due to similarities between \codenamespace addresses and Bitcoin addresses, the probability of causing a \codenamespace address collision is roughly the same as that of causing a Bitcoin address collision.
