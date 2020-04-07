@@ -14,7 +14,7 @@ This makes it very easy to inject hostile nodes into the network that spread inv
 There is a need to identify hostile nodes and reduce communication with them.
 There have been many approaches to achieve this.
 One of the most successful is building a reputation system for nodes.
-\codenamespace follows this approach by implementing simple reputation system.
+\codenamespace follows this approach by implementing a simple reputation system.
 This chapter will outline the heuristics used.
 
 \subsection{Connection Management}
@@ -27,7 +27,7 @@ In order to avoid isolated node groups from forming, a node will periodically dr
 
 When determining the nodes from which to disconnect, a node inspects the ages of all of its connections.
 In order to minimize connection overhead, only connections that have been established for at least \nemsetting{node}{maxConnectionAge} rounds are eligible for removal.
-The next time a node selection round is done, these connections are dropped and replaced with new connection to other nodes.
+The next time a node selection round is done, these connections are dropped and replaced with new connections to other nodes.
 This guarantees that over time each node will make connections to many different nodes in the network.
 
 \subsection{Weight Based Node Selection}
@@ -45,7 +45,7 @@ Otherwise, the interaction is considered failed.
 
 Each node keeps track of the outcomes of its own interactions with other nodes.
 These outcomes are only used locally and not shared with other nodes.
-A node's interactions with other nodes influences the partner nodes it selects.
+A node's interactions with other nodes influence the partner nodes it selects.
 Interaction results are stored for at most one week but reset on node restart.
 These results are time-limited to allow nodes that are having transient failures to reestablish themselves as good partners.
 
@@ -109,7 +109,7 @@ Therefore, if a node considers a remote node malicious, it will prevent connecti
 
 Banning is applied at node level and is attached to a node's network scoped identifier \nemrefparens{sec:network:discovery}.
 A misbehaving node will be immediately banned for a period of \nemsetting{node}{defaultBanDuration}.
-Even after a node is no longer actively banned, the local node will remember for some time (\nemsetting{node}{keepAliveDuration}) that the node was behaving badly and treat repeat violations more severely by banning the node for longer time periods up to \nemsetting{node}{maxBanDuration}.
+Even after a node is no longer actively banned, the local node will remember for some time (\nemsetting{node}{keepAliveDuration}) that the node was behaving badly and treat repeat violations more severely by banning the node for longer periods up to \nemsetting{node}{maxBanDuration}.
 During banning, no connections with the banned node will be established.
 After banning has expired, the node is treated like a normal interaction partner again.
 There are various scenarios where a remote node will get banned.
