@@ -124,6 +124,11 @@ The contents of the data directory are as follows:
 		An example of a versioned directory is \filepath{00000}, which contains the first group of blocks.
 	}
 	\item{\filepath{audit} - Audit files created by the audit consumer \nemrefparens{sec:disruptor:commonConsumers} are stored in this directory.}
+	\item{\filepath{logs} -
+		Versioned log files created when file based logging is enabled are stored in this directory.
+		Active log files associated with running processes are stored directly in the data directory.
+		Each log file is typically prefixed with the name of the source process.
+	}
 	\item{\filepath{spool} -
 		Subscription notifications are written out to this directory.
 		They are used as a message queue to pass messages from the server to the broker.

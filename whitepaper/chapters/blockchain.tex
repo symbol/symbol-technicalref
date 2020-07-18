@@ -87,6 +87,7 @@ An account is eligible to harvest if all of the following are true:
 		Balance no greater than a network defined \nemsetting{network}{maxHarvesterBalance}
 		\footnote{This feature is primarily intended to prevent core funds and exchange accounts from harvesting.}.
 	}
+	\item{VRF public key is registered for the account.}
 \end{enumerate}
 
 An account owner can delegate its importance to some other account\nemtechdocsfootnote{concepts/harvesting.html\#accountlinktransaction} in order to avoid exposing a private key with funds.
@@ -152,16 +153,28 @@ In order to arrive at the effective amount, the base amount is multiplied by the
 	\mathname{effective amount} = \: & \mathname{base amount} \cdot \mathname{dynamic fee multiplier}
 \end{align*}
 
+\subsection{Block Generation Hash}
 \index{generation hash}
 \index{block!generation hash}
 
-The generation hash of a block is derived from the previous block generation hash and the public key of the current block harvester:
+The generation hash of a block is derived from the previous block generation hash and the VRF proof included in the block:
 \begin{align*}
 	\tag{generation hash}
 	\mathfunc{gh}(1) = \: & \nemsetting{network}{generationHash} \\
-	\mathfunc{gh}(N) = \: & \hf(\mathfunc{gh}(N - 1), \mathname{public key of account})
+	\mathfunc{gh}(N) = \: & \mathfunc{verify\_vrf\_proof}(\mathfunc{proof}(block(N)), \mathfunc{gh}(N - 1), \mathname{VRF public key of account})
 \end{align*}
 
+Making the generation hash dependent on a VRF makes it effectively random and unpredictable.
+This is important because it makes the identity of the next harvester unknown even for an adversary with perfect information.
+Until a block is pushed to the network, its generation hash is unknown to all but its harvester.
+Accordingly, until the best block is pushed to the network, since each generation hash is dependent on the preceding generation hash, the
+input into the generation hash calculation for the next block is unknown until that point.
+
+A VRF public key needs to be registered on the blockchain before it can be used to harvest a block.
+This preregistration requirement prevents an adversary from choosing an arbitrary VRF public key that can maximize its hit on the next block.
+As a result, the adversary is unable to produce many blocks in an attempt to maximize its hit.
+
+\subsection{Block Hit and Target}
 \index{block!hit}
 \index{block!target}
 To check if an account is allowed to create a new block at a specific network time, the following values are compared:
@@ -233,18 +246,46 @@ There's also additional handling for edge cases.
 Also note that $\mathvar{hit}$ has an exponential distribution. Therefore, the probability to create a new block does not change if the importance is split among many accounts.
 
 \subsection{Automatic Delegated Harvester Detection}
+\label{sec:blockchain:delegatedHarvesterDetection}
 
 When \nemsetting{user}{enableDelegatedHarvestersAutoDetection} is set, the server allows other accounts to register as delegated harvesters via special transfer messages.
-The server inspects all transfer messages sent to its \nemsetting{user}{bootPrivateKey} account.
-Each message that begins with the magic bytes \texttt{0xE201735761802AFE} is written out to a file queue for further processing.
-
+The server inspects all transfer messages sent to the account matching its node certificate public key and pushes matching ones to a file queue.
 Periodically, a scheduled task inspects all queued messages.
-Each message is expected to contain a private key for a candidate delegated harvester\footnote{
-Please refer to the project code or developer documentation for details about the format of this message.}.
-The delegated harvester private key is encrypted with the server's boot public key in order to prevent a malicious actor from intercepting delegated harvester private keys.
-Any message that contains unexpected contents is ignored and discarded.
-
+Any message that contains unexpected or malformed content is ignored and discarded.
 Valid messages are decrypted and processed.
+
+A main account is eligible\footnote{
+	Even if all these conditions are satisfied, the node owner can still decide to not allow the eligible account to delegate harvest.
+} to delegate harvest on a node when all of the following links are setup:
+\begin{itemize}
+	\item{Main account has signed the delegated harvest request.}
+	\item{Linked remote public key matches the encrypted linked remote harvester private key.}
+	\item{VRF public key matches the encrypted VRF private key.}
+	\item{Node public key matches the node's certificate public key \nemrefparens{sec:network:connectionHandshake}.}
+\end{itemize}
+
+Messages are partially encrypted in order to prevent an adversary from obtaining plain text remote harvester and VRF private keys.
+AES256 CBC is the (symmetric) encryption scheme used.
+The encryption key is derived from the server's node certificate key pair and a random ephemeral key pair generated by the client.
+
+Each message is expected to have the following contents:
+\begin{table}[ht]
+	\nemcenterwithcaption{
+		\begin{tabular}{|p{0.25\linewidth}|p{0.10\linewidth}|p{0.15\linewidth}|p{0.45\linewidth}|}
+			\hline
+			Name & Size & Encrypted? & Description \\
+			\hline
+			\texttt{0xE201735761802AFE} & 8 bytes & No & Magic bytes indicating the message is a harvest request \\
+			Ephemeral public key & 32 bytes & No & Public key used to derive the symmetric encryption key \\
+			AES CBC IV & 16 bytes & No & Initialization vector for AES CBC algorithm \\
+			Signing private key & 32 bytes & Yes & Remote harvester signing private key linked to the main account \\
+			VRF private key & 32 bytes & Yes & VRF private key linked to the main account \\
+			AES padding & 16 bytes & No & Padding defined by the AES CBC algorithm \\
+			\hline
+		\end{tabular}
+	}{Harvest request message format}
+\end{table}
+
 If possible, announced delegated harvester private keys will be used by the server to harvest blocks.
 A server can have at most \nemsetting{harvesting}{maxUnlockedAccounts} harvesters.
 Upon reaching that limit, the evaluation of any new delegated harvester is based on the \nemsetting{harvesting}{delegatePrioritizationPolicy} setting.
@@ -255,7 +296,8 @@ As a result, a new delegated harvester can replace an existing delegated harvest
 
 Successful announcements are stored in the \filepath{harvesters.dat} file.
 Accepted delegated harvesters are persisted across server reboots.
-The server does not provide any explicit confirmation that it is or is not using an announced delegated harvester private key.
+The server does not provide any explicit confirmation that it is or is not currently harvesting with a specific delegated harvester.
+The blockchain only stores a record of all the links related to delegated harvesting, but not the current activity.
 
 \subsection{Blockchain Synchronization}
 \label{sec:blockchain:sync}

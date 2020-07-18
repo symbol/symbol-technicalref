@@ -41,13 +41,16 @@ NIS1 was a worthy entry into the blockchain landscape and \codenamespace is an e
 This is not the end but a new beginning.
 There is more work to be done.
 
-\subsection{Variants}
+\subsection{Network Fingerprint}
 
-\codenamespace supports compile-time substitution of its primary hash algorithm, which produces a 32-byte value from input data.
-For conciseness, the rest of this document refers to this hash by its default setting (SHA3).
-Currently, the following hash algorithms are supported:
-
+Each network has a unique \nind{fingerprint} that is composed of the following:
 \begin{enumerate}
-	\item{SHA3 (default): This is the default mode and recommended for new chains.}
-	\item{Keccak: This mode is provided for compatibility with legacy chains, like NIS1, in order to preserve private-key:public-key:address mapping.}
+	\item{Network Identifier -
+		One byte identifier that can be shared across networks.
+		All addresses compatible with a network must have this value as their first byte.
+	}
+	\item{Generation Hash Seed -
+		Random 32 byte value that must be globally unique across networks.
+		This value is prepended to transaction data prior to hashing or signing in order to prevent cross network replay attacks.
+	}
 \end{enumerate}

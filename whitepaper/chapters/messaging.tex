@@ -195,8 +195,9 @@ The layout for the cosignature message is displayed in \autoref{fig:messaging:co
 	\nemmemorylayout{
 		\nemmemoryaddresstopic{63} \\
 		\\
-		\nemmemorymultiwordbox{body part 1 - 0x00}{SignerPublicKey}{3} \\
-		\nemmemorymultiwordbox{body part 1 - 0x20}{Signature}{7} \\
-		\nemmemorymultiwordbox{body part 1 - 0x60}{ParentHash}{3}
+		\nemmemorysinglewordbox{body part 1 - 0x00}{Version} \\
+		\nemmemorymultiwordbox{body part 1 - 0x08}{SignerPublicKey}{3} \\
+		\nemmemorymultiwordbox{body part 1 - 0x28}{Signature}{7} \\
+		\nemmemorymultiwordbox{body part 1 - 0x68}{ParentHash}{3}
 	}{Cosignature message\label{fig:messaging:cosignatureMessage}}
 \end{figure}

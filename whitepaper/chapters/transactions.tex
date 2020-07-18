@@ -167,15 +167,16 @@ For example, an aggregate transaction cannot be embedded within another aggregat
 
 \subsubsection{Cosignature}
 
-A cosignature is a pair composed of a public key and its corresponding signature.
+A cosignature is composed of a version\footnote{\field{Version} is reserved for future extensibility. Currently, it is expected to always be zero.}, a public key and its corresponding signature.
 Zero or more cosignatures are appended at the end of an aggregate transaction.
 Cosignatures are used to cryptographically verify an aggregate transaction involving multiple parties.
 
 \begin{figure}[H]
 	\nemcenter{
 		\nemmemorylayout{
-			\nemmemorymultiwordbox{0x00}{SignerPublicKey}{3} \\
-			\nemmemorymultiwordbox{0x20}{Signature}{7}
+			\nemmemorysinglewordbox{0x00}{Version} \\
+			\nemmemorymultiwordbox{0x08}{SignerPublicKey}{3} \\
+			\nemmemorymultiwordbox{0x28}{Signature}{7}
 		}{Cosignature binary layout}
 	}{}
 \end{figure}
@@ -220,7 +221,26 @@ Each transaction has two associated hashes - an \emph{entity hash} and a \emph{M
 The former uniquely identifies a transaction and is used to prevent multiple confirmations of the same transaction.
 The latter is more specific and is used when calculating \field{TransactionsHash} \nemrefparens{sec:transactions:aggregate}.
 
-A transaction's entity hash is always calculated as the hash of its verifiable data.
+A transaction's entity hash is calculated as a hash of the following:
+\begin{enumerate}
+	\item{Transaction \field{Signature} -
+		If this field was not included, an adversary could prevent a transaction from being included in the network
+		by frontloading it with a nearly identical transaction that contained a malformed signature.
+	}
+	\item{Transaction \field{SignerPublicKey} -
+		If this field was not included, an adversary could prevent a transaction from being included in the network
+		by frontloading it with a nearly identical transaction that contained a malformed signer public key.
+	}
+	\item{Network \field{GenerationHashSeed} -
+		This field prevents cross network transaction replay attacks
+		\footnote{
+			Additionally, when signing and verifying transaction data, the network \field{GenerationHashSeed} is prepended to the data
+			so that transaction signatures will only verify on networks with a matching \field{GenerationHashSeed}.
+		}.
+	}
+	\item{Transaction verifiable data}
+\end{enumerate}
+
 All confirmed transactions must have a unique entity hash.
 An aggregate transaction's entity hash is independent of its cosignatures.
 This prevents the same aggregate transaction from being confirmed multiple times with different sets of valid cosignatures.

@@ -6,29 +6,40 @@ A beginning is the time for taking the most delicate care that the balances are 
 }{Frank Herbert}
 
 \codenamechapterfirstword uses elliptic curve cryptography to ensure confidentiality, authenticity and non-repudiability of all transactions.
-Each account is a private+public Ed25519 keypair \nemrefparens{sec:cryptography} and is associated with a mutable state that is updated when transactions are accepted by the network.
-Accounts are identified by addresses, which are derived in part from one way mutations of public keys.
+An account is uniquely identified by an address, which is partially derived from a one way mutation of its signing public key.
+Each account is linked to mutable state that is updated when transactions are accepted by the network.
+This state is globally consistent and may contain zero or more public keys.
 
 \subsection{Addresses}
 
-An \nind{address} is a Base32\footnote{ \url{http://en.wikipedia.org/wiki/Base32} } encoded triplet consisting of:
+\index{address!decoded}
+A \emph{decoded address} is a 24 byte value composed of the following three parts:
 \begin{itemize}
 	\item{network byte}
-	\item{160-bit hash of the account's public key}
-	\item{4 byte checksum}
+	\item{160-bit hash of an account's signing public key}
+	\item{3 byte checksum}
 \end{itemize}
 
 The checksum allows for quick recognition of mistyped addresses.
 It is possible to send mosaics\footnote{A mosaic is a digital asset defined on \codename. Other technologies refer to mosaics as tokens.} to any valid address even if the address has not previously participated in any transaction.
 If nobody owns the private key of the account to which the mosaics are sent, the mosaics are most likely lost forever.
 
-\subsection{Address Derivation}
+\index{address!encoded}
+An \emph{encoded address} is a Base32\footnote{\url{http://en.wikipedia.org/wiki/Base32}} encoding of a decoded address.
+It is human readable and used in clients.
+
+Notice that the Base32 encoding of binary data has an expansion factor of $\frac{8}{5}$, and a decoded address's size is not evenly divisible by five.
+Accordingly, any Base32 representation of a decoded address will contain some extra information.
+While this is not inherently problematic, when encoding a decoded address, the extra input byte is set to zero by convention for consistency across clients.
+Additionally, the last byte of the resulting 40 character string is dropped.
+
+\subsubsection{Address Derivation}
 In order to convert a public key to an address, the following steps are performed:
 \begin{enumerate}
 	\item{Perform 256-bit SHA3 on the public key.}
 	\item{Perform 160-bit RIPEMD\_160 of hash resulting from step 1.}
 	\item{Prepend network version byte to RIPEMD\_160 hash.}
-	\item{Perform 256-bit SHA3 on the result, take the first four bytes as a checksum.}
+	\item{Perform 256-bit SHA3 on the result, take the first three bytes as a checksum.}
 	\item{Concatenate output of step 3 and the checksum from step 4.}
 	\item{Encode result using Base32.}
 \end{enumerate}
@@ -41,7 +52,7 @@ In order to convert a public key to an address, the following steps are performe
 
 \pagebreak
 
-\subsection{Address Aliases}
+\subsubsection{Address Aliases}
 \index{alias address}
 An address can have one or more aliases assigned using an address alias transaction\nemtechdocsfootnote{concepts/namespace.html\#addressaliastransaction}.
 All transactions accepting addresses support using either a public key derived address or an address alias.
@@ -49,13 +60,48 @@ In case of such transactions, the format of the address alias field is:
 \begin{itemize}
 	\item{network byte ORed with value 1}
 	\item{8 byte namespace id that is an alias}
-	\item{16 zero bytes}
+	\item{15 zero bytes}
 \end{itemize}
 
-\subsection{Intentional Address Collision}
-It is possible that two different public keys will yield the same address.
+\subsubsection{Intentional Address Collision}
+It is possible that two different public signing keys will yield the same address.
 If such an address contains any valuable assets \textbf{AND} has not been associated with a public key earlier (for example, by sending a transaction from the account), it would be possible for an attacker to withdraw funds from such an account.
 
 In order for the attack to succeed, the attacker would need to find a private+public keypair such that the SHA3\_256 of the public key would \textbf{at the same time} be equal to the RIPEMD\_160 preimage of the 160-bit hash mentioned above.
 Since SHA3\_256 offers 128 bits of security, it is mathematically improbable for a single SHA3\_256 collision to be found.
 Due to similarities between \codenamespace addresses and Bitcoin addresses, the probability of causing a \codenamespace address collision is roughly the same as that of causing a Bitcoin address collision.
+
+\subsection{Public Keys}
+
+An account is associated with zero or more public keys. The supported types of keys are:
+\begin{enumerate}
+	\item{signing: \\
+		An ED25519 public key that is used for signing and verifying data.
+		Any account can receive data, but only accounts with this public key can send data.
+		This public key is the only one used as input into an account's address calculation.
+	}
+	\item{linked: \\
+		This public key links a main account with a remote harvester.
+		For a \field{Main} account, this public key specifies the remote harvester account that can sign blocks on its behalf.
+		For a \field{Remote} account, this public key specifies the main account for which it can sign blocks.
+		These links are bidirectional and always set in pairs.
+	}
+	\item{node: \\
+		This public key is set on a \field{Main} account.
+		It specifies the public key of the node that it can delegate harvest on.
+		Importantly, this does not indicate that the remote is actively harvesting on the node, but only that it has the permission to do so.
+		As long as either the harvesting account or the node owner is honest, the account will be restricted to delegate harvesting on a single node at a time.
+
+		An honest harvester should only send its remote harvester private key to a single node at a time.
+		Changing its remote will invalidate all previous remote harvesting permissions granted to all other nodes (and implies forward security of delegated keys).
+		Any older remote harvester private keys will no longer be valid and unable to be used for harvesting blocks.
+		An honest node owner should only ever remote harvest with a remote harvester private key that is \emph{currently} linked to its node public key
+	}
+	\item{VRF: \\
+		An ED25519 public key that is used for generating and verifying random values.
+		This public key must be set on a \field{Main} account in order for the account to be eligible to harvest.
+	}
+	\item{voting: \\
+		Placeholder that will be used for finalization.
+	}
+\end{enumerate}

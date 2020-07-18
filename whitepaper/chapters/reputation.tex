@@ -94,7 +94,7 @@ The presence of a minimum score still gives a node with many failures a slight c
 The raw weight is multiplied with a weight multiplier to give the final weight of a node.
 For static nodes, the multiplier is 2.
 For dynamic nodes, it is 1.
-If a node is banned due to consecutive interaction failures (see section \autoref{sec:reputation:NodeBanning}) , the multiplier is decreased by 1.
+If a node is banned due to consecutive interaction failures \nemrefparens{sec:reputation:NodeBanning}, the multiplier is decreased by 1.
 This ensures that a node does not connect to dynamic banned nodes.
 The chance of connecting to static banned nodes is reduced by half.
 
@@ -133,21 +133,22 @@ The penalties vary based on the cause.
 			\hline
 			\makecell{Consecutive\\interaction\\failures} & No & - & \makecell{Yes Static\\No Dynamic} & Yes\\
 			\hline
-			\makecell{Invalid\\data} & Yes & No & No & No\\
+			\makecell{Invalid\\data} & Yes - All\footnotemark & No & No & No\\
 			\hline
-			\makecell{Exceeded\\read rate} & Yes & No & No & No\\
+			\makecell{Exceeded\\read rate} & Yes - All & No & No & No\\
 			\hline
 			\makecell{Unexpected\\data} & Yes & Yes & \makecell{Yes\\(after reconnect)} & \makecell{Yes\\(after reconnect)}\\
 			\hline
 		\end{tabular}
 	}{Banning Rules}
 \end{figure}
+\footnotetext{All active connections associated with the misbehaving node are closed immediately, not just the connection triggering the violation.}
 
 \subsubsection*{Consecutive Interaction Failures}
 If interactions with the same node fail for too many consecutive times due to networking or stateful failures, it is better to suspend all interactions with that node for some time, hoping the node will behave better in the future.
-The number of consecutive interaction failures before the node gets banned can be configured.
+The number of consecutive interaction failures before the node gets banned as an interaction partner can be configured.
 The amount of time the node gets banned is measured in selection rounds and can also be configured.
-While the node is banned, it will not be actively selected as interaction partner, but it still can send new data.
+While the node is banned, it will not be actively selected as an interaction partner, but it still can send new data.
 This violation, therefore, only results in a partial ban.
 
 \subsubsection*{Invalid Data}
