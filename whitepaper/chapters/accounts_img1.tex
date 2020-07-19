@@ -1,5 +1,4 @@
 \begin{tikzpicture}[node distance=-\pgflinewidth]
-
 	% First row, public key
 	\node[draw,anchor=north west] (pubkeyLabel) at (0,0) {Public Key: };
 
@@ -83,5 +82,4 @@
 	\node[draw,below=2cm of binaryAddress,rounded corners,solid,inner sep=0.2cm] (nanemo) {
 		MBEJBT-ECHBU7-3YM74A-YGDX6D-MANNITM-XDU3J-IMO2};
 	\draw[solid,thin,->] (binaryAddress.south) -- node[right=1pt] {Base32 encoding} (nanemo.north);
-
 \end{tikzpicture}

@@ -53,32 +53,36 @@ When selecting partner nodes, a node first determines a set of candidate nodes.
 Each candidate node is assigned a raw weight between 500 and 10000 according to the following criteria:
 
 \begin{itemize}
-\item If there were 3 or fewer non-neutral interactions with the remote node, it is given a medium raw weight of 5000.
-This gives new nodes a good chance of getting selected.
-\item Else let $s$ be the number of successful and $f$ the number of failed interactions.
-Then the raw weight is calculated by the following formula:
+	\item{
+		If there were 3 or fewer non-neutral interactions with the remote node, it is given a medium raw weight of 5000.
+		This gives new nodes a good chance of getting selected.
+	}
+	\item{
+		Else let $s$ be the number of successful and $f$ the number of failed interactions.
+		Then the raw weight is calculated by the following formula:
 
-\begin{figure}[t!]
-	\nemcenterwithcaption{
-		\begin{tikzpicture}[scale=1.5]
-			\begin{axis}[
-					scaled z ticks=false,
-					colormap/cool,
-					y dir=reverse,
-					zlabel style={rotate=-90},
-					xlabel = {$\substack{successful\\interactions}$},
-					ylabel = {$\substack{failed\\interactions}$},
-					zlabel = {$\substack{raw\\node\\weight}$}
-				]
-				\addplot3[surf, samples=50, domain=0:100, y domain=50:0] {max(500, x * 10000 / (x + 9 * y))};
-			\end{axis}
-		\end{tikzpicture}
-	}{Raw Node Weight}
-\end{figure}
+		\begin{figure}[t!]
+			\nemcenterwithcaption{
+				\begin{tikzpicture}[scale=1.5]
+					\begin{axis}[
+							scaled z ticks=false,
+							colormap/cool,
+							y dir=reverse,
+							zlabel style={rotate=-90},
+							xlabel = {$\substack{successful\\interactions}$},
+							ylabel = {$\substack{failed\\interactions}$},
+							zlabel = {$\substack{raw\\node\\weight}$}
+						]
+						\addplot3[surf, samples=50, domain=0:100, y domain=50:0] {max(500, x * 10000 / (x + 9 * y))};
+					\end{axis}
+				\end{tikzpicture}
+			}{Raw Node Weight}
+		\end{figure}
 
-\begin{align*}
-\mathvar{rawWeight} = \max\left(500, \frac{s \cdot 10000}{s + 9 \cdot f}\right)
-\end{align*}
+		\begin{align*}
+			\mathvar{rawWeight} = \max\left(500, \frac{s \cdot 10000}{s + 9 \cdot f}\right)
+		\end{align*}
+	}
 \end{itemize}
 
 This formula guarantees that failed interactions rapidly decrease the weight of a remote node and its likelihood of getting selected.
@@ -96,7 +100,7 @@ Each removal candidate that will be closed is replaced with a connection to a ne
 Finally, for each free slot, a candidate node has a chance of getting selected given by:
 
 \begin{align*}
-P(\textrm{node is getting selected}) = \frac{\mathname{node weight}}{\sum\limits_{\substack{candidates\\nodes}} \mathname{candidate node weight}}
+	P(\textrm{node is getting selected}) = \frac{\mathname{node weight}}{\sum\limits_{\substack{candidates\\nodes}} \mathname{candidate node weight}}
 \end{align*}
 
 \subsection{Node Banning}

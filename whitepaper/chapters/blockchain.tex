@@ -24,9 +24,9 @@ The number of blocks taken into consideration is configurable per-network.
 If less than \nemsetting{network}{maxDifficultyBlocks} are available, only those available are taken into account.
 Otherwise, the difficulty is calculated from the last $n$ blocks in the following way:
 \begin{align*}
-\tag{average difficulty} d &= \frac{1}{n}\sum_{i=1}^n (\text{difficulty of $block_i$}) \\
-\tag{average creation time} t &= \frac{1}{n}\sum_{i=1}^n (\text{time to create $block_i$}) \\
-\tag{new difficulty} \mathvar{difficulty} &= d \; \frac{\nemsetting{network}{blockGenerationTargetTime}}{t}
+	\tag{average difficulty} d &= \frac{1}{n}\sum_{i=1}^n (\text{difficulty of $block_i$}) \\
+	\tag{average creation time} t &= \frac{1}{n}\sum_{i=1}^n (\text{time to create $block_i$}) \\
+	\tag{new difficulty} \mathvar{difficulty} &= d \; \frac{\nemsetting{network}{blockGenerationTargetTime}}{t}
 \end{align*}
 
 This algorithm produces blocks with an average time close to the desired \nemsetting{network}{blockGenerationTargetTime} network setting.
@@ -65,7 +65,7 @@ Block times will be considerably higher than \nemsetting{network}{blockGeneratio
 
 The score for a block is derived from its difficulty and the time (in seconds) that has elapsed since the last block:
 \begin{equation}
-\tag{block score} \mathvar{score} = \mathvar{difficulty} - \mathname{time elasped since last block}
+	\tag{block score} \mathvar{score} = \mathvar{difficulty} - \mathname{time elasped since last block}
 \end{equation}
 
 \subsection{Block Generation}
@@ -78,10 +78,12 @@ This gives the harvester an incentive to create a valid block and add as many tr
 
 An account is eligible to harvest if all of the following are true:
 \begin{enumerate}
-\item{Importance score at the last importance recalculation height is nonzero.}
-\item{Balance no less than a network defined \nemsetting{network}{minHarvesterBalance}.}
-\item{Balance no greater than a network defined \nemsetting{network}{maxHarvesterBalance}.}
-\footnote{This feature is primarily intended to prevent core funds and exchange accounts from harvesting.}
+	\item{Importance score at the last importance recalculation height is nonzero.}
+	\item{Balance no less than a network defined \nemsetting{network}{minHarvesterBalance}.}
+	\item{
+		Balance no greater than a network defined \nemsetting{network}{maxHarvesterBalance}
+		\footnote{This feature is primarily intended to prevent core funds and exchange accounts from harvesting.}.
+	}
 \end{enumerate}
 
 An account owner can delegate its importance to some other account\nemtechdocsfootnote{concepts/harvesting.html\#accountlinktransaction} in order to avoid exposing a private key with funds.
@@ -98,31 +100,35 @@ Each block must specify a \emph{fee multiplier} that determines the effective fe
 Typically, the node owner sets the \nemsetting{node}{minFeeMultiplier} that applies to all blocks harvested by the node.
 Only transactions that satisfy the following will be allowed to enter that node's unconfirmed transactions cache and be eligible for inclusion into blocks harvested by that node:
 \begin{equation}
-\mathname{transaction max fee} \geqslant \nemsetting{node}{minFeeMultiplier} \cdot \mathname{transaction size (bytes)}
+	\mathname{transaction max fee} \geqslant \nemsetting{node}{minFeeMultiplier} \cdot \mathname{transaction size (bytes)}
 \end{equation}
+
 Rejected transactions may still be included in blocks harvested by other nodes with lower requirements.
 The specific algorithm used to select transactions for inclusion in harvested blocks is configured by the \nemsetting{node}{transactionSelectionStrategy} setting.
 \codenamespace offers three built-in selection strategies
 \footnote{In all cases, all available transactions must already fulfill the requirement that \nemsetting{node}{minFeeMultiplier} indicates.}:
 
 \begin{enumerate}
-\item{\texttt{oldest}: \\
-This is the least resource-intensive strategy and is recommended for high TPS networks.
-Transactions are added to a new block in the order in which they have been received.
-This ensures that the oldest transactions are selected first and attempts to minimize the number of transactions timing out.
-As a consequence, this strategy is rarely profit maximizing for the harvester.}
-\item{\texttt{maximize-fee}: \\
-Transactions are selected in such a way that the cumulative fee for all transactions in a block is maximized.
-A greedy node will pick this strategy.
-Maximizing the total block fee does not necessarily mean that the number of transactions included is maximized as well.
-In fact, in many cases, the harvester will only include a subset of the transactions that are available.}
-\item{\texttt{minimize-fee}: \\
-Transactions with the lowest maximum fee multipliers are selected first by this strategy.
-Generous nodes will pick this strategy together with a very low \nemsetting{node}{minFeeMultiplier}.
-If this setting is zero, then the harvester will include transactions with zero fees first.
-This allows users to send transactions that get included in the blockchain for free!
-In practice, it is likely that only a few nodes will support this.
-Even with such a subset of nodes running, zero fee transactions will still have the lowest probability of getting included in a block because they will always be supported by the least number of nodes in the network.}
+	\item{\texttt{oldest}: \\
+		This is the least resource-intensive strategy and is recommended for high TPS networks.
+		Transactions are added to a new block in the order in which they have been received.
+		This ensures that the oldest transactions are selected first and attempts to minimize the number of transactions timing out.
+		As a consequence, this strategy is rarely profit maximizing for the harvester.
+	}
+	\item{\texttt{maximize-fee}: \\
+		Transactions are selected in such a way that the cumulative fee for all transactions in a block is maximized.
+		A greedy node will pick this strategy.
+		Maximizing the total block fee does not necessarily mean that the number of transactions included is maximized as well.
+		In fact, in many cases, the harvester will only include a subset of the transactions that are available.
+	}
+	\item{\texttt{minimize-fee}: \\
+		Transactions with the lowest maximum fee multipliers are selected first by this strategy.
+		Generous nodes will pick this strategy together with a very low \nemsetting{node}{minFeeMultiplier}.
+		If this setting is zero, then the harvester will include transactions with zero fees first.
+		This allows users to send transactions that get included in the blockchain for free!
+		In practice, it is likely that only a few nodes will support this.
+		Even with such a subset of nodes running, zero fee transactions will still have the lowest probability of getting included in a block because they will always be supported by the least number of nodes in the network.
+	}
 \end{enumerate}
 
 Transactions can initiate transfers of both static and dynamic amounts.
@@ -140,7 +146,7 @@ The latter adjustment ensures that the effective amounts are always nonzero.
 In order to arrive at the effective amount, the base amount is multiplied by the dynamic fee multiplier.
 
 \begin{align*}
-\mathname{effective amount} = \: & \mathname{base amount} \cdot \mathname{dynamic fee multiplier}
+	\mathname{effective amount} = \: & \mathname{base amount} \cdot \mathname{dynamic fee multiplier}
 \end{align*}
 
 \index{generation hash}
@@ -148,18 +154,19 @@ In order to arrive at the effective amount, the base amount is multiplied by the
 
 The generation hash of a block is derived from the previous block generation hash and the public key of the current block harvester:
 \begin{align*}
-\tag{generation hash}
-\mathfunc{gh}(1) = \: & \nemsetting{network}{generationHash} \\
-\mathfunc{gh}(N) = \: & \hf(\mathfunc{gh}(N - 1), \mathname{public key of account})
+	\tag{generation hash}
+	\mathfunc{gh}(1) = \: & \nemsetting{network}{generationHash} \\
+	\mathfunc{gh}(N) = \: & \hf(\mathfunc{gh}(N - 1), \mathname{public key of account})
 \end{align*}
 
 \index{block!hit}
 \index{block!target}
 To check if an account is allowed to create a new block at a specific network time, the following values are compared:
 \begin{itemize}
-\item{ $hit$: defines per-block value that needs to be hit.}
-\item{ $target$: defines per-harvester power that increases as time since last harvested block increases.}
+	\item{$hit$: defines per-block value that needs to be hit.}
+	\item{$target$: defines per-harvester power that increases as time since last harvested block increases.}
 \end{itemize}
+
 An account is allowed to create a new block whenever $\mathvar{hit} < \mathvar{target}$.
 Since $\mathvar{target}$ is proportional to the elapsed time, a new block will be created after a certain amount of time even if all accounts are unlucky and generate a very high hit.
 
@@ -168,12 +175,12 @@ In the case of delegated harvesting, the importance of the original account is u
 The target is calculated as follows
 \footnote{The implementation uses 256-bit integer instead of floating point arithmetic in order to avoid any problems due to rounding.}:
 \begin{align*}
-\mathvar{multiplier} = \: & 2^{64} \\
-t = \: & \mathname{time in seconds since last block} \\
-b = \: & 8999999998 \: \cdot \: (\mathname{account importance}) \\
-i = \: & \mathname{total chain importance} \\
-d = \: & \mathname{new block difficulty} \\
-\mathvar{target} = \: & \frac{\mathvar{multiplier} \cdot t \cdot b}{i \cdot d}
+	\mathvar{multiplier} = \: & 2^{64} \\
+	t = \: & \mathname{time in seconds since last block} \\
+	b = \: & 8999999998 \: \cdot \: (\mathname{account importance}) \\
+	i = \: & \mathname{total chain importance} \\
+	d = \: & \mathname{new block difficulty} \\
+	\mathvar{target} = \: & \frac{\mathvar{multiplier} \cdot t \cdot b}{i \cdot d}
 \end{align*}
 
 \emph{Block time smoothing}\index{block!time smoothing} can be enabled, which results in more stable block times.
@@ -185,11 +192,11 @@ If enabled, $multiplier$ above is calculated in the following way
 	If the calculated \field{power} is too negative, \field{smoothing} will be set to zero.
 }:
 \begin{align*}
-\mathvar{factor} = \: & \nemsetting{network}{blockTimeSmoothingFactor} / 1000.0 \\
-\mathvar{tt} = \: & \nemsetting{network}{blockGenerationTargetTime} \\
-\mathvar{power} = \: & factor \cdot \frac{\mathname{time in seconds since last block} - \mathvar{tt}}{\mathvar{tt}} \\
-\mathvar{smoothing} = \: & \min\left(e^{\mathvar{power}}, 100.0\right) \\
-\mathvar{multiplier} = \: & \mathfunc{integer}\left(2^{54} \cdot \mathvar{smoothing}\right) \cdot 2^{10}
+	\mathvar{factor} = \: & \nemsetting{network}{blockTimeSmoothingFactor} / 1000.0 \\
+	\mathvar{tt} = \: & \nemsetting{network}{blockGenerationTargetTime} \\
+	\mathvar{power} = \: & factor \cdot \frac{\mathname{time in seconds since last block} - \mathvar{tt}}{\mathvar{tt}} \\
+	\mathvar{smoothing} = \: & \min\left(e^{\mathvar{power}}, 100.0\right) \\
+	\mathvar{multiplier} = \: & \mathfunc{integer}\left(2^{54} \cdot \mathvar{smoothing}\right) \cdot 2^{10}
 \end{align*}
 
 Hit is 64-bit approximation of $2^{54} \left|\ln\left(\frac{\mathvar{gh}}{2^{256}}\right)\right|$, where $\mathvar{gh}$ is a new generation hash
@@ -252,7 +259,7 @@ The server does not provide any explicit confirmation that it is or is not using
 
 A score can be assigned to any chain of blocks by summing the scores of the component blocks:
 \begin{equation}
-\tag{blockchain score} \mathvar{score} = \sum_{\mathvar{block} \in \mathvar{blocks}} \mathname{block score}
+	\tag{blockchain score} \mathvar{score} = \sum_{\mathvar{block} \in \mathvar{blocks}} \mathname{block score}
 \end{equation}
 
 Blockchain synchronization is crucial to maintaining distributed consensus.

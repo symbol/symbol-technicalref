@@ -14,8 +14,8 @@ This causes those nodes to reject valid transactions or blocks, which makes it i
 It is therefore needed to have a synchronization mechanism to ensure all nodes agree on time.
 There are basically two ways to do this:
 \begin{enumerate}
-\item Use an existing protocol, such as NTP.
-\item Use a custom protocol.
+	\item{Use an existing protocol, such as NTP.}
+	\item{Use a custom protocol.}
 \end{enumerate}
 
 The advantage of using an existing protocol like NTP is that it is easy to implement and the network time will always be near real time.
@@ -58,22 +58,28 @@ This is repeated for every time synchronization partner until the local node has
 
 There could be bad samples due to various reasons:
 \begin{itemize}
-\item A malicious node supplies incorrect timestamps.
-\item An honest node has a clock far from real time without knowing it and without having synchronized yet.
-\item The round trip time is be highly asymmetric due to internet problems or one of the nodes being very busy.
-This is known as channel asymmetry and cannot be avoided.
+	\item{A malicious node supplies incorrect timestamps.}
+	\item{An honest node has a clock far from real time without knowing it and without having synchronized yet.}
+	\item{
+		The round trip time is be highly asymmetric due to internet problems or one of the nodes being very busy.
+		This is known as channel asymmetry and cannot be avoided.
+	}
 \end{itemize}
 
 Filters are applied that try to remove the bad samples. The filtering is done in three steps:
 \begin{enumerate}
-\item If the response from a partner is not received within an expected time frame (i.e. if $t_4-t_1 > 1000ms$) the sample is discarded.
-\item If the calculated offset is not within certain bounds, the sample is discarded.
-The allowable bounds decrease as a node's uptime increases.
-When a node first joins the network, it tolerates a high offset in order to adjust to the already existing consensus of network time within the network.
-As time passes, the node gets less tolerant with respect to reported offsets.
-This ensures that malicious nodes reporting huge offsets are ignored after some time.
-\item The remaining samples are ordered by their offset and then alpha trimmed on both ends.
-In other words, on both sides a certain portion of the samples is discarded.
+	\item{If the response from a partner is not received within an expected time frame (i.e. if $t_4-t_1 > 1000ms$) the sample is discarded.}
+	\item{
+		If the calculated offset is not within certain bounds, the sample is discarded.
+		The allowable bounds decrease as a node's uptime increases.
+		When a node first joins the network, it tolerates a high offset in order to adjust to the already existing consensus of network time within the network.
+		As time passes, the node gets less tolerant with respect to reported offsets.
+		This ensures that malicious nodes reporting huge offsets are ignored after some time.
+	}
+	\item{
+		The remaining samples are ordered by their offset and then alpha trimmed on both ends.
+		In other words, on both sides a certain portion of the samples is discarded.
+	}
 \end{enumerate}
 
 \subsection{Calculation of the Effective Offset}

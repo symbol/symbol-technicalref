@@ -16,10 +16,12 @@ Unconfirmed transactions can arrive at a node when:
 	\item{A client sends a new transaction directly to the node.}
 	\item{A bonded aggregate transaction is completed with all requisite cosignatures and is promoted from the partial transactions cache.}
 	\item{A Peer node broadcasts transactions to the node.}
-	\item{A Peer node responds to the node's request for unconfirmed transactions.
-	As an optimization, the requesting node indicates what transactions it already knows in order to avoid receiving redundant transactions.
-	Additionally, it supplies the minimum fee multiplier \nemrefparens{sec:blockchain:generation} it uses when creating blocks.
-	This prevents the remote node from returning unconfirmed transactions that will be immediately rejected by the requesting node.}
+	\item{
+		A Peer node responds to the node's request for unconfirmed transactions.
+		As an optimization, the requesting node indicates what transactions it already knows in order to avoid receiving redundant transactions.
+		Additionally, it supplies the minimum fee multiplier \nemrefparens{sec:blockchain:generation} it uses when creating blocks.
+		This prevents the remote node from returning unconfirmed transactions that will be immediately rejected by the requesting node.
+	}
 \end{enumerate}
 
 When an unconfirmed transaction arrives at a node, it is added to the transaction disruptor \nemrefparens{sec:disruptor}.
@@ -36,7 +38,7 @@ At this point, the node tries to add it to the \emph{unconfirmed transactions ca
 This can fail for two reasons:
 \begin{enumerate}
 	\item{The maximum cache size configured by \nemsetting{node}{unconfirmedTransactionsCacheMaxSize} has been reached.}
-	\item{The cache contains at least as many unconfirmed transactions as can be included in a single block and the new transaction is rejected by the Spam throttle}.
+	\item{The cache contains at least as many unconfirmed transactions as can be included in a single block and the new transaction is rejected by the Spam throttle.}
 \end{enumerate}
 
 Whenever new blocks are added to the blockchain, the blockchain state changes and the unconfirmed transactions cache is affected.

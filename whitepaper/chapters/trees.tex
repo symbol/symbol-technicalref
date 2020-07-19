@@ -236,8 +236,10 @@ $$\hf(\mathvar{Leaf}) = \hf(\mathvar{TreeNodePath}, \mathvar{ValueHash})$$.
 A \emph{branch node}\index{tree!branch} is composed of the following items:
 \begin{enumerate}
 	\item{TreeNodePath: Encoded tree node path (with leaf bit unset).}
-	\item{$\mathvar{LinkHash}_{0}, \ldots, \mathvar{LinkHash}_{15}$: Hashes of children where the index is the next nibble part of the path.
-	When no child is present at an index, a zero hash should be used instead.}
+	\item{
+		$\mathvar{LinkHash}_{0}, \ldots, \mathvar{LinkHash}_{15}$: Hashes of children where the index is the next nibble part of the path.
+		When no child is present at an index, a zero hash should be used instead.
+	}
 \end{enumerate}
 
 The hash of a branch node can be calculated by hashing its component parts:

@@ -23,20 +23,21 @@ Neither key generation nor signing is used during block processing, so the speed
 
 A \nind{private key} is a random 256-bit integer $k$. To derive the public key\index{public key} \underline{A} from it, the following steps are taken:
 \begin{align}
-\hf(k) &=(h_0, h_1,..., h_{511}) \\
-a &= 2^{254} + \sum_{3\leq i \leq 253} 2^i h_i \\
-A &= aB
+	\hf(k) &=(h_0, h_1,..., h_{511}) \\
+	a &= 2^{254} + \sum_{3\leq i \leq 253} 2^i h_i \\
+	A &= aB
 \end{align}
+
 Since $A$ is a group element, it can be encoded into a 256-bit integer \underline{A}, which serves as the public key.
 
 \subsection{Signing and Verification}
 
 Given a message $M$, private key $k$ and its associated public key \underline{A}, the following steps are taken to create a signature:
 \begin{align}
-\hf(k) &=(h_0, h_1,..., h_{511}) \\
-r &= \hf(h_{256},...,h_{511}, M) \text{ where the comma means concatenation} \\
-R &= rB \\
-S &= (r + \hf(\underline{R}, \underline{A}, M)a) \: mod \: q \label{eq:cryptography:S}
+	\hf(k) &=(h_0, h_1,..., h_{511}) \\
+	r &= \hf(h_{256},...,h_{511}, M) \text{ where the comma means concatenation} \\
+	R &= rB \\
+	S &= (r + \hf(\underline{R}, \underline{A}, M)a) \: mod \: q \label{eq:cryptography:S}
 \end{align}
 
 Then $(\underline{R}, \underline{S})$ is the \nind{signature} for the message $M$ under the private key $k$.
@@ -44,12 +45,14 @@ Note that only signatures where $S<q$ and $S>0$ are considered as valid \textbf{
 
 To verify the signature $(\underline{R}, \underline{S})$ for the given message $M$ and public key \underline{A}, the verifier checks $S<q$ and $S>0$ and then calculates
 \begin{align*}
-\tilde{R} = SB - \hf(\underline{R}, \underline{A}, M)A
+	\tilde{R} = SB - \hf(\underline{R}, \underline{A}, M)A
 \end{align*}
+
 and verifies that
 \begin{equation}
-\tilde{R} = R \label{eq:cryptography:verifyR}
+	\tilde{R} = R \label{eq:cryptography:verifyR}
 \end{equation}
+
 If $S$ was computed as shown in \eqref{eq:cryptography:S} then
 $$SB = rB + (\hf(\underline{R}, \underline{A}, M)a)B = R + \hf(\underline{R}, \underline{A}, M)A$$
 so \eqref{eq:cryptography:verifyR} will hold.
@@ -63,12 +66,14 @@ let $H_i = \hf(R_i, A_i, M_i)$.
 Additionally, assume a corresponding number of uniform distributed 128-bit independent random integers $z_i$ are generated.
 Now consider the equation
 \begin{align}
-\left(-\sum_i{z_i S_i \: \mathrm{mod} \: q}\right)B + \sum_i{z_i R_i} + \sum_i{(z_i H_i \: \mathrm{mod} \: q)A_i = 0} \label{eq:cryptography:verifyBatch}
+	\left(-\sum_i{z_i S_i \: \mathrm{mod} \: q}\right)B + \sum_i{z_i R_i} + \sum_i{(z_i H_i \: \mathrm{mod} \: q)A_i = 0} \label{eq:cryptography:verifyBatch}
 \end{align}
+
 Setting $P_i = 8 R_i + 8 H_i A_i - 8 S_i B$, then if \eqref{eq:cryptography:verifyBatch} holds, it implies
 \begin{align}
-\sum_i{z_i P_i} = 0 \label{eq:cryptography:verifyBatch2}
+	\sum_i{z_i P_i} = 0 \label{eq:cryptography:verifyBatch2}
 \end{align}
+
 All $P_i$ are elements of a cyclic group (remember $q$ is a prime).
 If some $P_i$ is not zero, for example $P_2$, it means that for given integers $z_0, z_1, z_3, z_4 ...$, there is exactly one choice for $z_2$ to satisfy \eqref{eq:cryptography:verifyBatch2}.
 The chance for that is $2^{-128}$.

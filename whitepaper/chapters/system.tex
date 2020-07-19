@@ -28,9 +28,9 @@ A plugin is a separate dynamically-linked library that exposes a single entry po
 \footnote{Format of plugins depends on target operating system and compiler used, so all host applications and plugins must be built with the same compiler version and options.}:
 
 \begin{lstlisting}
-extern "C" PLUGIN_API
-void RegisterSubsystem(
-	catapult::plugins::PluginManager& manager);
+	extern "C" PLUGIN_API
+	void RegisterSubsystem(
+		catapult::plugins::PluginManager& manager);
 \end{lstlisting}
 
 \class{PluginManager} provides access to the subset of configuration that plugins need to initialize themselves.
@@ -76,9 +76,9 @@ An extension is a separate dynamically linked library that exposes a single entr
 \footnote{Format of extensions depends on target operating system and compiler used, so all host applications and plugins must be built with the same compiler version and options.}:
 
 \begin{lstlisting}
-extern "C" PLUGIN_API
-void RegisterExtension(
-	catapult::extensions::ProcessBootstrapper& bootstrapper);
+	extern "C" PLUGIN_API
+	void RegisterExtension(
+		catapult::extensions::ProcessBootstrapper& bootstrapper);
 \end{lstlisting}
 
 \class{ProcessBootstrapper} provides access to full \codenamespace configuration and services that extensions need to initialize themselves.
