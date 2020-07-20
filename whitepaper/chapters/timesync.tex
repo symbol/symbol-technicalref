@@ -14,7 +14,7 @@ This causes those nodes to reject valid transactions or blocks, which makes it i
 It is therefore needed to have a synchronization mechanism to ensure all nodes agree on time.
 There are basically two ways to do this:
 \begin{enumerate}
-	\item{Use an existing protocol, such as NTP\footnote{\url{https://en.wikipedia.org/wiki/Network_Time_Protocol}}.}
+	\item{Use an existing protocol, such as Network Time Protocol (NTP)\footnote{\url{https://en.wikipedia.org/wiki/Network_Time_Protocol}}.}
 	\item{Use a custom protocol.}
 \end{enumerate}
 
@@ -35,7 +35,7 @@ The local system time in milliseconds adjusted by the offset (which can be negat
 
 After the start up of a node is completed, the node (hereafter called \emph{local node}) selects partner nodes for performing a time synchronization round.
 
-For all selected partners, the local node sends out a request asking the partner for its current network time.
+For each selected partner, the local node sends out a request asking the partner for its current network time.
 The local node remembers the network timestamps when each request was sent and when each response was received.
 Each partner node responds with a sample that contains the timestamp of the arrival of the request and the timestamp of the response.
 The partner node uses its own network time to create the timestamps.
@@ -61,7 +61,7 @@ There could be bad samples due to various reasons:
 	\item{A malicious node supplies incorrect timestamps.}
 	\item{An honest node has a clock far from real time without knowing it and without having synchronized yet.}
 	\item{
-		The round trip time is be highly asymmetric due to internet problems or one of the nodes being very busy.
+		The round trip time is highly asymmetric due to internet problems or one of the nodes being very busy.
 		This is known as channel asymmetry and cannot be avoided.
 	}
 \end{itemize}
@@ -72,7 +72,7 @@ Filters are applied that try to remove the bad samples. The filtering is done in
 	\item{
 		If the calculated offset is not within certain bounds, the sample is discarded.
 		The allowable bounds decrease as a node's uptime increases.
-		When a node first joins the network, it tolerates a high offset in order to adjust to the already existing consensus of network time within the network.
+		When a node first joins the network, it tolerates a high offset in order to adjust to the existing consensus of network time within the network.
 		As time passes, the node gets less tolerant with respect to reported offsets.
 		This ensures that malicious nodes reporting huge offsets are ignored after some time.
 	}

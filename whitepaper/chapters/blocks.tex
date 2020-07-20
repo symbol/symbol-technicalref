@@ -80,12 +80,12 @@ Difficulty is described in detail in \nemref{sec:blockchain:difficulty}.
 \field{PreviousBlockHash} is the hash of the previous block.
 This is used to guarantee that all blocks within a blockchain are linked and deterministically ordered.
 
-\field{TransactionsHash} is the merkle root hash of the hashes of the transactions stored within the block
+\field{TransactionsHash} is the Merkle root hash of the hashes of the transactions stored within the block
 \footnote{This field has the same purpose as the identically named field in an aggregate transaction.}.
-In order to compute this field, a merkle tree is constructed by adding each transaction hash in natural order.
+In order to compute this field, a Merkle tree is constructed by adding each transaction hash in natural order.
 The resulting root hash is assigned to this field.
 
-\field{ReceiptsHash} is the merkle root hash of the hashes of the receipts produced while processing the block.
+\field{ReceiptsHash} is the Merkle root hash of the hashes of the receipts produced while processing the block.
 When a network is configured without \nemsetting{network}{enableVerifiableReceipts}, this field must be zeroed in all blocks \nemrefparens{sec:blocks:receipts}.
 
 \field{StateHash} is the hash of the global blockchain state after processing the block.
@@ -221,7 +221,7 @@ However, a resolution statement will be produced by each block that contains tha
 \label{sec:blocks:receiptshash}
 
 In order to calculate a block's receipt hash, first all statements generated during block processing are collected.
-Then a merkle tree is created by adding all statement hashes in the following order:
+Then a Merkle tree is created by adding all statement hashes in the following order:
 
 \begin{enumerate}
 	\item{Hashes of transaction statements ordered by receipt source.}
@@ -230,7 +230,7 @@ Then a merkle tree is created by adding all statement hashes in the following or
 \end{enumerate}
 
 When a network is configured with \nemsetting{network}{enableVerifiableReceipts}, the root hash of this merkle tree is set as the block's \field{ReceiptHash}.
-A client can perform a merkle proof to prove a particular statement was produced during the processing of a specific block.
+A client can perform a Merkle proof to prove a particular statement was produced during the processing of a specific block.
 
 \subsection{State Hash}
 \label{sec:blocks:statehash}
@@ -240,7 +240,7 @@ For example, the account state is stored in one repository and the multsignature
 Each repository is a simple key value store.
 The specific repositories present in a network are determined by the transaction plugins enabled by that network.
 
-When a network is configured with \nemsetting{network}{enableVerifiableState}, a patricia tree is created for each repository.
+When a network is configured with \nemsetting{network}{enableVerifiableState}, a Patricia tree is created for each repository.
 This produces a single hash that deterministically fingerprints each repository.
 Accordingly, assuming $N$ repositories, $N$ hashes deterministically fingerprint the global blockchain state.
 

@@ -84,8 +84,8 @@ The submitter must pay a bond that is returned if and only if all requisite cosi
 Assuming this bond is paid upfront, an API node will collect cosignatures associated with this transaction until it either has sufficient signatures or times out.
 
 \field{TransactionsHash} is the most important field in an aggregate transaction.
-It is the merkle root hash of the hashes of the embedded transactions stored within the aggregate.
-In order to compute this field, a merkle tree is constructed by adding each embedded transaction hash in natural order.
+It is the Merkle root hash of the hashes of the embedded transactions stored within the aggregate.
+In order to compute this field, a Merkle tree is constructed by adding each embedded transaction hash in natural order.
 The resulting root hash is assigned to this field.
 
 None of the unverifiable footer fields need to be verified.
@@ -216,7 +216,7 @@ The padding bytes are never signed nor included in any hashes.
 
 \subsection{Transaction Hashes}
 
-Each transaction has two associated hashes - an \emph{entity hash} and a \emph{merkle component hash}.
+Each transaction has two associated hashes - an \emph{entity hash} and a \emph{Merkle component hash}.
 The former uniquely identifies a transaction and is used to prevent multiple confirmations of the same transaction.
 The latter is more specific and is used when calculating \field{TransactionsHash} \nemrefparens{sec:transactions:aggregate}.
 
@@ -225,7 +225,7 @@ All confirmed transactions must have a unique entity hash.
 An aggregate transaction's entity hash is independent of its cosignatures.
 This prevents the same aggregate transaction from being confirmed multiple times with different sets of valid cosignatures.
 
-A regular transaction's merkle component hash is identical to its entity hash.
-An aggregate transaction's merkle component hash is calculated by hashing its entity hash concatenated with all the public keys of its cosignatures
+A regular transaction's Merkle component hash is identical to its entity hash.
+An aggregate transaction's Merkle component hash is calculated by hashing its entity hash concatenated with all the public keys of its cosignatures
 \footnote{Cosignature signatures are not included because they can only have a single value given a specific public key and payload.}.
 This ensures that \field{TransactionsHash} reflects all cosignatures that allowed the confirmation of an aggregate transaction.

@@ -38,7 +38,7 @@ This necessarily leads to a computational arms race and uses a lot of electricit
 Proof of Stake (PoS)\cite{King:2012:PPP}\cite{Nxt2013} blockchains were introduced after Bitcoin.
 They presented an alternative solution to the Byzantine consensus problem that did not require significant power consumption.
 Fundamentally, these chains behaved similarly to Bitcoin with one important difference.
-Instead of predicating the probability of creating a block on a node's relative hash rate the probability is based on a node's relative stake in the network.
+Instead of predicating the probability of creating a block on a node's relative hash rate, the probability is based on a node's relative stake in the network.
 Since richer accounts are able to produce more blocks than poorer accounts, this scheme tends to allow the rich to get richer.
 
 \codenamespace uses a modified version of PoS that attempts to award \emph{users} preferentially relative to \emph{hoarders}.
@@ -49,9 +49,9 @@ All else equal, accounts with larger stakes making more transactions and running
 Firstly, accounts with larger balances have larger stakes in the network and have greater incentives to see the ecosystem as a whole succeed.
 The amount of the currency an account owns is a measure of its stake.
 Secondly, accounts should be encouraged to use the network by making transactions.
-Network usage can be approximated by the total amount of fees paid by an account.
+Network usage can be approximated by the total amount of transaction fees paid by an account.
 Thirdly, accounts should be encouraged to run nodes to strengthen the network.
-This can approximated by the number of times an account is the beneficiary of a block
+This can be approximated by the number of times an account is the beneficiary of a block
 \footnote{
 	This measure is strongly correlated with stake when all accounts are actively running nodes.
 	Its intent is to differentiate accounts running nodes from accounts idling.
@@ -103,7 +103,7 @@ The transaction score for account $A$ is calculated for each eligible account as
 \index{score!node}
 
 The node score, $N_A$, for an account $A$ is the percentage of times it has been specified as a beneficiary relative to the total number of high value account beneficiaries within a time period $P$.
-Let $\mathfunc{BeneficiaryCount}{A}$represent the number of times $A$ has been specified as a beneficiary in the time period $P$.
+Let $\mathfunc{BeneficiaryCount}{A}$ represent the number of times $A$ has been specified as a beneficiary in the time period $P$.
 The node score for account $A$ is calculated for each eligible account as follows:
 
 \begin{equation}
@@ -247,7 +247,7 @@ This implies that the virtual nodes are running on a strong physical server, whi
 \subsubsection*{Boosting Transaction Score}
 
 The transaction score is solely based on fees.
-There is no difference between one huge account spending $X$ on fees and $N$ smaller accounts each spending $\frac{X}{N}$ on fees.
+There is no difference between one huge account spending $X$ on fees and $N$ smaller accounts, each spending $\frac{X}{N}$ on fees.
 For emphasis:
 
 \begin{equation}
@@ -264,7 +264,7 @@ There are two variations of this attack.
 
 In the first variation, all harvesters except the attacker harvest on all forks.
 Simplifying the description to assume a binary fork, the attacker would submit a payment to one branch and immediately start harvesting on the other branch.
-Assuming the attacker has sufficient importance to harvest blocks, eventually the branch without the attacker's payment will become the reference chain because it will have a a higher score
+Assuming the attacker has sufficient importance to harvest blocks, eventually the branch without the attacker's payment will become the reference chain because it will have a higher score
 \footnote{This assumes that there is only a single attacker or all attackers collude to withhold harvesting from the same branch.}.
 The attacker's payment is not included in this branch, so the attacker's funds are effectively returned.
 
@@ -301,7 +301,7 @@ Since the attacker can't know all the blocks that will be confirmed in the inter
 A \emph{fee attack} is an attempt by an attacker to exploit the transaction score by paying large fees in order to boost its own importance.
 The attack is considered effective if it yields a positive expected value.
 
-The analysis in this section will be performed using recommended public network settings.
+The analysis in this section will be performed using the recommended public network settings.
 These include \nemsetting{network}{totalChainImportance} equal to 9 billion, \nemsetting{network}{importanceGrouping} equal to 359 blocks and \nemsetting{minHarvesterBalance} equal to 10000 currency.
 Additionally, \nemsetting{network}{importanceActivityPercentage} is 5, so the cumulative transaction score \nemrefparens{sec:consensus:weighting:transaction} accounts for 4\% of importance.
 
@@ -356,7 +356,7 @@ These fees are lost to other harvesters because the probability of the account h
 The high fees paid boost the account’s importance enough so that it is able to harvest at least one block per importance recalculation interval.
 From this point forward, the account behaves like the large account in the previous section.
 It will also add a transaction with a high fee to one of its own harvested blocks each recalculation interval.
-The account hopes that due to the increased probability of harvesting a block, its additional collected fees will exceed its costs.
+The account owner hopes that due to the increased probability of harvesting a block, its additional collected fees will exceed its costs.
 
 \begin{figure}[H]
 	\nemcenterwithcaption{
@@ -421,7 +421,7 @@ As more accounts attempt it, the importance boost obtained by each individual ac
 }.
 
 Additionally, there is an upper limit on the number of small accounts that can execute this attack simultaneously.
-In order for this attack to be successful, an account needs to be able to to harvest at least one block per importance recalculation interval.
+In order for this attack to be successful, an account needs to be able to harvest at least one block per importance recalculation interval.
 This presupposes the small account can boost its importance score by exploiting the transaction score component.
 There is a theoretical limit on the number of accounts that can achieve a significant enough boost because both the importance allotted to the transaction score and the recalculation interval are finite.
 Considering the recommended public network settings, this limit is approximately $0.04 \div \frac{1}{359} \approx 14.36$ accounts.

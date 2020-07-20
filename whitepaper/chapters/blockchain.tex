@@ -22,7 +22,7 @@ The difficulty for a new block is derived from the difficulties and timestamps o
 The number of blocks taken into consideration is configurable per-network.
 
 If less than \nemsetting{network}{maxDifficultyBlocks} are available, only those available are taken into account.
-Otherwise, the difficulty is calculated from the last $n$ blocks in the following way:
+Otherwise, the difficulty is calculated from the last \nemsetting{network}{maxDifficultyBlocks} blocks in the following way:
 \begin{align*}
 	\tag{average difficulty} d &= \frac{1}{n}\sum_{i=1}^n (\text{difficulty of $block_i$}) \\
 	\tag{average creation time} t &= \frac{1}{n}\sum_{i=1}^n (\text{time to create $block_i$}) \\
@@ -120,13 +120,13 @@ The specific algorithm used to select transactions for inclusion in harvested bl
 	}
 	\item{\texttt{maximize-fee}: \\
 		Transactions are selected in such a way that the cumulative fee for all transactions in a block is maximized.
-		A greedy node will pick this strategy.
+		A profit-optimizing node will pick this strategy.
 		Maximizing the total block fee does not necessarily mean that the number of transactions included is maximized as well.
 		In fact, in many cases, the harvester will only include a subset of the transactions that are available.
 	}
 	\item{\texttt{minimize-fee}: \\
 		Transactions with the lowest maximum fee multipliers are selected first by this strategy.
-		Generous nodes will pick this strategy together with a very low \nemsetting{node}{minFeeMultiplier}.
+		Altruistic nodes will pick this strategy together with a very low \nemsetting{node}{minFeeMultiplier}.
 		If this setting is zero, then the harvester will include transactions with zero fees first.
 		This allows users to send transactions that get included in the blockchain for free!
 		In practice, it is likely that only a few nodes will support this.
@@ -137,7 +137,7 @@ The specific algorithm used to select transactions for inclusion in harvested bl
 Transactions can initiate transfers of both static and dynamic amounts.
 Static amounts are fixed and independent of external factors.
 For example, the amount specified in a transfer transaction\nemtechdocsfootnote{concepts/transfer-transaction.html} is static.
-The exact amount specified is always transfered from sender to recipient.
+The exact amount specified is always transferred from sender to recipient.
 In contrast, dynamic amounts are variable relative to the average transaction cost.
 These are typically reserved for fees paid to acquire unique network artifacts, like namespaces or mosaics.
 For such artifacts, a flat fee is undesirable because it would be unresponsive to the market.
@@ -190,7 +190,7 @@ The target is calculated as follows
 If enabled, $multiplier$ above is calculated in the following way
 \footnote{
 	The implementation uses fixed point instead of floating point arithmetic in order to avoid any problems due to rounding.
-	Specificaly, 128-bit fixed point numbers are used where the 112 high bits represent the integer part and the 16 low bits represent the decimal part.
+	Specifically, 128-bit fixed point numbers are used where the 112 high bits represent the integer part and the 16 low bits represent the decimal part.
 	\texttt{log2(e)} is approximated as \texttt{14426950408 / 10000000000}.
 	If the calculated \field{power} is too negative, \field{smoothing} will be set to zero.
 }:
@@ -236,7 +236,7 @@ Also note that $\mathvar{hit}$ has an exponential distribution. Therefore, the p
 
 When \nemsetting{user}{enableDelegatedHarvestersAutoDetection} is set, the server allows other accounts to register as delegated harvesters via special transfer messages.
 The server inspects all transfer messages sent to its \nemsetting{user}{bootPrivateKey} account.
-Each message that begins with the magic bytes \texttt{0x98E5BF64C771CCFE} is written out to a file queue for further processing.
+Each message that begins with the magic bytes \texttt{0xE201735761802AFE} is written out to a file queue for further processing.
 
 Periodically, a scheduled task inspects all queued messages.
 Each message is expected to contain a private key for a candidate delegated harvester\footnote{
@@ -305,7 +305,7 @@ Otherwise, the changes specified by the notification are made to the in memory b
 This sequence allows transactions in a block to be dependent on changes made by previous transactions in the same block.
 
 After all notifications produced by a block are processed, the \field{ReceiptsHash} \nemrefparens{sec:blocks:receiptshash} and \field{StateHash} \nemrefparens{sec:blocks:statehash} fields are calculated and checked for correctness.
-Importantly, when \nemsetting{network}{enableVerifiableState} is enabled, this is the point at which all state patricia trees get updated.
+Importantly, when \nemsetting{network}{enableVerifiableState} is enabled, this is the point at which all state Patricia trees get updated.
 
 \subsubsection*{Rollback}
 

@@ -1,7 +1,7 @@
 Symbol whitepaper repository
 ============================
 
-[![Build Status](https://travis-ci.org/nemtech/catapult-whitepaper.svg?branch=master)](https://travis-ci.org/nemtech/catapult-whitepaper)
+[![Build Status](https://travis-ci.com/nemtech/catapult-whitepaper.svg?branch=master)](https://travis-ci.com/nemtech/catapult-whitepaper)
 
 In math and text mode:
  * Use `\nemsetting` to refer to configuration variables

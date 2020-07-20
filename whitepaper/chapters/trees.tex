@@ -24,7 +24,7 @@ Patricia trees allow a client to cryptographically confirm the existence or non-
 
 \subsection{Merkle Tree}
 
-A Merkle Tree\cite{Merkle1988} is a tree of hashes that allows efficient existence proofs.
+A Merkle tree\cite{Merkle1988} is a tree of hashes that allows efficient existence proofs.
 Within \codename, all basic merkle trees are constrained to being balanced and binary.
 Each leaf node contains a hash of some data.
 Each non-leaf node is constructed by hashing the hashes stored in child nodes.
@@ -85,13 +85,13 @@ In order to prove the existence of $B$, a client must:
 	\item{Obtain $H_{Root}$; in \codename, this is stored in the block header.}
 	\item{Request $\hf(A), H_{CD}, H_{EE^2}$.}
 	\item{Calculate $H_{Root'} = \hf(\hf(\hf(\hf(A), \hf(B)), H_{CD}), H_{EE^2})$.}
-	\item{Compare $H_{Root}$ and $H_{Root'}$; if they match $\hf(B)$ must be stored in the tree.}
+	\item{Compare $H_{Root}$ and $H_{Root'}$; if they match, $\hf(B)$ must be stored in the tree.}
 \end{enumerate}
 
 \subsection{Patricia Tree}
 \label{sec:trees:patricia}
 
-A patricia tree\cite{Morrison1968} is a deterministically ordered tree.
+A Patricia tree\cite{Morrison1968} is a deterministically ordered tree.
 It is constructed from key value pairs, and supports both existence and non-existence proofs requiring only $\log(N)$ hashes.
 Non-existence proofs are possible because this tree is deterministically sorted by keys.
 The application of the same data, in any order, will always result in the same tree.
@@ -102,7 +102,7 @@ All keys within a single tree are required to have the same length, which allows
 For illustration, consider the following key value pairs in \autoref{tab:trees:exampleData}.
 Some examples will use ASCII keys to more clearly elucidate concepts, while others will use hex keys to more accurately depict \codenamespace implementations.
 
-\autoref{fig:trees:asciiExpanded} depicts a full patricia tree where each letter is represented by a separate node.
+\autoref{fig:trees:asciiExpanded} depicts a full Patricia tree where each letter is represented by a separate node.
 Although this tree is logically correct, it is quite expansive and uses a lot of memory.
 A typical key is a 32 byte hash value, which implies that storing a single value could require up to 64 nodes.
 In order to work around this limitation, successive empty branch nodes can be collapsed into either a branch node with at least two connections or a leaf node.
@@ -147,7 +147,7 @@ This leads to a different but more compact tree, as depicted in \autoref{fig:tre
 					}
 				}
 			};
-	}{Conceptual (expanded) patricia tree composed of four data items
+	}{Conceptual (expanded) Patricia tree composed of four data items
 	}{asciiExpanded}
 \end{figure}
 
@@ -172,13 +172,12 @@ This leads to a different but more compact tree, as depicted in \autoref{fig:tre
 
 \subsection{Merkle Patricia Tree}
 
-A merkle patricia tree is a combination of merkle and patricia trees.
+A Merkle Patricia tree is a combination of Merkle and Patricia trees.
 The \codenamespace implementation centers around two types of nodes: leaf nodes and branch nodes.
 Each leaf node contains a hash of some data.
 Each branch node contains up to sixteen pointers to child nodes.
 
-Like in a basic merkle tree, each merkle patricia tree has a root hash.
-Unlike in a basic merkle tree, the hashes stored in the tree are a bit more complex.
+Like in a basic Merkle tree, each Merkle Patricia tree has a root hash, but the hashes stored in the Merkle Patricia tree are slightly more complex.
 
 Every node in the tree has a tree node path.
 This path is composed of a sentinel nibble followed by zero or more path nibbles.
@@ -273,14 +272,14 @@ This is depicted in \autoref{fig:trees:hexCompact}.
 			\path (646F67) -- (646F6765) node [red, above, pos=0.5] {{\texttt{6}}};
 		\end{scope}
 	}{
-		Realistic patricia tree with branch and leaf nodes and all optimizations.
+		Realistic Patricia tree with branch and leaf nodes and all optimizations.
 		Path to $mascot$ [\texttt{646F6765}] is highlighted.
 	}{hexCompact}
 \end{figure}
 
 \subsection{Merkle Patricia Tree Proofs}
 
-A merkle proof for existence requires a single node from each level of the tree.
+A Merkle proof for existence requires a single node from each level of the tree.
 In order to prove the existence of $\{key = \texttt{646F6765}, value = \hf(mascot)\}$, a client must:
 \begin{enumerate}
 	\item{Calculate $\hf(mascot)$ (remember, all leaf values are hashes).}
@@ -291,7 +290,7 @@ In order to prove the existence of $\{key = \texttt{646F6765}, value = \hf(masco
 	\item{Existence is proven if all calculated and actual hashes match.}
 \end{enumerate}
 
-A merkle proof for non-existence requires a single node from each level of the tree.
+A Merkle proof for non-existence requires a single node from each level of the tree.
 In order to prove the non-existence of $\{key = \texttt{646F6764}, value = \hf(mascot)\}$, a client must:
 \begin{enumerate}
 	\item{Calculate $\hf(mascot)$ (remember, all leaf values are hashes).}

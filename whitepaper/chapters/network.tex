@@ -27,7 +27,7 @@ The former is preferred for public networks.
 
 A freshly booted node is initially isolated and not connected with any peers.
 It needs to join a network before it can make any meaningful contributions, like validating or harvesting blocks.
-In \codename, nominally \emph{static}\index{node!static} beacon nodes are stored in a peers configuration file.
+In \codename, a list of \emph{static}\index{node!static} beacon nodes are stored in a peers configuration file.
 In order to join a network, a new node first connects to these nodes.
 These files don't need to be identical across all nodes in a network.
 
@@ -60,7 +60,7 @@ Partner nodes use this verified identity to collate reputation \nemrefparens{sec
 \footnote{In the public network, nodes are primarily identified by their resolved IP.}.
 
 Potential vulnerabilities in the \codenamespace proprietary handshake protocol have been identified by penetration testing.
-In light of these, the protocol needs to undergo a more thorough review and potential changes.
+In light of these, the protocol needs to undergo a more thorough review and potential changes before the public release.
 This section will be updated once a corrective plan is prepared.
 
 \subsection{Packets}
@@ -111,7 +111,7 @@ If no matching handler is available, the connection is closed immediately.
 
 The \nemsetting{node}{maxIncomingConnectionsPerIdentity} limit is applied across all services and long and short lived connections.
 Any incoming connections above this limit will be immediately closed.
-This limit can be hit when multiple short lived connections are initiated with the same remote for different operations.
+This limit can be hit when multiple short lived connections are initiated with the same remote node for different operations.
 This is more likely when connection tasks are more aggressively scheduled immediately after a node boots up.
 These errors are typically transient and can be safely ignored if they don't persist.
 
@@ -160,7 +160,7 @@ Possible provenances, ranked from best to worst are:
 	\item{Dynamic Incoming - Node has made a connection but does not support connections.}
 \end{enumerate}
 
-It is important to note that the distinguishing characteristic of a \emph{static} node is that it appears in at least one peers configuration file.
+It is important to note that the distinguishing characteristic of a \emph{static} node is that it is listed in at least one peers configuration file.
 Excepting the \emph{local} node, all other nodes are \emph{dynamic}\index{node!dynamic}.
 A subset of dynamic nodes are \emph{incoming}.
 These nodes have only been seen in incoming but not outgoing connections.
