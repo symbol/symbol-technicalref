@@ -5,7 +5,7 @@
 Time and Tide wait for no man.
 }{Geoffrey Chaucer}
 
-\nemchapterfirstletter{L}{ike} most other blockchains, \codenamespace relies on timestamps for transactions and blocks.
+\nemchapterfirstletter{L}{ike} most other blockchains, \codenamespace relies on timestamps for the ordering of transactions and blocks.
 Ideally, all nodes in the network should be synchronized with respect to time.
 Even though most modern operating systems have time synchronization integrated,
 nodes can still have local clocks that deviate from real time by more than a minute.
@@ -14,7 +14,7 @@ This causes those nodes to reject valid transactions or blocks, which makes it i
 It is therefore needed to have a synchronization mechanism to ensure all nodes agree on time.
 There are basically two ways to do this:
 \begin{enumerate}
-	\item{Use an existing protocol, such as NTP.}
+	\item{Use an existing protocol, such as NTP\footnote{\url{https://en.wikipedia.org/wiki/Network_Time_Protocol}}.}
 	\item{Use a custom protocol.}
 \end{enumerate}
 

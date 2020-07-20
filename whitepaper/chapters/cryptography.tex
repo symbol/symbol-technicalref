@@ -9,10 +9,12 @@ I understood the importance in principle of public key cryptography but it's all
 \codenamespace uses cryptography based on Elliptic Curve Cryptography (ECC).
 The choice of the underlying curve is important in order to guarantee security and speed.
 
-The specific curve being used is the \emph{Twisted Edwards curve}:
+\codenamespace uses the Ed25519\index{Ed25519} digital signature algorithm.
+This algorithm uses the following \emph{Twisted Edwards curve}:
 $$ -x^2 + y^2 = 1 - \frac{121665}{121666} x^2 y^2$$
-over the finite field defined by the prime number $2^{255}-19$ together with the digital signature algorithm called Ed25519\index{Ed25519}.
-The base point for the corresponding group G is called B. The group has $q=2^{252} + 27742317777372353535851937790883648493$ elements.
+over the finite field defined by the prime number $2^{255}-19$.
+The base point for the corresponding group G is called B.
+The group has $q=2^{252} + 27742317777372353535851937790883648493$ elements.
 It was developed by D. J. Bernstein et al. and is one of the safest and fastest digital signature algorithms \cite{Bernstein2011}.
 For the hash function $H$ mentioned in the paper, \codenamespace uses the 512-bit SHA3 hash function.
 

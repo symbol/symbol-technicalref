@@ -16,6 +16,8 @@ Aggregate transactions are containers of one or more transactions that may requi
 Aggregate transactions allow basic transactions to be combined into potentially complex operations and executed atomically.
 This increases developer flexibility relative to a system that only guarantees atomicity for individual operations while still constraining the global set of operations allowed to a finite set.
 It does not require the introduction of a Turing-complete language and all of its inherent disadvantages.
+Developers do not need to learn any new languages nor develop bespoke contract implementations from scratch.
+The composition of transactions should be less error-prone and lead to fewer bugs than implementing computationally complete programs.
 
 \subsection{Basic Transaction}
 
@@ -64,6 +66,8 @@ Please refer to the published schemas for the most up to date specifications.
 		\end{subfigure}
 	}{Basic transaction binary layout}
 \end{figure}
+
+In figures, \texttt{(V)ersion}, \texttt{(N)etwork} and \texttt{(T)ype} are abbreviated due to space concerns.
 
 \subsection{Aggregate Transaction}
 \label{sec:transactions:aggregate}

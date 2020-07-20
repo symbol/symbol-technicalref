@@ -41,8 +41,8 @@ Fundamentally, these chains behaved similarly to Bitcoin with one important diff
 Instead of predicating the probability of creating a block on a node's relative hash rate the probability is based on a node's relative stake in the network.
 Since richer accounts are able to produce more blocks than poorer accounts, this scheme tends to allow the rich to get richer.
 
-\codenamespace uses a modified version of PoS that borrows key concepts from Proof of Importance (PoI).
-This new weighting attempts to capture the original intent of PoI, which was to award \emph{users} preferentially relative to \emph{hoarders}, but not suffer from the scaling issues inherent in the original PoI algorithm.
+\codenamespace uses a modified version of PoS that attempts to award \emph{users} preferentially relative to \emph{hoarders}.
+It strives to calculate a holistic score of an account's importance without sacrificing performance and scalability.
 
 There are multiple factors that contribute to a healthy ecosystem.
 All else equal, accounts with larger stakes making more transactions and running nodes have more skin in the game and should be rewarded accordingly.
@@ -74,7 +74,11 @@ All accounts that have a balance of at least \nemsetting{network}{minHarvesterBa
 Notice that this set of accounts is a superset of the set of accounts eligible for block generation \nemrefparens{sec:blockchain:generation}.
 In other words, a nonzero importance at the most recent importance recalculation is a necessary but not sufficient condition for block generation.
 
+\index{score!importance}
+
 An account's \emph{importance score} is calculated by combining three component scores: stake, transaction and node.
+
+\index{score!stake}
 
 The stake score, $S_A$, for an account $A$ is the percentage of currency it owns relative to the total currency owned by all high value accounts.
 This percentage is no less than the percentage of currency the account owns relative to all outstanding currency.
@@ -85,6 +89,9 @@ The stake score for account $A$ is calculated for each eligible account as follo
 	S_A = \frac{B_A}{\sum\limits_{\substack{a \in \mathname{high value accounts}}} B_a}
 \end{equation}
 
+\index{score!transaction}
+\label{sec:consensus:weighting:transaction}
+
 The transaction score, $T_A$, for an account $A$ is the percentage of transaction fees it has paid relative to all fees paid by high value accounts within a time period $P$.
 Let $\mathfunc{FeesPaid}{A}$ represent the amount of fees paid by $A$ in the time period $P$.
 The transaction score for account $A$ is calculated for each eligible account as follows:
@@ -92,6 +99,8 @@ The transaction score for account $A$ is calculated for each eligible account as
 \begin{equation}
 	T_A = \frac{\mathfunc{FeesPaid}(A)}{\sum\limits_{\substack{a \in \mathname{high value accounts}}} \mathfunc{FeesPaid}(a)}
 \end{equation}
+
+\index{score!node}
 
 The node score, $N_A$, for an account $A$ is the percentage of times it has been specified as a beneficiary relative to the total number of high value account beneficiaries within a time period $P$.
 Let $\mathfunc{BeneficiaryCount}{A}$represent the number of times $A$ has been specified as a beneficiary in the time period $P$.
@@ -294,7 +303,7 @@ The attack is considered effective if it yields a positive expected value.
 
 The analysis in this section will be performed using recommended public network settings.
 These include \nemsetting{network}{totalChainImportance} equal to 9 billion, \nemsetting{network}{importanceGrouping} equal to 359 blocks and \nemsetting{minHarvesterBalance} equal to 10000 currency.
-Additionally, \nemsetting{network}{importanceActivityPercentage} is 5, so the cumulative transaction score accounts for 4\% of importance.
+Additionally, \nemsetting{network}{importanceActivityPercentage} is 5, so the cumulative transaction score \nemrefparens{sec:consensus:weighting:transaction} accounts for 4\% of importance.
 
 \subsubsection*{Large Account}
 

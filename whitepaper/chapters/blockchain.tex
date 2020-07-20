@@ -33,6 +33,9 @@ This algorithm produces blocks with an average time close to the desired \nemset
 
 If the new difficulty is more than 5\% larger or smaller than the difficulty of the last block, then the change is capped to 5\%.
 The maximum change rate of 5\% per block makes it hard for an attacker with considerably less than 50\% importance to create a better chain in secret.
+Since difficulty is roughly correlated with the total amount of importance currently harvesting, the attacker's secret chain will necessarily have a much lower difficulty.
+Limiting the maximum difficulty decrease per block means the attacker's chain will quickly fall behind the main chain.
+By the time the difficulty adjusts to something more proportional to the attacker's importance, the main chain will be far ahead.
 Block times will be considerably higher than \nemsetting{network}{blockGenerationTargetTime} at the beginning of the attacker's secret chain.
 
 \begin{figure}
@@ -133,7 +136,7 @@ The specific algorithm used to select transactions for inclusion in harvested bl
 
 Transactions can initiate transfers of both static and dynamic amounts.
 Static amounts are fixed and independent of external factors.
-For example, the amount specified in a transfer transaction is static.
+For example, the amount specified in a transfer transaction\nemtechdocsfootnote{concepts/transfer-transaction.html} is static.
 The exact amount specified is always transfered from sender to recipient.
 In contrast, dynamic amounts are variable relative to the average transaction cost.
 These are typically reserved for fees paid to acquire unique network artifacts, like namespaces or mosaics.

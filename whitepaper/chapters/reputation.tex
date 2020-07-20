@@ -15,6 +15,9 @@ There is a need to identify hostile nodes and reduce communication with them.
 There have been many approaches to achieve this.
 One of the most successful is building a reputation system for nodes.
 \codenamespace follows this approach by implementing a simple reputation system.
+This system attempts to prioritize connections to well-behaved nodes over those to misbehaving nodes.
+Importantly, reputation doesn't affect the blockchain consensus at all.
+It only influences the network graph.
 This chapter will outline the heuristics used.
 
 \subsection{Connection Management}
@@ -157,7 +160,8 @@ The same is true for other verification failures that do not depend on the state
 In all those cases, the remote node gets banned.
 
 \subsubsection*{Exceeded Read Data Rate}
-To prevent malicious nodes from spamming other nodes with excessive amounts of data, each node monitors the read rate from the socket used for communication.
+Each node monitors the read rates of all sockets accepting data from peers.
+This allows a node to detect when a faulty peer is producing an unexpected amount of data.
 If the data read during a configured time interval exceeds a maximum, the socket is closed and the node is banned.
 The maximum read rate is configurable.
 

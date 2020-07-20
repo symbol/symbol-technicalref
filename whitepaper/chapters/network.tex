@@ -15,6 +15,14 @@ Private networks can restrict the nodes that are allowed to join and behave as a
 }.
 \codenamespace is flexible enough to even allow private networks to specify all node relationships via configuration files.
 
+\codenamespace supports a configurable node identification policy configured by \nemsetting{network}{nodeEqualityStrategy}.
+Valid policies allow identifying a node by either its \emph{resolved IP} (\texttt{host})
+\footnote{
+	A node's resolved IP is only broadcast to other nodes when it doesn't specify a hostname.
+	Hostnames are preferentially propagated in order to support nodes with dynamic IPs.
+} or \emph{public boot key} (\texttt{public-key}).
+The former is preferred for public networks.
+
 \subsection{Beacon Nodes}
 
 A freshly booted node is initially isolated and not connected with any peers.
@@ -25,6 +33,8 @@ These files don't need to be identical across all nodes in a network.
 
 A public network is recommended to specify a set of high availability beacon node candidates.
 Each node's peers configuration file should contain a random subset of these nodes.
+The random subset can be selected once before connecting to the network for the first time or more frequently before every boot.
+The important thing is that beacon nodes are well distributed.
 This reduces stress on individual beacon nodes and makes DoS attacks on beacon nodes more difficult.
 These nodes are given slight preference in node selection \nemrefparens{sec:reputation:NodeSelection} relative to non-beacon nodes because they are assumed to have high-availability.
 They aren't conferred any other special privileges or responsibilities.
@@ -107,8 +117,8 @@ These errors are typically transient and can be safely ignored if they don't per
 
 Writer connections are more active and used to send data to other nodes.
 \emph{Broadcast} operations push data to all active and available writers.
-Additionally, individual writers can be checked out and be used for request/response protocols.
-In order to simplify recipient processing, no broadcast packets are sent to checked out writers.
+Additionally, writers can be selected individually and used for request/response protocols.
+In order to simplify recipient processing, writers participating in an ongoing request/response protocol are not sent broadcast packets.
 
 Service identifiers are only assigned to long lived connections.
 Sync service is used to manage outgoing connections to nodes with \texttt{Peer} role.
@@ -171,14 +181,6 @@ When there is an ambiguous match, data with the matching primary identity compon
 
 \subsection{Node Discovery}
 \label{sec:network:discovery}
-
-\codenamespace supports a configurable node identification policy configured by \nemsetting{network}{nodeEqualityStrategy}.
-Valid policies allow identifying a node by either its \emph{resolved IP} (\texttt{host})
-\footnote{
-	A node's resolved IP is only broadcast to other nodes when it doesn't specify a hostname.
-	Hostnames are preferentially propagated in order to support nodes with dynamic IPs.
-}or \emph{public boot key} (\texttt{public-key}).
-The former is preferred for public networks.
 
 After starting up, a node attempts to make short lived connections to all static nodes it has loaded from its peers configuration files.
 These connections are primarily intended to retrieve the resolved IP addresses of all static nodes.
