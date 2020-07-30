@@ -1,6 +1,6 @@
 # Symbol Whitepaper
 
-[![Build Status](https://travis-ci.com/nemtech/catapult-whitepaper.svg?branch=master)](https://travis-ci.com/nemtech/catapult-whitepaper)
+[![Build Status](https://travis-ci.com/nemtech/catapult-whitepaper.svg?branch=main)](https://travis-ci.com/nemtech/catapult-whitepaper)
 
 This repository holds Symbol's technology reference documentation for technical audiences.
 

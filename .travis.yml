@@ -27,4 +27,4 @@ deploy:
     github_token: $GITHUB_TOKEN
     local_dir: _build
     on:
-      branch: master
+      branch: main
