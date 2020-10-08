@@ -231,6 +231,11 @@ Stateless validation is skipped because it was performed by previous consumers.
 If there are any validation failures, the entire chain part is rejected.
 Otherwise, all changes are committed to the chain state (both the block and cache storages) and the unconfirmed transactions cache is updated.
 
+Finally, this consumer determines the last finalized block, which is the newest block that cannot be rolled back.
+When probablistic finalization is enabled, the last finalized block is \nemsetting{network}{maxRollbackBlocks} blocks before the last block.
+When deterministic finalization is enabled, the last finalized block is the block referenced in the last finalization proof.
+The consumer prunes the global blockchain state of any and all data that is only needed to enable rollbacks to blocks before the last finalized block.
+
 \emph{This consumer is the only part of the \codenamespace system that modifies the chain state and needs write access to it.}
 
 \subsubsection*{Blockchain Sync Cleanup Consumer}

@@ -72,11 +72,12 @@ Since SHA3\_256 offers 128 bits of security, it is mathematically improbable for
 Due to similarities between \codenamespace addresses and Bitcoin addresses, the probability of causing a \codenamespace address collision is roughly the same as that of causing a Bitcoin address collision.
 
 \subsection{Public Keys}
+\label{sec:accounts:keys}
 
 An account is associated with zero or more public keys. The supported types of keys are:
 \begin{enumerate}
 	\item{signing: \\
-		An ED25519 public key that is used for signing and verifying data.
+		ED25519 public key that is used for signing and verifying data.
 		Any account can receive data, but only accounts with this public key can send data.
 		This public key is the only one used as input into an account's address calculation.
 	}
@@ -98,10 +99,14 @@ An account is associated with zero or more public keys. The supported types of k
 		An honest node owner should only ever remote harvest with a remote harvester private key that is \emph{currently} linked to its node public key
 	}
 	\item{VRF: \\
-		An ED25519 public key that is used for generating and verifying random values.
+		ED25519 public key that is used for generating and verifying random values.
 		This public key must be set on a \field{Main} account in order for the account to be eligible to harvest.
 	}
 	\item{voting: \\
-		Placeholder that will be used for finalization.
+		BLS public key that is used for signing and verifying finalization messages.
+		All voting keys are temporary and must be registered with both a start and end epoch.
+		This public key must be set on a \field{Main} account in order for the account to be eligible to vote.
+		It is only valid when the current epoch is within its registered range.
+		In order to allow a seamless switchover of keys, an account can have at most \nemsetting{network}{maxVotingKeysPerAccount} voting keys registered at once.
 	}
 \end{enumerate}

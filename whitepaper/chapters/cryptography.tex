@@ -21,8 +21,10 @@ Importantly for \codenamespace purposes, the algorithm produces short 64-byte si
 Neither key generation nor signing is used during block processing, so the speed of these operations is unimportant.
 
 \subsection{Public/Private Key Pair}
+\index{key!private}
+\index{key!public}
 
-A \nind{private key} is a random 256-bit integer $k$. To derive the public key\index{public key} \underline{A} from it, the following steps are taken:
+A \emph{private key} is a random 256-bit integer $k$. To derive the public key\emph{public key} \underline{A} from it, the following steps are taken:
 \begin{align}
 	\hf(k) &=(h_0, h_1, \ldots, h_{511}) \\
 	a &= 2^{254} + \sum_{3\leq i \leq 253} 2^i h_i \\
@@ -122,3 +124,109 @@ A proof hash, also called a VRF hash output, can be derived from $\gamma$ of a \
 \begin{align}
 	\mathvar{proof\_hash} &= \mathfunc{IetfHash}(3, 3, 8 \gamma) \label{eq:cryptography:proofHash}
 \end{align}
+
+\subsection{Voting Key Tree}
+\label{sec:cryptography:voting}
+\index{tree!BM (Bellare-Miner)}
+\index{BM tree|see {tree, BM (Bellare-Miner)}}
+
+Finalization voters are required to specify the range of epochs in which a root voting key is eligible to vote.
+Prior to announcing a root voting key, voters are required to build a voting key tree that contains epoch-pinned voting keys.
+The tree construction is roughly based on Bellare-Miner \cite{BellareMiner1999} construction.
+
+A two-level tree is used in the current implementation.
+The amount of keys in the lowest level is dependent on the \nemsetting{finalization}{votingKeyDilution} setting\footnote{
+	This setting must be the same across all network nodes.
+}.
+
+\newcommand{\key}[1]{ node { $sk_{#1}$ \\ $pk_{#1}$ \\ $sig_{#1}$ } }
+\begin{figure}[h]
+	\nemcenterwithcaption{
+		\begin{tikzpicture}[font=\small,every node/.style = {shape=rectangle, rounded corners, draw, align=center}]]
+		\tikzset{
+			used/.style = { text=gray!30 },
+			unused/.style = { text=black },
+		}
+		\tikzstyle{level 1}=[level distance=10em]
+		\tikzstyle{level 2}=[level distance=6em]
+		\node { root voting public key }
+			child [used, sibling distance=15em] { \key{b_1}
+				child [sibling distance=4em] { \key{b_{1,0}} }
+				child [sibling distance=4em] { \key{b_{1,1}} }
+				child [unused, sibling distance=1.5em] { node[draw=none] { \ldots } }
+				child [sibling distance=3em] { \key{b_{1,d-1}} }
+			}
+			child [used, sibling distance=15em] { \key{b_2}
+				child [used, sibling distance=4em] { \key{b_{2,0}} }
+				child [unused, sibling distance=4em] { \key{b_{2,1}} }
+				child [unused, sibling distance=1.5em] { node[draw=none] { \ldots } }
+				child [unused, sibling distance=3em] { \key{b_{2,d-1}} }
+			}
+			child [sibling distance=2em] { node[draw=none] { \vdots } }
+			child [sibling distance=3em] { \key{b_n}
+				child [used] { node { sub-tree \\ not ready } }
+			};
+		\end{tikzpicture}
+	}{Voting key tree with $d := \nemsetting{finalization}{votingKeyDilution}$ }
+\end{figure}
+
+The tree is built by pinning keys to identifiers in the tree. The identifiers in the tree are derived from the epoch.
+\begin{align}
+	i &= \mathfunc{floor}(\mathvar{epoch} / \nemsetting{finalization}{votingKeyDilution}) \\
+	j &= \mathvar{epoch} \bmod \nemsetting{finalization}{votingKeyDilution}
+\end{align}
+
+$i$ is an index into the middle layer of the tree relative to the root.
+$j$ is an index into the bottom layer of the tree relative to the middle layer.
+$b_i$ is an index from the root to the \emph{i} middle layer.
+$b_{i,j}$ is an index from the root to the \emph{i} middle layer and from there to the \emph{j} bottom layer.
+
+The tree is partially built before announcing a voting key link transaction.
+First, the \emph{tree root key pair} is generated.
+The root public key is signed with an account's signing public key as part of the voting key link transaction.
+
+Next, middle-level keys are generated and, for each key pair, the public key is signed with the root key.
+After all middle-level keys are generated, the \emph{root secret key} is discarded.
+\begin{align*}
+	\mathvar{sig}_{b_i} &= \mathfunc{Sign}_{\mathname{root secret key}}(\mathvar{pk}_{b_i} || \mathfunc{IntToBin}(i))
+\end{align*}
+
+When requested, a batch of \nemsetting{finalization}{votingKeyDilution} bottom-level keys are generated in a similar fashion.
+When the batch is generated, the middle-level secret key is discarded.
+\begin{align*}
+	\mathvar{sig}_{b_{i,j}} &= \mathfunc{Sign}_{\mathvar{sk}_{b_i}}(\mathvar{\mathvar{pk}_{b_{i, j}} || \mathfunc{IntToBin}(j) })
+\end{align*}
+
+\index{key!BM tree signing}
+
+Therefore, every \emph{BM tree signing key} is composed of three parts:
+\begin{itemize}
+	\item{top-level: $\mathname{root voting public key}$}
+	\item{middle-level: $(\mathvar{pk}_{b_i}, \mathvar{sig}_{b_i})$}
+	\item{bottom-level: $(\mathvar{sk}_{b_i, j}, \mathvar{pk}_{b_i, j}, \mathvar{sig}_{b_i})$}
+\end{itemize}
+
+A bottom-level key is only valid for a single epoch, and then it is discarded.
+When in use, all the higher level keys that have generated the bottom level key have already been destroyed.
+Using a unique short-term key for each epoch prevents long range attacks revolving around an attacker collecting old and discarded finalization keys.
+
+When signing a voting message for a given epoch, a bottom-level signature is created:
+\begin{align*}
+	\mathvar{sig}_{\mathname{message-i,j}} &= \mathfunc{Sign}_{\mathvar{sk}_{b_{i,j}}}(message)
+\end{align*}
+
+\index{signature!BM tree}
+
+Finally, the signature for a vote in a given epoch - called \emph{BM tree signature} - is composed of three pairs:
+\begin{itemize}
+	\item{$(\mathname{root voting public key}, \mathvar{sig}_{b_i} )$}
+	\item{$(\mathvar{pk}_{b_i}, \mathvar{sig}_{b_{i, j}})$}
+	\item{$(\mathvar{pk}_{b_{i,j}}, \mathvar{sig}_{\mathname{message-i,j}})$}
+\end{itemize}
+
+A \emph{BM tree signature} is considered verified when:
+\begin{itemize}
+	\item{\emph{root voting public key} is registered to participate in the given epoch.}
+	\item{\emph{middle-level} and \emph{bottom-level} keys match epoch.}
+	\item{All component signatures are cryptographically verified.}
+\end{itemize}

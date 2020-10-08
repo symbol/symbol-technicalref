@@ -76,8 +76,14 @@ The score for a block is derived from its difficulty and the time (in seconds) t
 \index{block!generation}
 
 The process of creating new blocks is called \nind{harvesting}.
-The harvesting account gets the fees from the transactions it includes in a block.
+The harvesting account gets most of the fees from the transactions it includes in a block.
 This gives the harvester an incentive to create a valid block and add as many transactions to it as possible.
+
+The fees paid in each block are split into one of three buckets.
+When \nemsetting{network}{harvestBeneficiaryPercentage} is nonzero, that percentage of fees will be credited to the harvester's designated beneficiary.
+When \nemsetting{network}{harvestNetworkPercentage} is nonzero, that percentage of fees will be credited to the network specified \nemsetting{network}{harvestNetworkFeeSinkAddress}.
+This account is intended to allow networks to be self-sustaining and can be used for incentivization programs such as rewarding voting nodes.
+The remainder of fees will be credited to the harvester account.
 
 An account is eligible to harvest if all of the following are true:
 \begin{enumerate}
@@ -312,6 +318,8 @@ Periodically, a local node will ask a remote node about its chain.
 The remote node is selected from a set of partners based on various factors, including reputation \nemrefparens{sec:reputation}.
 
 If the remote node promises a chain with a higher score, the local node attempts to find the last common block by inspecting the hashes provided by remote node.
+When deterministic finalization is enabled, a binary search is performed to find the last common block.
+The search space is all hashes between the last finalized block and the current local height.
 If successful, the remote node will supply as many blocks as settings allow.
 
 If the supplied chain is valid, the local node will replace its own chain with the remote chain.

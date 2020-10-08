@@ -37,23 +37,25 @@ Since a client is usually not interested in every type of blockchain state chang
 			\hline
 			\rule{0pt}{20pt}\textbf{Topic marker name} & \textbf{Topic marker}\\[1.2ex]
 			\hline
-			Block & 0x9FF2D8E480CA6A49\\
+			Block & \texttt{0x9FF2D8E480CA6A49}\\
 			\hline
-			Drop blocks & 0x5C20D68AEE25B0B0\\
+			Drop blocks & \texttt{0x5C20D68AEE25B0B0}\\
 			\hline
-			Transaction & 0x61\\
+			Finalized block & \texttt{0x4D4832A031CE7954}\\
 			\hline
-			Unconfirmed transaction add & 0x75\\
+			Transaction & \texttt{0x61}\\
 			\hline
-			Unconfirmed transaction remove & 0x72\\
+			Unconfirmed transaction add & \texttt{0x75}\\
 			\hline
-			Partial transaction add & 0x70\\
+			Unconfirmed transaction remove & \texttt{0x72}\\
 			\hline
-			Partial transaction remove & 0x71\\
+			Partial transaction add & \texttt{0x70}\\
 			\hline
-			Transaction status & 0x73\\
+			Partial transaction remove & \texttt{0x71}\\
 			\hline
-			Cosignature & 0x63\\
+			Transaction status & \texttt{0x73}\\
+			\hline
+			Cosignature & \texttt{0x63}\\
 			\hline
 		\end{tabular}
 	}{Topic Markers\label{tbl:messaging:topicMarkers}}
@@ -78,6 +80,7 @@ The following block messages are supported:
 \begin{itemize}
 	\item{Block: A new block was added to the chain.}
 	\item{Drop blocks: Blocks after a given height were dropped.}
+	\item{Finalized block: Block has been finalized. Published only when deterministic finalization is enabled.}
 \end{itemize}
 
 \begin{figure}[H]
@@ -90,7 +93,7 @@ The following block messages are supported:
 				\\
 				\nemmemorymultiwordbox{body part 2}{EntityHash}{3} \\
 				\\
-				\nemmemorymultiwordbox{body part 3}{GenerationHash}{3} \\
+				\nemmemorymultiwordbox{body part 3}{GenerationHash}{3}
 			}{Block message layout}
 		\end{subfigure}%
 		\begin{subfigure}{.5\textwidth}
@@ -99,6 +102,16 @@ The following block messages are supported:
 				\\
 				\nemmemorysinglewordbox{body part 1}{Height}
 			}{Drop blocks message layout}
+		\end{subfigure}
+
+		\begin{subfigure}{.5\textwidth}
+			\nemmemorylayout{
+				\nemmemorysinglewordbox{topic part}{\texttt{\small 4D4832A031CE7954}} \\
+				\\
+				\nemmemorysinglewordbox{body part 1 - 0x00}{Round} \\
+				\nemmemorysinglewordbox{body part 1 - 0x08}{Height} \\
+				\nemmemorymultiwordbox{body part 1 - 0x10}{Hash}{3}
+			}{Finalized block message layout}
 		\end{subfigure}
 	}{Block related messages\label{fig:messaging:blockMessages}}
 \end{figure}

@@ -9,10 +9,20 @@ The crownless again shall be king.
 }{J.R.R. Tolkien}
 
 \nemchapterfirstletter{T}{rustless}, high-performance, layered-architecture, blockchain-based DLT protocol - these are the first principles that influenced the development of \codename.
-While other DLT protocols were considered, including DAG and dBFT, blockchain was quickly chosen as the protocol most true to the ideal of trustlessness.
+While a handful of DLT protocols were considered, a blockchain protocol was quickly chosen because it was deemed most true to the ideal of trustlessness.
 Any node can download a complete copy of the chain and can independently verify it at all times.
 Nodes with sufficient harvesting power can always create blocks and never need to rely on a leader.
 These choices necessarily sacrifice some throughput relative to other protocols, but they seem most consistent with the philosophical underpinnings of Bitcoin\cite{nakamoto2009}.
+
+\codenamespace supports both probabilistic and deterministic block finalization.
+Under probabilistic finalization, the probability that any particular block is rolled back decreases as more and more blocks are added - or chained - to it.
+Although the probability might become vanishingly small, it is always nonzero\footnote{
+	When probabilistic finalization is enabled, for performance reasons, at most \nemsetting{network}{maxRollbackBlocks} are allowed to be rolled back.
+	Older blocks are assumed, but not guaranteed, to be finalized because the probability of their rollback is quite low.
+}.
+In contrast, deterministic finalization includes a mechanism in the protocol that allows checkpoints to be set that can never be rolled back.
+This can lead to potentially deep rollbacks but provides stronger assurances.
+In either case, the risk of block rollback and transaction invalidation is assumed by users.
 
 As part of a focus on trustlessness, the following features were added relative to NEM:
 \begin{itemize}

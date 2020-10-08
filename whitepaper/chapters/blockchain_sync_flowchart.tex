@@ -23,27 +23,23 @@
 	% left column
 	\node (start) [startfinish] {Start};
 	\node (remoteScore) [process, below=of start] {Pick connection to partner node; \\ Ask for remote chain info};
-	\node (decHeight) [decision, below=of remoteScore] {Remote height more than \nemsetting{network}{maxRollbackBlocks} behind?};
+	\node (decHeight) [decision, below=of remoteScore] {Remote height behind last finalized height?};
 	\node (finishDecHeight) [finishNeutral, left=of decHeight] {Finish (neutral)};
 
 	\node (decRemoteScore) [decision, below=of decHeight] {Better score?};
 	\node (finishDecRemoteScore) [finishNeutral, left=of decRemoteScore] {Finish (neutral)};
 
-	\node (remoteHashes) [process, below=of decRemoteScore] {Ask for last hashes};
+	\node (remoteHashes) [process, below=of decRemoteScore] {Ask for batch of hashes};
+	\node (decSearchSpace) [decision, right=of remoteHashes] {Is search space exhausted?};
+	\node (finishDecSearchSpace) [finishNegative, right=of decSearchSpace] {Finish (negative)};
 
 	\node (decHashesCount) [decision, below=of remoteHashes] {Remote returned too many hashes?};
 	\node (finishDecHashesCount) [finishNegative, left=of decHashesCount] {Finish (negative)};
-
-	% invisible helper nodes in the middle
-	\node (middleTop) [coord, middleSpacing, right=of remoteScore] {};
-	\node (middleBottom) [coord] at (middleTop |- decHashesCount) {};
+	\node (decHashesCommon) [decision, below=of decSearchSpace] {Can find common hash?};
 
 	% right column
-	\node (decHashesCommon) [decision, right=of middleTop, middleSpacing ] {Can find common hash?};
-	\node (finishDecHashesCommon) [finishNegative, right=of decHashesCommon] {Finish (negative)};
-
-	\node (decHashesScoreLier) [decision, below=of decHashesCommon] {Remote lied about score? (all hashes match)};
-	\node (finishDecHashesScoreLier) [finishNegative, right=of decHashesScoreLier] {Finish (negative)};
+	\node (decHashesScoreLier) [decision, below=of decHashesCount, middleSpacing] {Remote lied about score? (all hashes match)};
+	\node (finishDecHashesScoreLier) [finishNegative, left=of decHashesScoreLier] {Finish (negative)};
 
 	\node (getBlocks) [process, below=of decHashesScoreLier] {Ask for chain};
 	\node (decBlocksOk) [decision, below=of getBlocks] {All blocks returned?};
@@ -62,12 +58,11 @@
 	\draw [arrow] (remoteHashes) -- (decHashesCount);
 	\draw [arrow] (decHashesCount) -- node[anchor=north] {\scriptsize{yes}} (finishDecHashesCount);
 
-	\draw [line] (decHashesCount) -- (middleBottom);
-	\draw [line] (middleBottom) -- node[anchor=east] {\scriptsize{NO}} (middleTop);
-	\draw [arrow] (middleTop) -- (decHashesCommon);
+	\draw [arrow] (decHashesCount.east) -- node[anchor=east] {\scriptsize{NO}} (decHashesCommon.west);
 
-	\draw [arrow] (decHashesCommon) -- node[anchor=north] {\scriptsize{no}} (finishDecHashesCommon);
-	\draw [arrow] (decHashesCommon) -- node[anchor=east] {\scriptsize{YES}} (decHashesScoreLier);
+	\draw [arrow] (decSearchSpace)  -- node[anchor=north] {\scriptsize{no}} (remoteHashes.0);
+
+	\draw [arrow] (decHashesCommon.south) -- node[anchor=north] {\scriptsize{YES}} (decHashesScoreLier.north);
 
 	\draw [arrow] (decHashesScoreLier) -- node[anchor=north] {\scriptsize{yes}} (finishDecHashesScoreLier);
 	\draw [arrow] (decHashesScoreLier) -- node[anchor=east] {\scriptsize{NO}} (getBlocks);
@@ -75,4 +70,7 @@
 	\draw [arrow] (getBlocks) -- (decBlocksOk);
 	\draw (decBlocksOk.0)  edge[arrow, out=0, in=0, looseness=1.5]  node[anchor=west] {\scriptsize{no}} (getBlocks.0);
 	\draw [arrow] (decBlocksOk) -- node[anchor=east] {\scriptsize{YES}} (pushToDisruptor);
+
+	\draw [arrow] (decHashesCommon) -- node[anchor=east] {\scriptsize{no}} (decSearchSpace);
+	\draw [arrow] (decSearchSpace) -- node[anchor=north] {\scriptsize{yes}} (finishDecSearchSpace);
 \end{tikzpicture}

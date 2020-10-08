@@ -190,7 +190,8 @@ There is no rescaling, so the sum of $I_A$ for all high value accounts might be 
 \subsection{Sybil Attack}
 \index{sybil attack}
 
-A \emph{Sybil attack} on a peer-to-peer network occurs when an attacker creates multiple identities in order to gain a disproportionately large influence over the network or some other advantage.
+A \emph{Sybil attack}\footnote{See additional discussion in \nemref{sec:finalization}.} on a peer-to-peer network occurs when an attacker
+creates multiple identities in order to gain a disproportionately large influence over the network or some other advantage.
 In \codename, an attacker might attempt such an attack to boost importance.
 Each component of the importance score needs to be robust against such attacks.
 
@@ -258,7 +259,7 @@ The only possibility to boost transaction score is a \emph{fee attack}, which is
 
 \subsection{Nothing at Stake Attack}
 
-A general criticism of PoS consensus is the \emph{nothing at stake} attack.
+A general criticism of PoS consensus is the \emph{nothing at stake attack}\footnote{See additional discussion in \nemref{sec:finalization}.}.
 This attack theoretically exists when the opportunity cost of creating a block is negligible.
 There are two variations of this attack.
 

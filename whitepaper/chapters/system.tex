@@ -119,11 +119,20 @@ The contents of the data directory are as follows:
 \begin{enumerate}
 	\item{Block Versioned Directories -
 		These directories contain block information in a proprietary format.
-		Each confirmed block's binary data, transactions and associated data are stored in these directories.
+		Each confirmed block's binary data, transactions and associated data are stored in these directories in files with \filepath{.dat} and \filepath{.stmt} extensions.
 		The statements \nemrefparens{sec:blocks:receipts} generated when processing each block are also stored here for quick access.
 		An example of a versioned directory is \filepath{00000}, which contains the first group of blocks.
+		\filepath{hashes.dat} contains a mapping of block heights to block hashes.
+
+		When deterministic finalization is enabled, these directories will also contain versioned \filepath{.proof} files that contain proof information for each finalization epoch.
 	}
 	\item{\filepath{audit} - Audit files created by the audit consumer \nemrefparens{sec:disruptor:commonConsumers} are stored in this directory.}
+	\item{\filepath{importance} -
+		Versioned files that contain information about important accounts at each importance recalculation point.
+		Using files in this directory, the set of important accounts can be reconstituted at any importance recalculation point.
+		These files enable deep rollbacks that require undoing multiple importance calculations.
+		This directory is only created when deterministic finalization is enabled.
+	}
 	\item{\filepath{logs} -
 		Versioned log files created when file based logging is enabled are stored in this directory.
 		Active log files associated with running processes are stored directly in the data directory.
@@ -148,6 +157,8 @@ The contents of the data directory are as follows:
 		This is primarily used for recovery purposes.
 	}
 	\item{\filepath{index.dat} - This is a counter that contains the number of blocks stored on disk.}
+	\item{\filepath{proof.index.dat} - This is a counter that contains the number of finalization proofs stored on disk.}
+	\item{\filepath{voting\_status.dat} - This stores information about the last finalization message sent by a node.}
 \end{enumerate}
 
 \subsubsection{Cache Database}
