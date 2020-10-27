@@ -373,8 +373,10 @@ In that scenario, $(e + 1, 0)$ will eventually dominate and $(e, p + 1)$ will no
 \subsection{Proofs}
 
 In order to minimize network traffic, non-voters do not send or receive individual prevote or precommit messages.
-Instead, these nodes pull and individually verify finalization proofs from the network at the end of every epoch.
-Upon verification, these nodes finalize the entire epoch at once.
+Instead, these nodes pull and individually verify finalization proofs from the network periodically based on \nemsetting{finalization}{unfinalizedBlocksDuration}.
+When this setting is zero, proofs are only pulled at the end of each epoch.
+When this setting is nonzero, proofs are optimistically pulled whenever the last finalized block is at least \nemsetting{finalization}{unfinalizedBlocksDuration} behind the last unfinalized block.
+Upon verification, these non-voting nodes finalize all epochs up to and including the proof epoch.
 
 \begin{figure}[H]
 	\nemcenterwithcaption{
