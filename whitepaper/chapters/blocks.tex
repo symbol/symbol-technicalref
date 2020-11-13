@@ -62,7 +62,17 @@ None of the unverifiable footer fields need to be verified.
 					\bitbox[br]{4}{} \bitbox{4}{Reserved}
 				\end{leftwordgroup} \\
 				\nemmemorymultiwordboxskipped{0x130}{Transactions}{}
-			}{Unverifiable footer}
+			}{Normal footer (unverifiable)}
+			\vspace{28pt}
+			\nemmemorylayout{
+				\begin{leftwordgroup}{\texttt{0x12C}}
+					\bitbox[br]{4}{} \bitbox{4}{\tiny{VotingEligible\\AccountsCount}}
+				\end{leftwordgroup} \\
+				\nemmemorysinglewordbox{0x130}{\tiny{HarvestingEligible\\AccountsCount}} \\
+				\nemmemorysinglewordbox{0x138}{TotalVotingBalance} \\
+				\nemmemorymultiwordboxskipped{0x140}{\tiny{PreviousImportanceBlockHash}}{} \\
+				\nemmemorymultiwordboxskipped{0x160}{Transactions}{}
+			}{Importance footer (verifiable except \field{Transactions})}
 		\end{subfigure}
 	}{Block header binary layout}
 \end{figure}
@@ -112,6 +122,29 @@ $$\mathfunc{effectiveFee}(T) = \structField{B}{FeeMultiplier} \cdot \mathfunc{si
 If the effective fee is greater than the transaction \field{MaxFee}, the transaction signer keeps the difference.
 Only the effective fee is deducted from the transaction signer and credited to the harvester.
 Further information about fee multipliers can be found in\nemref{sec:blockchain:generation}.
+
+\subsubsection{Importance Block Fields}
+
+Every block at which an importance calculation takes place contains an extended footer with additional verifiable information
+\footnote{\nemsetting{network}{votingSetGrouping} is expected to be a multiple of \nemsetting{network}{importanceGrouping}.}.
+This information reflects the global blockchain state after processing the block.
+
+\field{VotingEligibleAccountsCount} is the number of accounts eligible to vote in the finalization epoch covering the next importance group.
+This is an exact number and only includes accounts that satisfy all voting requirements.
+For example, accounts that do not have a voting key registered are excluded.
+
+\field{HarvestingEligibleAccountsCount} is the number of accounts with a balance of at least \nemsetting{network}{minHarvesterBalance}.
+This is an estimate and a maximum.
+The actual number of harvesting eligible accounts might be lower because harvesting ineligible accounts are not excluded.
+For example, accounts that do not have a VRF key registered are not excluded.
+
+\field{TotalVotingBalance} is the sum of the balance of all accounts eligible to vote in the finalization epoch covering the next importance group.
+This value allows the trustless verification of finalization proofs.
+It can be used as the authoritative denominator when calculating the percentage of voting stake accumulated by voters of a finalization proof.
+
+\field{PreviousImportanceBlockHash} is the hash of the previous importance block.
+This is a longer duration guarantee, relative to \field{PreviousBlockHash}, that all blocks within a blockchain are linked and deterministically ordered.
+It can be used to enable a trustless fast sync protocol, which only needs to download importance block headers instead of all block headers.
 
 \subsection{Receipts}
 \label{sec:blocks:receipts}
