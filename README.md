@@ -1,10 +1,10 @@
 # Symbol Whitepaper
 
-[![Build Status](https://travis-ci.com/nemtech/catapult-whitepaper.svg?branch=main)](https://travis-ci.com/nemtech/catapult-whitepaper)
+[![Build Status](https://travis-ci.com/symbol/symbol-technicalref.svg?branch=main)](https://travis-ci.com/symbol/symbol-technicalref)
 
 This repository holds Symbol's technology reference documentation for technical audiences.
 
-Find the latest version of the PDF at [https://nemtech.github.io/catapult-whitepaper/main.pdf](https://nemtech.github.io/catapult-whitepaper/main.pdf).
+Find the latest version of the PDF at [https://symbol.github.io/symbol-technicalref/main.pdf](https://symbol.github.io/symbol-technicalref/main.pdf).
 
 ## Reference
 
