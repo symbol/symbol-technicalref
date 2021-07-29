@@ -1,0 +1,17 @@
+[0] Config.pm:311> INFO - This is Biber 2.16
+[0] Config.pm:314> INFO - Logfile is '../_build/main.blg'
+[60] biber:340> INFO - === Thu Jul 29, 2021, 23:40:45
+[73] Biber.pm:415> INFO - Reading '../_build/main.bcf'
+[136] Biber.pm:952> INFO - Found 12 citekeys in bib section 0
+[148] Biber.pm:4340> INFO - Processing section 0
+[157] Biber.pm:4531> INFO - Looking for bibtex format file 'bibliography.bib' for section 0
+[158] bibtex.pm:1689> INFO - LaTeX decoding ...
+[171] bibtex.pm:1494> INFO - Found BibTeX data source '../_build/bibliography.bib'
+[259] Utils.pm:395> WARN - I didn't find a database entry for crossref 'DBLP:conf/ches/2011' in entry 'Bernstein2011' - ignoring (section 0)
+[278] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[278] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[278] Biber.pm:4168> INFO - Sorting list 'anyt/global//global/global' of type 'entry' with template 'anyt' and locale 'en-US'
+[278] Biber.pm:4174> INFO - No sort tailoring available for locale 'en-US'
+[291] bbl.pm:654> INFO - Writing '../_build/main.bbl' with encoding 'UTF-8'
+[296] bbl.pm:757> INFO - Output to ../_build/main.bbl
+[296] Biber.pm:128> INFO - WARNINGS: 1
