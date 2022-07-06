@@ -17,7 +17,7 @@ If you use Symbol whitepaper in your work, please cite:
   Howpublished         = {Web document},
   Month                = jan,
   Year                 = "2020",
-  URL                  = {https://nemtech.github.io/catapult-whitepaper/main.pdf}
+  URL                  = {https://symbol.github.io/symbol-technicalref/main.pdf}
 }
 ```
 
